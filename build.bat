@@ -5,7 +5,7 @@ REM copied from Cellular-automaton build file
 setlocal
 
 set SourceFiles=../main.c ../component.c
-set OutputName=project.exe
+set OutputName=MinimaLogic.exe
 
 pushd ..
 
