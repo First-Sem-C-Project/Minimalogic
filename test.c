@@ -2,67 +2,61 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define HOLY_NUMBER 32
+
 typedef struct _component{
-    bool output;
-    struct _component *inputA, *inputB;
+    bool outputs[HOLY_NUMBER];
     void (*value)(struct _component *);
+    struct _component *inputs[HOLY_NUMBER];
 }Component;
 
 void nand(Component * compo){
-    compo->inputA->value(compo->inputA);
-    compo->inputB->value(compo->inputB);
-    compo->output = !(compo->inputA->output && compo->inputB->output);
+    compo->inputs[0]->value(compo->inputs[0]);
+    compo->inputs[1]->value(compo->inputs[1]);
+    compo->outputs[0] = !(compo->inputs[0]->outputs[0] && compo->inputs[1]->outputs[0]);
 }
 
 void source(Component * compo){
-    /* compo -> output = true; */
+}
+
+void returnNull(Component * compo){
+    for(int i = 0; i < HOLY_NUMBER; i ++){
+        compo->outputs[i] = false;
+    } 
 }
 
 Component * nandGate(Component * sender1, Component * sender2){
     Component * component = (Component *)malloc(sizeof(Component));
-    component -> inputA = sender1;
-    component -> inputB = sender2;
+    component -> inputs[0] = sender1;
+    component -> inputs[1] = sender2;
     component -> value  = nand;
     return component;
 }
 
-Component * logicProbe(){
+Component * logicState(){
     Component * component = (Component *)malloc(sizeof(Component));
     component -> value  = source;
     return component;
 }
 
+Component * nullValue(){
+    Component * component = (Component *)malloc(sizeof(Component));
+    component -> value = returnNull;
+    return component;
+}
+
+Component * newComponent(Component * result, Component * inputs[HOLY_NUMBER]){
+    Component * component  = (Component *)malloc(sizeof(Component));
+    for (int i = 0; i < HOLY_NUMBER; i++){
+        component -> inputs[i]    = inputs[i];
+    }
+    component -> value = result ->value;
+    return component;
+}
+
 int main(){
-    Component * A = logicProbe();
-    Component * B = logicProbe();
-    Component * gate = nandGate(nandGate(A, A), nandGate(B, B));
-    A -> output = false;
-    B -> output = false;
-    gate->value(gate);
-    if (gate->output)
-        printf("true\n");
-    else
-        printf("false\n");
-    A -> output = true;
-    B -> output = false;
-    gate->value(gate);
-    if (gate->output)
-        printf("true\n");
-    else
-        printf("false\n");
-    A -> output = false;
-    B -> output = true;
-    gate->value(gate);
-    if (gate->output)
-        printf("true\n");
-    else
-        printf("false\n");
-    A -> output = true;
-    B -> output = true;
-    gate->value(gate);
-    if (gate->output)
-        printf("true\n");
-    else
-        printf("false\n");
-    return 0;
+    Component * A = logicState(); 
+    Component * B = logicState(); 
+    Component * bruh = nandGate(nandGate(A, B), nandGate(A, B));
+    Component * list[HOLY_NUMBER];
 }
