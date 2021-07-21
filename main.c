@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
-#include <stdbool.h>
 
 #include "colors.h"
+#include "component.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -16,15 +16,15 @@ SDL_Renderer* renderer = NULL;
 
 #define MENU_WIDTH_MIN 200
 
+Component * ComponentList[256];
+
 void init(){
-    bool ok = true;
-    if(SDL_Init(SDL_INIT_VIDEO) >= 0){
-        window = SDL_CreateWindow("Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        ok = renderer && window;
-    }
-    if (!ok)
-        exit(0);
+    if(SDL_Init(SDL_INIT_VIDEO) < 0)
+        exit(-1);
+    window = SDL_CreateWindow("Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!(window && renderer))
+        exit (-2);
 }
 
 void close(){

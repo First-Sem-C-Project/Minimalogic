@@ -4,7 +4,7 @@ REM copied from Cellular-automaton build file
 
 setlocal
 
-set SourceFiles=../main.c
+set SourceFiles=../main.c ../component.c
 set OutputName=project.exe
 
 pushd ..
