@@ -10,11 +10,11 @@ SDL_Renderer* renderer = NULL;
 #define WINDOW_WIDTH  500
 #define WINDOW_HEIGHT 500
 
-#define CELL_SIZE 20
+#define CELL_SIZE 25
 #define GRID_WIDTH  900
 #define GRID_HEIGHT 700
 #define GRID_ROW (GRID_WIDTH / CELL_SIZE)
-#define GRID_COL (GRID_HEIGHT / CELL_SIZE) 
+#define GRID_COL (GRID_HEIGHT / CELL_SIZE - 2)
 
 #define MENU_WIDTH 200
 
@@ -50,8 +50,8 @@ void DrawGrid(){
     SDL_Rect square = {.w = CELL_SIZE - 1, .h = CELL_SIZE - 1};
 
     SDL_SetRenderDrawColor(renderer, BG1);
-    for (int i = 0; i < GRID_WIDTH / CELL_SIZE; i ++){
-        for (int j = 0; j < GRID_HEIGHT / CELL_SIZE; j ++){
+    for (int i = 0; i < GRID_ROW; i ++){
+        for (int j = 0; j < GRID_COL; j ++){
             square.x = i * CELL_SIZE + MENU_WIDTH;
             square.y = j * CELL_SIZE;
             SDL_RenderFillRect(renderer, &square);
@@ -59,14 +59,28 @@ void DrawGrid(){
     }
 }
 
-void InsertComponent(int* grid, Selection selected){
-    ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos);
-    for(int x = 0; x < 4; x ++){
-        for(int y = 0; y < selected.size; y ++){
-            cell(selected.pos.x + x, selected.pos.y + y) = componentCount;
+bool PositionIsValid(int * grid, int size, Pair pos){
+    if (pos.x + 4 > GRID_ROW || pos.y + size > GRID_COL )
+        return false;
+    for(int y = pos.y; y < pos.y + size; y ++){
+        for(int x = pos.x; x < pos.x + 4; x ++){
+            if (cell(y, x) != -1)
+                return false;
         }
     }
-    componentCount ++;
+    return true;
+}
+
+void InsertComponent(int* grid, Selection selected){
+    if (!PositionIsValid(grid, selected.size, selected.pos))
+        return;
+    ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos);
+    for(int y = selected.pos.y; y < selected.pos.y + selected.size; y ++){
+        for(int x = selected.pos.x; x < selected.pos.x + 4; x ++){
+            cell(y, x) = componentCount;
+        }
+    }
+   componentCount ++;
 }
 
 void DrawComponent(){
@@ -78,6 +92,14 @@ void DrawComponent(){
         compo.y = ComponentList[i]->start.y * CELL_SIZE;
         SDL_SetRenderDrawColor(renderer, ComponentList[i]->color.r, ComponentList[i]->color.g, ComponentList[i]->color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
+    }
+}
+
+void InitGrid(int * grid){
+    for (int y = 0; y < GRID_COL; y ++){
+        for (int x = 0; x < GRID_ROW; x ++){
+            cell(y, x) = -1;
+        }
     }
 }
 
@@ -96,6 +118,8 @@ int main(int argc, char** args){
     SDL_Rect highlight;
     highlight.w = CELL_SIZE + 1;
     highlight.h = CELL_SIZE + 1;
+
+    InitGrid(grid);
 
     SDL_Event e;
     while(1){

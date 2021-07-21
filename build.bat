@@ -9,20 +9,6 @@ set OutputName=MinimaLogic.exe
 
 pushd ..
 
-set CLFlags=-Od
-set CLANGFlags=-g -gcodeview
-set GCCFlags=-O
-
-if "%1" neq "optimize" goto DoneConfig
-set CLFlags=-O2
-set CLANGFlags=-O2 -gcodeview
-set GCCFlags=-O2
-
-echo -------------------------------------
-echo Optimize Build configured
-echo -------------------------------------
-:DoneConfig
-
 if not exist "Libraries" mkdir Libraries
 if exist "Libraries/SDL2" goto SkipDownloadSDL
 
