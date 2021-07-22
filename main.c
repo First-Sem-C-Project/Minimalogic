@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
 
-#include "colors.h"
 #include "component.h"
 
 SDL_Window* window = NULL;
@@ -15,6 +14,8 @@ SDL_Renderer* renderer = NULL;
 #define GRID_HEIGHT 700
 #define GRID_ROW (GRID_WIDTH / CELL_SIZE)
 #define GRID_COL (GRID_HEIGHT / CELL_SIZE - 2)
+
+#define MAX_PTS 200
 
 #define MENU_WIDTH 200
 
@@ -33,7 +34,7 @@ typedef struct{
 void init(){
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
         exit(-1);
-    window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("MinimaLogic", 0, 50, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!(window && renderer))
         exit (-2);
@@ -49,7 +50,7 @@ void close(){
 void DrawGrid(){
     SDL_Rect square = {.w = CELL_SIZE - 1, .h = CELL_SIZE - 1};
 
-    SDL_SetRenderDrawColor(renderer, BG1);
+    SDL_SetRenderDrawColor(renderer, 76, 86, 106, 255);
     for (int i = 0; i < GRID_ROW; i ++){
         for (int j = 0; j < GRID_COL; j ++){
             square.x = i * CELL_SIZE + MENU_WIDTH;
@@ -141,14 +142,14 @@ int main(int argc, char** args){
             }
         }
 
-        SDL_SetRenderDrawColor(renderer, BG);
+        SDL_SetRenderDrawColor(renderer, 46, 52, 64, 255);
         SDL_RenderClear(renderer);
 
         DrawGrid();
         DrawComponent();
 
         if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
-            SDL_SetRenderDrawColor(renderer, BLUE, 255);
+            SDL_SetRenderDrawColor(renderer, 94, 129, 172, 255);
             highlight.x = gridPos.x * CELL_SIZE + MENU_WIDTH - 1;
             highlight.y = gridPos.y * CELL_SIZE - 1;
             SDL_RenderDrawRect(renderer, &highlight);
