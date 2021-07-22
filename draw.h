@@ -2,6 +2,7 @@ SDL_Texture* FontTexture(SDL_Renderer *renderer, const char* message){
     TTF_Font* sans = TTF_OpenFont("fonts/sans.ttf", 50);
     if(sans == NULL){
         printf("Failed to load the font: %s\n", TTF_GetError());
+        return NULL;
     }
     else{
         SDL_Surface* textSurface = NULL;

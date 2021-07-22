@@ -23,38 +23,13 @@ Component * GetComponent(Type type, char inpNum, Pair pos){
         case probe:
             return MakeProbe(pos, type);
         case clock:
-<<<<<<< HEAD
-            return MakeClock(pos);
-        case g_not:
-            return MakeNot(pos);
-=======
             return MakeClock(pos, type);
->>>>>>> fontRendering
         default:
             return MultiInputComponent(type, inpNum, pos);
     }
 }
 
-<<<<<<< HEAD
-Component * MakeNot(Pair pos){
-    Component * component = (Component *) malloc(sizeof(Component));
-    component->size  = 1;
-    component->width = 3;
-    component->start.x = pos.x;
-    component->start.y = pos.y;
-    component->inputs  = (bool *) malloc(sizeof(bool));
-    component->inpSrc  = (char *) malloc(sizeof(char));
-    component->operate = notGate;
-    component->color.r = 100;
-    component->color.g = 100;
-    component->color.b = 100;
-    return component;
-}
-
-Component * MakeState(Pair pos){
-=======
 Component * MakeState(Pair pos, Type type){
->>>>>>> fontRendering
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
     component->width = 1;

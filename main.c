@@ -3,6 +3,7 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "component.h"
+#include "colors.h"
 #include "draw.h"
 
 SDL_Window* window = NULL;
