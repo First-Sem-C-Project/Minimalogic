@@ -114,7 +114,7 @@ int main(int argc, char** args){
     SDL_SetWindowMinimumSize(window, GRID_WIDTH + 2 * MENU_WIDTH, GRID_HEIGHT);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    Selection selectedComponent = {.type = g_and, .size = 2};
+    Selection selectedComponent = {.type = g_and, .size = 5};
 
     int x, y;
     int grid[GRID_ROW * GRID_COL];
