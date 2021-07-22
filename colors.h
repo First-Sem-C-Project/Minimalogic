@@ -7,10 +7,5 @@
 #define GREEN 163,190,140
 #define PURPLE 180,142,173
 #define BLUE 94,129,172 
-
-#define INSERT ORANGE, 255
-#define DELETE RED, 255
-#define WIRING BLUE, 255
-#define RUNNING GREEN, 255
-#define NORMAL YELLOW, 255
-
+#define WHITE 255,255,255
+#define BLACK 0,0,0
