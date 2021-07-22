@@ -11,7 +11,7 @@ typedef enum {state, probe, clock, g_and, g_or, g_nand, g_nor, g_xor, g_xnor} Ty
 
 typedef struct _component{
     Pair start;
-    char size, *inpSrc;
+    char size, width, *inpSrc;
     bool *inputs, output;
     Type type;
     Color color;

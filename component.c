@@ -24,6 +24,7 @@ Component * GetComponent(Type type, char inpNum, Pair pos){
 Component * MakeState(Pair pos){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
+    component->width = 1;
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->operate = ToggleState;
@@ -39,6 +40,7 @@ Component * MakeProbe(Pair pos){
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->size    = 1;
+    component->width = 1;
     component->inputs  = (bool *) malloc(sizeof(bool));
     component->inpSrc  = (char *) malloc(sizeof(char));
     component->operate = ToggleProbe;
@@ -52,6 +54,7 @@ Component * MakeProbe(Pair pos){
 Component * MakeClock(Pair pos){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
+    component->width = 1;
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->operate = Tick;
@@ -67,6 +70,7 @@ Component * MultiInputComponent(Type type, int inpNum, Pair pos){
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->size    = inpNum;
+    component->width = 4;
     component->inputs  = (bool *) malloc(sizeof(bool) * inpNum);
     component->inpSrc  = (char *) malloc(sizeof(char) * inpNum);
     component->type = type;
