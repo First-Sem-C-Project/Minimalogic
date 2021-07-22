@@ -127,7 +127,6 @@ int main(int argc, char** args){
 
     SDL_Event e;
     while(1){
-        printf("%llu\n", sizeof(ComponentList));
         SDL_GetMouseState(&x, &y);
         gridPos.x = (x - MENU_WIDTH) / CELL_SIZE;
         gridPos.y = y / CELL_SIZE;
