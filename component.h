@@ -20,9 +20,9 @@ typedef struct _component{
 Component * GetComponent(Type, char, Pair);
 int GetWidth(Type);
 
-Component * MakeState(Pair, Type);
-Component * MakeProbe(Pair, Type);
-Component * MakeClock(Pair, Type);
+Component * MakeState(Pair);
+Component * MakeProbe(Pair);
+Component * MakeClock(Pair);
 Component * MultiInputComponent(Type, int, Pair);
 
 void andGate(Component * component);

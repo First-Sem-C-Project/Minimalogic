@@ -19,17 +19,17 @@ int GetWidth(Type type){
 Component * GetComponent(Type type, char inpNum, Pair pos){
     switch (type){
         case state:
-            return MakeState(pos, type);
+            return MakeState(pos);
         case probe:
-            return MakeProbe(pos, type);
+            return MakeProbe(pos);
         case clock:
-            return MakeClock(pos, type);
+            return MakeClock(pos);
         default:
             return MultiInputComponent(type, inpNum, pos);
     }
 }
 
-Component * MakeState(Pair pos, Type type){
+Component * MakeState(Pair pos){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
     component->width = 1;
@@ -39,11 +39,11 @@ Component * MakeState(Pair pos, Type type){
     component->color.r = 100;
     component->color.g = 100;
     component->color.b = 100;
-    component->type = type;
+    component->type = state;
     return component;
 }
 
-Component * MakeProbe(Pair pos, Type type){
+Component * MakeProbe(Pair pos){
     Component * component = (Component *) malloc(sizeof(Component));
     component->start.x = pos.x;
     component->start.y = pos.y;
@@ -55,11 +55,11 @@ Component * MakeProbe(Pair pos, Type type){
     component->color.r = 100;
     component->color.g = 100;
     component->color.b = 100;
-    component->type = type;
+    component->type = probe;
     return component;
 }
 
-Component * MakeClock(Pair pos, Type type){
+Component * MakeClock(Pair pos){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
     component->width = 1;
@@ -69,7 +69,7 @@ Component * MakeClock(Pair pos, Type type){
     component->color.r = 80;
     component->color.g = 80;
     component->color.b = 0;
-    component->type = type;
+    component->type = clock;
     return component;
 }
 

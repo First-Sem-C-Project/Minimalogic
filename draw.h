@@ -42,8 +42,10 @@ void RenderGateText(SDL_Renderer *renderer, SDL_Rect compo, Type type){
         case(g_xor):
             SDL_RenderCopy(renderer, FontTexture(renderer, "XOR"), NULL, &textRect);            
             break;
-        default:
+        case(g_xnor):
             SDL_RenderCopy(renderer, FontTexture(renderer, "XNOR"), NULL, &textRect);            
+            break;
+        default:
             break;
     }
 }
