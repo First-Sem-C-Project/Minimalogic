@@ -60,11 +60,11 @@ void DrawGrid(){
     }
 }
 
-bool PositionIsValid(int * grid, int size, Pair pos){
-    if (pos.x + 4 > GRID_ROW || pos.y + size > GRID_COL )
+bool PositionIsValid(int * grid, int size, int width, Pair pos){
+    if (pos.x + width > GRID_ROW || pos.y + size > GRID_COL )
         return false;
     for(int y = pos.y; y < pos.y + size; y ++){
-        for(int x = pos.x; x < pos.x + 4; x ++){
+        for(int x = pos.x; x < pos.x + width; x ++){
             if (cell(y, x) != -1)
                 return false;
         }
@@ -73,11 +73,12 @@ bool PositionIsValid(int * grid, int size, Pair pos){
 }
 
 void InsertComponent(int* grid, Selection selected){
-    if (!PositionIsValid(grid, selected.size, selected.pos))
+    int width = GetWidth(selected.type);
+    if (!PositionIsValid(grid, selected.size, width, selected.pos))
         return;
     ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos);
     for(int y = selected.pos.y; y < selected.pos.y + selected.size; y ++){
-        for(int x = selected.pos.x; x < selected.pos.x + 4; x ++){
+        for(int x = selected.pos.x; x < selected.pos.x + width; x ++){
             cell(y, x) = componentCount;
         }
     }
@@ -87,12 +88,18 @@ void InsertComponent(int* grid, Selection selected){
 void DrawComponent(){
     SDL_Rect compo;
     for(int i = 0; i < componentCount; i ++){
-        compo.w = 4 * CELL_SIZE - 1;
-        compo.h = ComponentList[i]->size * CELL_SIZE - 1;
+        compo.w = ComponentList[i]->width * CELL_SIZE - 1;
+        compo.h = ComponentList[i]->size  * CELL_SIZE - 1;
         compo.x = ComponentList[i]->start.x * CELL_SIZE + MENU_WIDTH;
         compo.y = ComponentList[i]->start.y * CELL_SIZE;
         SDL_SetRenderDrawColor(renderer, ComponentList[i]->color.r, ComponentList[i]->color.g, ComponentList[i]->color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
+    }
+}
+
+void UpdateComponent(){
+    for(int i = 0; i < componentCount; i ++){
+        ComponentList[i]->operate(ComponentList[i]);
     }
 }
 
@@ -111,7 +118,7 @@ int main(int argc, char** args){
     SDL_SetWindowMinimumSize(window, GRID_WIDTH + 2 * MENU_WIDTH, GRID_HEIGHT);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    Selection selectedComponent = {.type = g_and, .size = 2};
+    Selection selectedComponent = {.type = clock, .size = 2};
 
     int x, y;
     int grid[GRID_ROW * GRID_COL];
@@ -145,6 +152,7 @@ int main(int argc, char** args){
         SDL_SetRenderDrawColor(renderer, 46, 52, 64, 255);
         SDL_RenderClear(renderer);
 
+        UpdateComponent();
         DrawGrid();
         DrawComponent();
 
