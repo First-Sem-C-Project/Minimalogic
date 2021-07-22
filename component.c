@@ -30,6 +30,7 @@ Component * MakeState(Pair pos){
     component->color.r = 100;
     component->color.g = 100;
     component->color.b = 100;
+    component->type = state;
     return component;
 }
 
@@ -44,6 +45,7 @@ Component * MakeProbe(Pair pos){
     component->color.r = 100;
     component->color.g = 100;
     component->color.b = 100;
+    component->type = probe;
     return component;
 }
 
@@ -56,6 +58,7 @@ Component * MakeClock(Pair pos){
     component->color.r = 80;
     component->color.g = 80;
     component->color.b = 0;
+    component->type = clock;
     return component;
 }
 
@@ -66,6 +69,7 @@ Component * MultiInputComponent(Type type, int inpNum, Pair pos){
     component->size    = inpNum;
     component->inputs  = (bool *) malloc(sizeof(bool) * inpNum);
     component->inpSrc  = (char *) malloc(sizeof(char) * inpNum);
+    component->type = type;
     switch (type){
         case(g_and):
             component->operate = andGate; 
