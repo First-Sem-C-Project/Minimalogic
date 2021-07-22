@@ -164,7 +164,7 @@ int main(int argc, char** args){
         }
 
         time += 10;
-        time %= 1000; 
+        time %= 500; 
         SDL_Delay(10);
         SDL_RenderPresent(renderer);
     }
