@@ -8,6 +8,14 @@ extern int time;
 // Inplement toggling logic states
 // get better colors (maybe)
 
+int GetWidth(Type type){
+    if (type <= clock)
+        return 1;
+    if (type < g_not)
+        return 4;
+    return 3;
+}
+
 Component * GetComponent(Type type, char inpNum, Pair pos){
     switch (type){
         case state:
@@ -24,6 +32,7 @@ Component * GetComponent(Type type, char inpNum, Pair pos){
 Component * MakeState(Pair pos, Type type){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
+    component->width = 1;
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->operate = ToggleState;
@@ -39,6 +48,7 @@ Component * MakeProbe(Pair pos, Type type){
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->size    = 1;
+    component->width   = 1;
     component->inputs  = (bool *) malloc(sizeof(bool));
     component->inpSrc  = (char *) malloc(sizeof(char));
     component->operate = ToggleProbe;
@@ -52,6 +62,7 @@ Component * MakeProbe(Pair pos, Type type){
 Component * MakeClock(Pair pos, Type type){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
+    component->width = 1;
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->operate = Tick;
@@ -67,6 +78,7 @@ Component * MultiInputComponent(Type type, int inpNum, Pair pos){
     component->start.x = pos.x;
     component->start.y = pos.y;
     component->size    = inpNum;
+    component->width   = 4;
     component->inputs  = (bool *) malloc(sizeof(bool) * inpNum);
     component->inpSrc  = (char *) malloc(sizeof(char) * inpNum);
     component->type = type;
@@ -167,6 +179,11 @@ void xnorGate(Component * component){
     for (int i = 1; i < component->size; i ++){
         component->output = (!component->output && !component->inputs[i])||(component->output && component->inputs[i]);
     }
+}
+
+void notGate(Component * component){
+    SetInputs(component);
+    component->output = !component->inputs[0];
 }
 
 void FlipColor(Component * component){
