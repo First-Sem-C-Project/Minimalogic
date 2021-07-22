@@ -11,19 +11,19 @@ typedef enum {state, probe, clock, g_and, g_or, g_nand, g_nor, g_xor, g_xnor} Ty
 
 typedef struct _component{
     Pair start;
-    char size, width, *inpSrc;
-    bool *inputs, output;
+    char size, width, inpSrc[5];
+    bool inputs[5], output;
     Type type;
     Color color;
     void(*operate)(struct _component*);
 } Component;
 
-Component * GetComponent(Type, char, Pair);
+Component GetComponent(Type, char, Pair);
 
-Component * MakeState(Pair);
-Component * MakeProbe(Pair);
-Component * MakeClock(Pair);
-Component * MultiInputComponent(Type, int, Pair);
+Component MakeState(Pair);
+Component MakeProbe(Pair);
+Component MakeClock(Pair);
+Component MultiInputComponent(Type, int, Pair);
 
 void andGate(Component * component);
 void orGate(Component * component);

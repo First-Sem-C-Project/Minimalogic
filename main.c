@@ -4,7 +4,7 @@
 
 #include "colors.h"
 #include "component.h"
-#include "draw.h"
+/* #include "draw.h" */
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -22,7 +22,7 @@ SDL_Renderer* renderer = NULL;
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 
-Component * ComponentList[256];
+Component ComponentList[256];
 unsigned char componentCount;
 int time = 0;
 
@@ -86,16 +86,15 @@ void InsertComponent(int* grid, Selection selected){
    componentCount ++;
 }
 
-void DrawComponent(){
-    SDL_Rect compo;
+void DrawComponent(SDL_Rect * compo){
     for(int i = 0; i < componentCount; i ++){
-        compo.w = 4 * CELL_SIZE - 1;
-        compo.h = ComponentList[i]->size * CELL_SIZE - 1;
-        compo.x = ComponentList[i]->start.x * CELL_SIZE + MENU_WIDTH;
-        compo.y = ComponentList[i]->start.y * CELL_SIZE;
-        SDL_SetRenderDrawColor(renderer, ComponentList[i]->color.r, ComponentList[i]->color.g, ComponentList[i]->color.b, 255);
-        SDL_RenderFillRect(renderer, &compo);
-        RenderGateText(renderer, compo, ComponentList[i]->type);
+        compo->w = 4 * CELL_SIZE - 1;
+        compo->h = ComponentList[i].size * CELL_SIZE - 1;
+        compo->x = ComponentList[i].start.x * CELL_SIZE + MENU_WIDTH;
+        compo->y = ComponentList[i].start.y * CELL_SIZE;
+        SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
+        SDL_RenderFillRect(renderer, compo);
+        /* RenderGateText(renderer, *compo, ComponentList[i].type); */
     }
 }
 
@@ -122,12 +121,13 @@ int main(int argc, char** args){
     SDL_Rect highlight;
     highlight.w = CELL_SIZE + 1;
     highlight.h = CELL_SIZE + 1;
+    SDL_Rect compo;
 
     InitGrid(grid);
 
     SDL_Event e;
     while(1){
-
+        printf("%llu\n", sizeof(ComponentList));
         SDL_GetMouseState(&x, &y);
         gridPos.x = (x - MENU_WIDTH) / CELL_SIZE;
         gridPos.y = y / CELL_SIZE;
@@ -137,10 +137,11 @@ int main(int argc, char** args){
                 case (SDL_QUIT):
                     close();
                 case(SDL_MOUSEBUTTONDOWN):
-                if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
-                    selectedComponent.pos = gridPos;
-                    InsertComponent(grid, selectedComponent);
-                }
+                    if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
+                        selectedComponent.pos = gridPos;
+                        InsertComponent(grid, selectedComponent);
+                    }
+                    break;
                 default: break;
             }
         }
@@ -148,8 +149,8 @@ int main(int argc, char** args){
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_RenderClear(renderer);
 
-        DrawGrid();
-        DrawComponent();
+        /* DrawGrid(); */
+        DrawComponent(&compo);
 
         if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
             SDL_SetRenderDrawColor(renderer, BLUE, 255);

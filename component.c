@@ -8,7 +8,7 @@ extern int time;
 // Inplement toggling logic states
 // get better colors (maybe)
 
-Component * GetComponent(Type type, char inpNum, Pair pos){
+Component GetComponent(Type type, char inpNum, Pair pos){
     switch (type){
         case state:
             return MakeState(pos);
@@ -21,96 +21,91 @@ Component * GetComponent(Type type, char inpNum, Pair pos){
     }
 }
 
-Component * MakeState(Pair pos){
-    Component * component = (Component *) malloc(sizeof(Component));
-    component->size = 1;
-    component->width = 1;
-    component->start.x = pos.x;
-    component->start.y = pos.y;
-    component->operate = ToggleState;
-    component->color.r = 100;
-    component->color.g = 100;
-    component->color.b = 100;
-    component->type = state;
+Component MakeState(Pair pos){
+    Component component;
+    component.size  = 1;
+    component.width = 1;
+    component.start.x = pos.x;
+    component.start.y = pos.y;
+    /* component.operate = ToggleState; */
+    component.color.r = 100;
+    component.color.g = 100;
+    component.color.b = 100;
+    component.type = state;
     return component;
 }
 
-Component * MakeProbe(Pair pos){
-    Component * component = (Component *) malloc(sizeof(Component));
-    component->start.x = pos.x;
-    component->start.y = pos.y;
-    component->size    = 1;
-    component->width = 1;
-    component->inputs  = (bool *) malloc(sizeof(bool));
-    component->inpSrc  = (char *) malloc(sizeof(char));
-    component->operate = ToggleProbe;
-    component->color.r = 100;
-    component->color.g = 100;
-    component->color.b = 100;
-    component->type = probe;
+Component MakeProbe(Pair pos){
+    Component component;
+    component.start.x = pos.x;
+    component.start.y = pos.y;
+    component.size    = 1;
+    component.width = 1;
+    /* component.operate = ToggleProbe; */
+    component.color.r = 100;
+    component.color.g = 100;
+    component.color.b = 100;
+    component.type = probe;
     return component;
 }
 
-Component * MakeClock(Pair pos){
-    Component * component = (Component *) malloc(sizeof(Component));
-    component->size = 1;
-    component->width = 1;
-    component->start.x = pos.x;
-    component->start.y = pos.y;
-    component->operate = Tick;
-    component->color.r = 80;
-    component->color.g = 80;
-    component->color.b = 0;
-    component->type = clock;
+Component MakeClock(Pair pos){
+    Component component;
+    component.size = 1;
+    component.width = 1;
+    component.start.x = pos.x;
+    component.start.y = pos.y;
+    /* component.operate = Tick; */
+    component.color.r = 80;
+    component.color.g = 80;
+    component.color.b = 0;
+    component.type = clock;
     return component;
 }
 
-Component * MultiInputComponent(Type type, int inpNum, Pair pos){
-    Component * component = (Component *) malloc(sizeof(Component));
-    component->start.x = pos.x;
-    component->start.y = pos.y;
-    component->size    = inpNum;
-    component->width = 4;
-    component->inputs  = (bool *) malloc(sizeof(bool) * inpNum);
-    component->inpSrc  = (char *) malloc(sizeof(char) * inpNum);
-    component->type = type;
+Component MultiInputComponent(Type type, int inpNum, Pair pos){
+    Component component;
+    component.start.x = pos.x;
+    component.start.y = pos.y;
+    component.size    = inpNum;
+    component.width = 4;
+    component.type = type;
     switch (type){
         case(g_and):
-            component->operate = andGate; 
-            component->color.r = 150;
-            component->color.g = 0;
-            component->color.b = 0;
+            /* component.operate = andGate;  */
+            component.color.r = 150;
+            component.color.g = 0;
+            component.color.b = 0;
             break;
         case(g_or):
-            component->operate  = orGate; 
-            component->color.r = 0;
-            component->color.g = 150;
-            component->color.b = 0;
+            /* component->operate  = orGate;  */
+            component.color.r = 0;
+            component.color.g = 150;
+            component.color.b = 0;
             break;
         case(g_nand):
-            component->operate  = nandGate; 
-            component->color.r = 0;
-            component->color.g = 150;
-            component->color.b = 150;
+            /* component->operate  = nandGate;  */
+            component.color.r = 0;
+            component.color.g = 150;
+            component.color.b = 150;
             break;
         case(g_nor):
-            component->operate  = norGate; 
-            component->color.r = 150;
-            component->color.g = 0;
-            component->color.b = 150;
+            /* component->operate  = norGate;  */
+            component.color.r = 150;
+            component.color.g = 0;
+            component.color.b = 150;
             break;
         case(g_xor):
-            component->operate  = xorGate; 
-            component->color.r = 0;
-            component->color.g = 0;
-            component->color.b = 150;
+            /* component->operate  = xorGate;  */
+            component.color.r = 0;
+            component.color.g = 0;
+            component.color.b = 150;
             break;
         default:
-            component->operate  = xnorGate; 
-            component->color.r = 150;
-            component->color.g = 150;
-            component->color.b = 0;
-            break;
+            /* component->operate  = xnorGate;  */
+            component.color.r = 150;
+            component.color.g = 150;
+            component.color.b = 0;
             break;
     }
     return component;
