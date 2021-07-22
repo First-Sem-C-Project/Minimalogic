@@ -148,7 +148,7 @@ int main(int argc, char** args){
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_RenderClear(renderer);
 
-        /* DrawGrid(); */
+        DrawGrid();
         DrawComponent(&compo);
 
         if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
