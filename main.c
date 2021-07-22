@@ -1,7 +1,9 @@
 #include <stdio.h>
-#include "../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
+#include "SDL2/SDL.h"
+#include <SDL2/SDL_ttf.h>
 
 #include "component.h"
+#include "draw.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -36,6 +38,7 @@ void init(){
         exit(-1);
     window = SDL_CreateWindow("MinimaLogic", 0, 50, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    TTF_Init();
     if (!(window && renderer))
         exit (-2);
 }
@@ -94,6 +97,7 @@ void DrawComponent(){
         compo.y = ComponentList[i]->start.y * CELL_SIZE;
         SDL_SetRenderDrawColor(renderer, ComponentList[i]->color.r, ComponentList[i]->color.g, ComponentList[i]->color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
+        RenderGateText(renderer, compo, ComponentList[i]->type);
     }
 }
 
