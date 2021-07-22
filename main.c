@@ -4,6 +4,7 @@
 
 #include "colors.h"
 #include "component.h"
+#include "draw.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -73,55 +74,6 @@ bool PositionIsValid(int * grid, int size, Pair pos){
     return true;
 }
 
-SDL_Texture* FontTexture(const char* message){
-    TTF_Font* sans = TTF_OpenFont("fonts/sans.ttf", 50);
-    if(sans == NULL){
-        printf("Failed to load the font: %s\n", TTF_GetError());
-    }
-    else{
-        SDL_Surface* textSurface = NULL;
-        SDL_Texture* textTexture = NULL;
-        SDL_Color white = {WHITE, 200};
-        textSurface = TTF_RenderText_Solid(sans, message, white);
-
-        if(textSurface == NULL){
-            printf("Failed to load the surface\n");
-        }
-        else{
-            textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-            if(textTexture == NULL){
-                printf("Failed to load the texture: %s\n",SDL_GetError());
-            }
-            SDL_FreeSurface(textSurface);
-        }
-        return textTexture;
-    }
-}
-
-void RenderGateText(SDL_Rect compo, Type type){
-    SDL_Rect textRect = {compo.x+compo.w/4, compo.y+compo.h/4, compo.w/2, compo.h/2};
-    switch (type){
-        case(g_and):
-            SDL_RenderCopy(renderer, FontTexture("AND"), NULL, &textRect);
-            break;
-        case(g_or):
-            SDL_RenderCopy(renderer, FontTexture("OR"), NULL, &textRect);
-            break;
-        case(g_nand):
-            SDL_RenderCopy(renderer, FontTexture("NAND"), NULL, &textRect);            
-            break;
-        case(g_nor):
-            SDL_RenderCopy(renderer, FontTexture("NOR"), NULL, &textRect);           
-            break;
-        case(g_xor):
-            SDL_RenderCopy(renderer, FontTexture("XOR"), NULL, &textRect);            
-            break;
-        default:
-            SDL_RenderCopy(renderer, FontTexture("XNOR"), NULL, &textRect);            
-            break;
-    }
-}
-
 void InsertComponent(int* grid, Selection selected){
     if (!PositionIsValid(grid, selected.size, selected.pos))
         return;
@@ -143,7 +95,7 @@ void DrawComponent(){
         compo.y = ComponentList[i]->start.y * CELL_SIZE;
         SDL_SetRenderDrawColor(renderer, ComponentList[i]->color.r, ComponentList[i]->color.g, ComponentList[i]->color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
-        RenderGateText(compo, ComponentList[i]->type);
+        RenderGateText(renderer, compo, ComponentList[i]->type);
     }
 }
 
