@@ -7,3 +7,5 @@
 #define GREEN 163,190,140
 #define PURPLE 180,142,173
 #define BLUE 94,129,172 
+#define WHITE 255,255,255
+#define BLACK 0,0,0

@@ -11,17 +11,17 @@ extern int time;
 Component * GetComponent(Type type, char inpNum, Pair pos){
     switch (type){
         case state:
-            return MakeState(pos);
+            return MakeState(pos, type);
         case probe:
-            return MakeProbe(pos);
+            return MakeProbe(pos, type);
         case clock:
-            return MakeClock(pos);
+            return MakeClock(pos, type);
         default:
             return MultiInputComponent(type, inpNum, pos);
     }
 }
 
-Component * MakeState(Pair pos){
+Component * MakeState(Pair pos, Type type){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
     component->start.x = pos.x;
@@ -30,10 +30,11 @@ Component * MakeState(Pair pos){
     component->color.r = 100;
     component->color.g = 100;
     component->color.b = 100;
+    component->type = type;
     return component;
 }
 
-Component * MakeProbe(Pair pos){
+Component * MakeProbe(Pair pos, Type type){
     Component * component = (Component *) malloc(sizeof(Component));
     component->start.x = pos.x;
     component->start.y = pos.y;
@@ -44,10 +45,11 @@ Component * MakeProbe(Pair pos){
     component->color.r = 100;
     component->color.g = 100;
     component->color.b = 100;
+    component->type = type;
     return component;
 }
 
-Component * MakeClock(Pair pos){
+Component * MakeClock(Pair pos, Type type){
     Component * component = (Component *) malloc(sizeof(Component));
     component->size = 1;
     component->start.x = pos.x;
@@ -56,6 +58,7 @@ Component * MakeClock(Pair pos){
     component->color.r = 80;
     component->color.g = 80;
     component->color.b = 0;
+    component->type = type;
     return component;
 }
 
@@ -66,6 +69,7 @@ Component * MultiInputComponent(Type type, int inpNum, Pair pos){
     component->size    = inpNum;
     component->inputs  = (bool *) malloc(sizeof(bool) * inpNum);
     component->inpSrc  = (char *) malloc(sizeof(char) * inpNum);
+    component->type = type;
     switch (type){
         case(g_and):
             component->operate = andGate; 
