@@ -135,6 +135,9 @@ int main(int argc, char** argv){
 
     InitGrid(grid);
 
+    bool simulating = false;
+    bool menuExpanded = false;
+
     SDL_Event e;
     while(1){
         SDL_GetMouseState(&x, &y);
@@ -150,6 +153,15 @@ int main(int argc, char** argv){
                         selectedComponent.pos = gridPos;
                         InsertComponent(grid, selectedComponent);
                     }
+                    else if(gridPos.x < 0){
+                        Button *clickedButton = clickedOn(x, y, menuExpanded);
+                        if(clickedButton == &RunButton)
+                            ToggleSimulation(&simulating);
+                        else if(clickedButton == &ComponentsButton)
+                            ToggleDropDown(&menuExpanded);
+                        else if(clickedButton == &Components[0] || clickedButton == &Components[1] || clickedButton == &Components[2] || clickedButton == &Components[3] || clickedButton == &Components[4] || clickedButton == &Components[5] || clickedButton == &Components[6] || clickedButton == &Components[7] || clickedButton == &Components[8])
+                            selectedComponent.type = SelectComponent(clickedButton);
+                    }
                     break;
                 default: break;
             }
@@ -157,6 +169,7 @@ int main(int argc, char** argv){
 
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_RenderClear(renderer);
+        DrawMenu(renderer, menuExpanded);
 
         DrawGrid();
         DrawComponent(&compo);
