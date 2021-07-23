@@ -52,23 +52,20 @@ void closeProgram(){
 }
 
 void DrawGrid(){
-    SDL_Rect square = {.w = CELL_SIZE - 1, .h = CELL_SIZE - 1};
-
     SDL_SetRenderDrawColor(renderer, BG1);
-    for (int i = 0; i < GRID_ROW; i ++){
-        for (int j = 0; j < GRID_COL; j ++){
-            square.x = i * CELL_SIZE + MENU_WIDTH;
-            square.y = j * CELL_SIZE;
-            SDL_RenderFillRect(renderer, &square);
-        }
+    for (int i = 0; i < GRID_ROW + 1; i ++){
+        SDL_RenderDrawLine(renderer, MENU_WIDTH + i * CELL_SIZE, 0, MENU_WIDTH + i * CELL_SIZE, GRID_HEIGHT - 2 * CELL_SIZE);
+    }
+    for (int i = 0; i < GRID_COL + 1; i ++){
+        SDL_RenderDrawLine(renderer, MENU_WIDTH, i * CELL_SIZE, MENU_WIDTH + GRID_WIDTH, i * CELL_SIZE);
     }
 }
 
-bool PositionIsValid(int * grid, int size, Pair pos){
-    if (pos.x + 4 > GRID_ROW || pos.y + size > GRID_COL )
+bool PositionIsValid(int * grid, int w, int h, Pair pos){
+    if (pos.x + w > GRID_ROW || pos.y + h > GRID_COL )
         return false;
-    for(int y = pos.y; y < pos.y + size; y ++){
-        for(int x = pos.x; x < pos.x + 4; x ++){
+    for(int y = pos.y; y < pos.y + h; y ++){
+        for(int x = pos.x; x < pos.x + w; x ++){
             if (cell(y, x) != -1)
                 return false;
         }
@@ -77,26 +74,29 @@ bool PositionIsValid(int * grid, int size, Pair pos){
 }
 
 void InsertComponent(int* grid, Selection selected){
-    if (!PositionIsValid(grid, selected.size, selected.pos))
+    int width, height;
+    GetWidthHeight(&width, &height, selected.type, selected.size);
+    if (!PositionIsValid(grid, width, height, selected.pos))
         return;
     ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos);
-    for(int y = selected.pos.y; y < selected.pos.y + selected.size; y ++){
-        for(int x = selected.pos.x; x < selected.pos.x + 4; x ++){
+    for(int y = selected.pos.y; y < selected.pos.y + height; y ++){
+        for(int x = selected.pos.x; x < selected.pos.x + width; x ++){
             cell(y, x) = componentCount;
         }
     }
    componentCount ++;
 }
 
-void DrawComponent(SDL_Rect * compo){
+void DrawComponent(){
+    SDL_Rect compo;
     for(int i = 0; i < componentCount; i ++){
-        compo->w = 4 * CELL_SIZE - 1;
-        compo->h = ComponentList[i].size * CELL_SIZE - 1;
-        compo->x = ComponentList[i].start.x * CELL_SIZE + MENU_WIDTH;
-        compo->y = ComponentList[i].start.y * CELL_SIZE;
+        compo.w = ComponentList[i].width * CELL_SIZE - 1;
+        compo.h = ComponentList[i].size * CELL_SIZE - 1;
+        compo.x = ComponentList[i].start.x * CELL_SIZE + MENU_WIDTH + 1;
+        compo.y = ComponentList[i].start.y * CELL_SIZE + 1;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
-        SDL_RenderFillRect(renderer, compo);
-        RenderGateText(renderer, *compo, ComponentList[i].type);
+        SDL_RenderFillRect(renderer, &compo);
+        RenderGateText(renderer, compo, ComponentList[i].type);
     }
 }
 
@@ -125,7 +125,7 @@ int main(int argc, char** argv){
     SDL_SetWindowMinimumSize(window, GRID_WIDTH + 2 * MENU_WIDTH, GRID_HEIGHT);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    Selection selectedComponent = {.type = g_and, .size = 5};
+    Selection selectedComponent = {.type = g_and, .size = 2};
 
     int x, y;
     int grid[GRID_ROW * GRID_COL];
@@ -133,7 +133,6 @@ int main(int argc, char** argv){
     SDL_Rect highlight;
     highlight.w = CELL_SIZE + 1;
     highlight.h = CELL_SIZE + 1;
-    SDL_Rect compo;
 
     InitGrid(grid);
 
@@ -174,7 +173,7 @@ int main(int argc, char** argv){
         DrawMenu(renderer, menuExpanded);
 
         DrawGrid();
-        DrawComponent(&compo);
+        DrawComponent();
 
         if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
             SDL_SetRenderDrawColor(renderer, BLUE, 255);

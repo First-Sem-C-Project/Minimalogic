@@ -18,6 +18,7 @@ typedef struct _component{
     void(*operate)(struct _component*);
 } Component;
 
+void GetWidthHeight(int * w, int * h, Type type, int size);
 Component GetComponent(Type, char, Pair);
 
 Component MakeState(Pair);
