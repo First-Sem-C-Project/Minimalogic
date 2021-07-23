@@ -2,8 +2,9 @@
 
 setlocal
 
-set SourceFiles=../../main.c ../../component.c
+set SourceFiles=../../src/*.c
 set OutputName=MinimaLogic.exe
+set includes=../../include
 
 pushd ..
 
@@ -82,7 +83,7 @@ if not exist "bin\ClangBuild" mkdir bin\ClangBuild
 pushd bin\ClangBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
-call clang -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %CLANGFlags% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -Xlinker -subsystem:console
+call clang -I%includes% -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %CLANGFlags% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -Xlinker -subsystem:console
 echo Clang Build Complete
 echo ----------------------------------------
 popd
@@ -100,7 +101,7 @@ if not exist "bin\GccBuild" mkdir bin\GccBuild
 pushd bin\GccBuild
 xcopy %SDL2MinGw_DLL% .\ /Y
 xcopy %SDL2MinGw_ttf_DLL% .\ /Y
-call gcc -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,console -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+call gcc -I%includes% -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,console -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
 echo Gcc Build Complete
 echo ----------------------------------------
 popd
