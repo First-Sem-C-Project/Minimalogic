@@ -4,7 +4,7 @@
 
 #include "colors.h"
 #include "component.h"
-/* #include "draw.h" */
+#include "draw.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -94,7 +94,7 @@ void DrawComponent(SDL_Rect * compo){
         compo->y = ComponentList[i].start.y * CELL_SIZE;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, compo);
-        /* RenderGateText(renderer, *compo, ComponentList[i].type); */
+        RenderGateText(renderer, *compo, ComponentList[i].type);
     }
 }
 
