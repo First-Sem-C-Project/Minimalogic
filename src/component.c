@@ -8,6 +8,17 @@ extern int time;
 // Inplement toggling logic states
 // get better colors (maybe)
 
+void GetWidthHeight(int * w, int * h, Type type, int size){
+    if (type == state || type == clock || type == probe){
+        *w = 1;
+        *h = 1;
+    }
+    else{
+        *w = 4;
+        *h = size;
+    }
+}
+
 Component GetComponent(Type type, char inpNum, Pair pos){
     switch (type){
         case state:
