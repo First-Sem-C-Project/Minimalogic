@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "SDL2/SDL.h"
 #include <SDL2/SDL_ttf.h>
+#include <string.h>
+#include <direct.h>
 
 #include "colors.h"
 #include "component.h"
@@ -42,7 +44,7 @@ void init(){
         exit (-2);
 }
 
-void close(){
+void closeProgram(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -106,8 +108,18 @@ void InitGrid(int * grid){
     }
 }
 
-int main(int argc, char** args){
+int main(int argc, char** argv){
     init();
+    char *path;
+    path = argv[0];
+    for (int i = strlen(path); i >= 0;i--){
+        if (path[i] == '\\'){
+            path[i + 1] = '\0';
+            break;
+        }
+    }
+    _chdir(path);
+    _chdir("../..");
 
     SDL_SetWindowResizable(window, SDL_TRUE);
     SDL_SetWindowMinimumSize(window, GRID_WIDTH + 2 * MENU_WIDTH, GRID_HEIGHT);
@@ -134,7 +146,7 @@ int main(int argc, char** args){
         while(SDL_PollEvent(&e)){
             switch(e.type){
                 case (SDL_QUIT):
-                    close();
+                    closeProgram();
                 case(SDL_MOUSEBUTTONDOWN):
                     if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
                         selectedComponent.pos = gridPos;
