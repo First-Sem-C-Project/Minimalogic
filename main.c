@@ -4,7 +4,7 @@
 
 #include "colors.h"
 #include "component.h"
-/* #include "draw.h" */
+#include "draw.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -94,7 +94,7 @@ void DrawComponent(SDL_Rect * compo){
         compo->y = ComponentList[i].start.y * CELL_SIZE;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, compo);
-        /* RenderGateText(renderer, *compo, ComponentList[i].type); */
+        RenderGateText(renderer, *compo, ComponentList[i].type);
     }
 }
 
@@ -127,7 +127,6 @@ int main(int argc, char** args){
 
     SDL_Event e;
     while(1){
-        printf("%llu\n", sizeof(ComponentList));
         SDL_GetMouseState(&x, &y);
         gridPos.x = (x - MENU_WIDTH) / CELL_SIZE;
         gridPos.y = y / CELL_SIZE;
@@ -149,7 +148,7 @@ int main(int argc, char** args){
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_RenderClear(renderer);
 
-        /* DrawGrid(); */
+        DrawGrid();
         DrawComponent(&compo);
 
         if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
