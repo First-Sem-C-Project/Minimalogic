@@ -15,8 +15,14 @@ Button ComponentsButton = {.text = "Components", .color = {BLACK}};
 Button Components[9] = {{.type = state, .text = "STATE"}, {.type = probe, .text = "PROBE"}, {.type = clock, .text = "CLOCK"}, {.type = g_and, .text = "AND"},
              {.type = g_or, .text = "OR"}, {.type = g_nand, .text = "NAND"}, {.type = g_nor, .text = "NOR"}, {.type = g_xor, .text = "XOR"}, {.type = g_xnor, .text = "XNOR"}};
 
+TTF_Font *sans = NULL;
+
+void Init_Font(){
+    TTF_Init();
+    sans = TTF_OpenFont("fonts/sans.ttf", 50);
+}
+
 void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){
-    TTF_Font* sans = TTF_OpenFont("fonts/sans.ttf", 50);
     SDL_Surface* textSurface = NULL;
     SDL_Texture* textTexture = NULL;
     if(sans == NULL){
@@ -29,7 +35,6 @@ void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){
     }
 
     SDL_FreeSurface(textSurface);
-    TTF_CloseFont(sans);
     SDL_RenderCopy(renderer, textTexture, NULL, dstRect);
     SDL_DestroyTexture(textTexture);
 }

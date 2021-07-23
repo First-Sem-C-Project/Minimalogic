@@ -37,7 +37,7 @@ void init(){
         exit(-1);
     window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    TTF_Init();
+    Init_Font();
     if (!(window && renderer))
         exit (-2);
 }
@@ -45,6 +45,8 @@ void init(){
 void closeProgram(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_CloseFont(sans);
+    TTF_Quit();
     SDL_Quit();
     exit(0);
 }
