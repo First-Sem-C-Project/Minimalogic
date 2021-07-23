@@ -20,8 +20,6 @@ SDL_Renderer* renderer = NULL;
 #define GRID_ROW (GRID_WIDTH / CELL_SIZE)
 #define GRID_COL (GRID_HEIGHT / CELL_SIZE - 2)
 
-#define MENU_WIDTH 200
-
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 Component ComponentList[256];
