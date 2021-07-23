@@ -1,3 +1,5 @@
+#define MENU_WIDTH 200
+
 SDL_Texture* FontTexture(SDL_Renderer *renderer, const char* message){
     TTF_Font* sans = TTF_OpenFont("fonts/sans.ttf", 50);
     SDL_Surface* textSurface = NULL;
