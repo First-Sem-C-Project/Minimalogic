@@ -20,19 +20,19 @@ TTF_Font *sans = NULL;
 void Init_Font(){
     TTF_Init();
     sans = TTF_OpenFont("fonts/sans.ttf", 50);
+    if(sans == NULL){
+        printf("Failed to load the font: %s\n", TTF_GetError());
+        exit(1);
+    }
 }
 
 void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){
     SDL_Surface* textSurface = NULL;
     SDL_Texture* textTexture = NULL;
-    if(sans == NULL){
-        printf("Failed to load the font: %s\n", TTF_GetError());
-    }
-    else{
-        SDL_Color white = {WHITE, 200};
-        textSurface = TTF_RenderText_Solid(sans, message, white);
-        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    }
+    
+    SDL_Color white = {WHITE, 200};
+    textSurface = TTF_RenderText_Solid(sans, message, white);
+    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
     SDL_FreeSurface(textSurface);
     SDL_RenderCopy(renderer, textTexture, NULL, dstRect);
@@ -183,9 +183,9 @@ void HoverOver(SDL_Renderer *renderer, Button *button, bool menuExpanded){
 void HighlightSelected(Type type){
     for(int i=0; i<9; i++){
         if(Components[i].type == type){
-            Components[i].color.r = 20;
-            Components[i].color.g = 150;
-            Components[i].color.b = 150;
+            Components[i].color.r = 50;
+            Components[i].color.g = 50;
+            Components[i].color.b = 50;
         }
     }
 }
