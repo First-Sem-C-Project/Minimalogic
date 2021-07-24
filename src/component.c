@@ -1,12 +1,7 @@
-#include <stdlib.h>
-#include "component.h"
+#include "../include/component.h"
 
 extern Component ** ComponentList;
 extern int time;
-
-// TODO:
-// Inplement toggling logic states
-// get better colors (maybe)
 
 void GetWidthHeight(int * w, int * h, Type type, int size){
     if (type == state || type == clock || type == probe){
@@ -38,7 +33,7 @@ Component MakeState(Pair pos){
     component.width = 1;
     component.start.x = pos.x;
     component.start.y = pos.y;
-    /* component.operate = ToggleState; */
+    component.operate = ToggleState;
     component.color.r = 100;
     component.color.g = 100;
     component.color.b = 100;
@@ -52,7 +47,7 @@ Component MakeProbe(Pair pos){
     component.start.y = pos.y;
     component.size    = 1;
     component.width = 1;
-    /* component.operate = ToggleProbe; */
+    component.operate = ToggleProbe;
     component.color.r = 100;
     component.color.g = 100;
     component.color.b = 100;
@@ -66,7 +61,7 @@ Component MakeClock(Pair pos){
     component.width = 1;
     component.start.x = pos.x;
     component.start.y = pos.y;
-    /* component.operate = Tick; */
+    component.operate = Tick;
     component.color.r = 80;
     component.color.g = 80;
     component.color.b = 0;
@@ -83,37 +78,37 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos){
     component.type = type;
     switch (type){
         case(g_and):
-            /* component.operate = andGate;  */
+            component.operate = andGate; 
             component.color.r = 150;
             component.color.g = 0;
             component.color.b = 0;
             break;
         case(g_or):
-            /* component->operate  = orGate;  */
+            component.operate  = orGate; 
             component.color.r = 0;
             component.color.g = 150;
             component.color.b = 0;
             break;
         case(g_nand):
-            /* component->operate  = nandGate;  */
+            component.operate  = nandGate; 
             component.color.r = 0;
             component.color.g = 150;
             component.color.b = 150;
             break;
         case(g_nor):
-            /* component->operate  = norGate;  */
+            component.operate  = norGate; 
             component.color.r = 150;
             component.color.g = 0;
             component.color.b = 150;
             break;
         case(g_xor):
-            /* component->operate  = xorGate;  */
+            component.operate  = xorGate; 
             component.color.r = 0;
             component.color.g = 0;
             component.color.b = 150;
             break;
         default:
-            /* component->operate  = xnorGate;  */
+            component.operate  = xnorGate; 
             component.color.r = 150;
             component.color.g = 150;
             component.color.b = 0;
@@ -191,7 +186,7 @@ void FlipColor(Component * component){
 }
 
 void Tick(Component * component){
-    if (time == 0)
+    if (time % 100 == 0)
         component->output = !component->output;
     FlipColor(component);
 }
