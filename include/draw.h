@@ -10,7 +10,7 @@ typedef struct Button{
     char text[10];
 } Button;
 
-Button RunButton = {.text = "RUN", .color = {RED}};
+Button RunButton = {.text = "RUN", .color = {GREEN}};
 Button ComponentsButton = {.text = "Components", .color = {BLACK}};
 Button Components[9] = {{.type = state, .text = "STATE"}, {.type = probe, .text = "PROBE"}, {.type = clock, .text = "CLOCK"}, {.type = g_and, .text = "AND"},
              {.type = g_or, .text = "OR"}, {.type = g_nand, .text = "NAND"}, {.type = g_nor, .text = "NOR"}, {.type = g_xor, .text = "XOR"}, {.type = g_xnor, .text = "XNOR"}};
@@ -145,13 +145,13 @@ void ToggleSimulation(bool* state){
         *state = false;
         Color green = {GREEN};
         RunButton.color = green;
-        *RunButton.text = "RUN";
+        strcpy(RunButton.text, "RUN");
     }
     else{
         *state = true;
         Color red = {RED};
         RunButton.color = red;
-        *RunButton.text = "STOP";        
+        strcpy(RunButton.text, "STOP");       
     }    
 }
 
