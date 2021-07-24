@@ -10,26 +10,31 @@ typedef struct Button{
     char text[10];
 } Button;
 
-Button RunButton = {.text = "RUN", .color = {RED}};
+Button RunButton = {.text = "RUN", .color = {GREEN}};
 Button ComponentsButton = {.text = "Components", .color = {BLACK}};
 Button Components[9] = {{.type = state, .text = "STATE"}, {.type = probe, .text = "PROBE"}, {.type = clock, .text = "CLOCK"}, {.type = g_and, .text = "AND"},
              {.type = g_or, .text = "OR"}, {.type = g_nand, .text = "NAND"}, {.type = g_nor, .text = "NOR"}, {.type = g_xor, .text = "XOR"}, {.type = g_xnor, .text = "XNOR"}};
 
-void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){
-    TTF_Font* sans = TTF_OpenFont("fonts/sans.ttf", 50);
-    SDL_Surface* textSurface = NULL;
-    SDL_Texture* textTexture = NULL;
+TTF_Font *sans = NULL;
+
+void Init_Font(){
+    TTF_Init();
+    sans = TTF_OpenFont("fonts/sans.ttf", 50);
     if(sans == NULL){
         printf("Failed to load the font: %s\n", TTF_GetError());
+        exit(1);
     }
-    else{
-        SDL_Color white = {WHITE, 200};
-        textSurface = TTF_RenderText_Solid(sans, message, white);
-        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    }
+}
+
+void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){
+    SDL_Surface* textSurface = NULL;
+    SDL_Texture* textTexture = NULL;
+    
+    SDL_Color white = {WHITE, 200};
+    textSurface = TTF_RenderText_Solid(sans, message, white);
+    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
     SDL_FreeSurface(textSurface);
-    TTF_CloseFont(sans);
     SDL_RenderCopy(renderer, textTexture, NULL, dstRect);
     SDL_DestroyTexture(textTexture);
 }
@@ -64,7 +69,7 @@ void ToggleSimulation(bool*);
 void ToggleDropDown(bool*);
 Type SelectComponent(Button*);
 
-void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
+void InitMenu(){
     RunButton.buttonRect.x = 10;
     RunButton.buttonRect.y = 10;
     RunButton.buttonRect.w = MENU_WIDTH-20;
@@ -73,10 +78,6 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
     RunButton.textRect.y = RunButton.buttonRect.y + RunButton.buttonRect.h/4;
     RunButton.textRect.w = RunButton.buttonRect.w/4;
     RunButton.textRect.h = RunButton.buttonRect.h/2;
-
-    SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g, RunButton.color.b, 255);
-    SDL_RenderFillRect(renderer, &RunButton.buttonRect);
-    DisplayText(renderer, RunButton.text, &RunButton.textRect);
 
     ComponentsButton.buttonRect.x = 10;
     ComponentsButton.buttonRect.y = 50;
@@ -87,6 +88,24 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
     ComponentsButton.textRect.w = ComponentsButton.buttonRect.w/2;
     ComponentsButton.textRect.h = ComponentsButton.buttonRect.h/2;
 
+    for(int i=0; i<9; i++){
+        Components[i].buttonRect.x = 20;
+        Components[i].buttonRect.y = ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+i*(25+2)+2;
+        Components[i].buttonRect.w = MENU_WIDTH-40;
+        Components[i].buttonRect.h = 25;
+        Components[i].textRect.x = Components[i].buttonRect.x + 1.5*Components[i].buttonRect.w/4;
+        Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h/5;
+        Components[i].textRect.w = Components[i].buttonRect.w/4;
+        Components[i].textRect.h = 3*Components[i].buttonRect.h/5;
+    }
+}
+
+void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
+
+    SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g, RunButton.color.b, 255);
+    SDL_RenderFillRect(renderer, &RunButton.buttonRect);
+    DisplayText(renderer, RunButton.text, &RunButton.textRect);
+
     SDL_SetRenderDrawColor(renderer, ComponentsButton.color.r, ComponentsButton.color.g, ComponentsButton.color.b, 255);
     SDL_RenderFillRect(renderer, &ComponentsButton.buttonRect);
     DisplayText(renderer, ComponentsButton.text, &ComponentsButton.textRect);
@@ -95,17 +114,9 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
         SDL_Rect wrapper = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h, ComponentsButton.buttonRect.w, 2+9*(25+2)};        
         SDL_SetRenderDrawColor(renderer, BG1);
         SDL_RenderFillRect(renderer, &wrapper);
-        SDL_SetRenderDrawColor(renderer, BLACK, 255);
 
         for(int i=0; i<9; i++){
-            Components[i].buttonRect.x = 20;
-            Components[i].buttonRect.y = ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+i*(25+2)+2;
-            Components[i].buttonRect.w = MENU_WIDTH-40;
-            Components[i].buttonRect.h = 25;
-            Components[i].textRect.x = Components[i].buttonRect.x + 1.5*Components[i].buttonRect.w/4;
-            Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h/5;
-            Components[i].textRect.w = Components[i].buttonRect.w/4;
-            Components[i].textRect.h = 3*Components[i].buttonRect.h/5;
+            SDL_SetRenderDrawColor(renderer, Components[i].color.r, Components[i].color.g, Components[i].color.b, 255);
             
             SDL_RenderFillRect(renderer, &Components[i].buttonRect);
             DisplayText(renderer, Components[i].text, &Components[i].textRect);
@@ -140,14 +151,53 @@ void ToggleSimulation(bool* state){
         *state = false;
         Color green = {GREEN};
         RunButton.color = green;
-        *RunButton.text = "RUN";
+        strcpy(RunButton.text, "RUN");
     }
     else{
         *state = true;
         Color red = {RED};
         RunButton.color = red;
-        *RunButton.text = "STOP";        
+        strcpy(RunButton.text, "STOP");       
     }    
+}
+
+void HoverOver(SDL_Renderer *renderer, Button *button, bool menuExpanded){
+    if(!menuExpanded){
+        if(button == &RunButton || button == &ComponentsButton){
+            SDL_Rect border = {button->buttonRect.x-1, button->buttonRect.y-1, button->buttonRect.w+2, button->buttonRect.h+2};
+            SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
+            SDL_RenderDrawRect(renderer, &border);
+        }
+    }
+    else{
+        if(button != NULL){            
+            SDL_Rect border = {button->buttonRect.x-1, button->buttonRect.y-1, button->buttonRect.w+2, button->buttonRect.h+2};
+            SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
+            SDL_RenderDrawRect(renderer, &border);
+            
+        }
+       
+    }
+}
+
+void HighlightSelected(Type type){
+    for(int i=0; i<9; i++){
+        if(Components[i].type == type){
+            Components[i].color.r = 50;
+            Components[i].color.g = 50;
+            Components[i].color.b = 50;
+        }
+    }
+}
+
+void UnHighlight(Type type){
+    for(int i=0; i<9; i++){
+        if(Components[i].type == type){
+            Components[i].color.r = 0;
+            Components[i].color.g = 0;
+            Components[i].color.b = 0;
+        }
+    }
 }
 
 void ToggleDropDown(bool* state){

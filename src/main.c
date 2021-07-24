@@ -37,7 +37,7 @@ void init(){
         exit(-1);
     window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    TTF_Init();
+    Init_Font();
     if (!(window && renderer))
         exit (-2);
 }
@@ -45,6 +45,8 @@ void init(){
 void closeProgram(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_CloseFont(sans);
+    TTF_Quit();
     SDL_Quit();
     exit(0);
 }
@@ -133,12 +135,15 @@ int main(int argc, char** argv){
     highlight.h = CELL_SIZE + 1;
 
     InitGrid(grid);
+    InitMenu();
 
     bool simulating = false;
     bool menuExpanded = false;
 
     SDL_Event e;
     while(1){
+        int begin = SDL_GetTicks();
+
         SDL_GetMouseState(&x, &y);
         gridPos.x = (x - MENU_WIDTH) / CELL_SIZE;
         gridPos.y = y / CELL_SIZE;
@@ -158,8 +163,10 @@ int main(int argc, char** argv){
                             ToggleSimulation(&simulating);
                         else if(clickedButton == &ComponentsButton)
                             ToggleDropDown(&menuExpanded);
-                        else if(clickedButton == &Components[0] || clickedButton == &Components[1] || clickedButton == &Components[2] || clickedButton == &Components[3] || clickedButton == &Components[4] || clickedButton == &Components[5] || clickedButton == &Components[6] || clickedButton == &Components[7] || clickedButton == &Components[8])
+                        else if(clickedButton == &Components[0] || clickedButton == &Components[1] || clickedButton == &Components[2] || clickedButton == &Components[3] || clickedButton == &Components[4] || clickedButton == &Components[5] || clickedButton == &Components[6] || clickedButton == &Components[7] || clickedButton == &Components[8]){
+                            UnHighlight(selectedComponent.type);
                             selectedComponent.type = SelectComponent(clickedButton);
+                        }
                     }
                     break;
                 default: break;
@@ -169,6 +176,8 @@ int main(int argc, char** argv){
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_RenderClear(renderer);
         DrawMenu(renderer, menuExpanded);
+        HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
+        HighlightSelected(selectedComponent.type);
 
         DrawGrid();
         DrawComponent();
@@ -181,9 +190,12 @@ int main(int argc, char** argv){
         }
 
         time += 10;
-        time %= 1000; 
-        SDL_Delay(10);
+        time %= 1000;
+
         SDL_RenderPresent(renderer);
+
+        if((SDL_GetTicks()-begin) < 50)
+            SDL_Delay(50 - (SDL_GetTicks() - begin));
     }
     return 0;
 }
