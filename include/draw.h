@@ -100,9 +100,9 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
         SDL_Rect wrapper = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h, ComponentsButton.buttonRect.w, 2+9*(25+2)};        
         SDL_SetRenderDrawColor(renderer, BG1);
         SDL_RenderFillRect(renderer, &wrapper);
-        SDL_SetRenderDrawColor(renderer, BLACK, 255);
 
         for(int i=0; i<9; i++){
+            SDL_SetRenderDrawColor(renderer, Components[i].color.r, Components[i].color.g, Components[i].color.b, 255);
             Components[i].buttonRect.x = 20;
             Components[i].buttonRect.y = ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+i*(25+2)+2;
             Components[i].buttonRect.w = MENU_WIDTH-40;
@@ -153,6 +153,45 @@ void ToggleSimulation(bool* state){
         RunButton.color = red;
         strcpy(RunButton.text, "STOP");       
     }    
+}
+
+void HoverOver(SDL_Renderer *renderer, Button *button, bool menuExpanded){
+    if(!menuExpanded){
+        if(button == &RunButton || button == &ComponentsButton){
+            SDL_Rect border = {button->buttonRect.x-1, button->buttonRect.y-1, button->buttonRect.w+2, button->buttonRect.h+2};
+            SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
+            SDL_RenderDrawRect(renderer, &border);
+        }
+    }
+    else{
+        if(button != NULL){            
+            SDL_Rect border = {button->buttonRect.x-1, button->buttonRect.y-1, button->buttonRect.w+2, button->buttonRect.h+2};
+            SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
+            SDL_RenderDrawRect(renderer, &border);
+            
+        }
+       
+    }
+}
+
+void HighlightSelected(Type type){
+    for(int i=0; i<9; i++){
+        if(Components[i].type == type){
+            Components[i].color.r = 20;
+            Components[i].color.g = 150;
+            Components[i].color.b = 150;
+        }
+    }
+}
+
+void UnHighlight(Type type){
+    for(int i=0; i<9; i++){
+        if(Components[i].type == type){
+            Components[i].color.r = 0;
+            Components[i].color.g = 0;
+            Components[i].color.b = 0;
+        }
+    }
 }
 
 void ToggleDropDown(bool* state){

@@ -162,8 +162,10 @@ int main(int argc, char** argv){
                             ToggleSimulation(&simulating);
                         else if(clickedButton == &ComponentsButton)
                             ToggleDropDown(&menuExpanded);
-                        else if(clickedButton == &Components[0] || clickedButton == &Components[1] || clickedButton == &Components[2] || clickedButton == &Components[3] || clickedButton == &Components[4] || clickedButton == &Components[5] || clickedButton == &Components[6] || clickedButton == &Components[7] || clickedButton == &Components[8])
+                        else if(clickedButton == &Components[0] || clickedButton == &Components[1] || clickedButton == &Components[2] || clickedButton == &Components[3] || clickedButton == &Components[4] || clickedButton == &Components[5] || clickedButton == &Components[6] || clickedButton == &Components[7] || clickedButton == &Components[8]){
+                            UnHighlight(selectedComponent.type);
                             selectedComponent.type = SelectComponent(clickedButton);
+                        }
                     }
                     break;
                 default: break;
@@ -173,6 +175,8 @@ int main(int argc, char** argv){
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_RenderClear(renderer);
         DrawMenu(renderer, menuExpanded);
+        HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
+        HighlightSelected(selectedComponent.type);
 
         DrawGrid();
         DrawComponent();
