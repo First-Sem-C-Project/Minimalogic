@@ -135,6 +135,7 @@ int main(int argc, char** argv){
     highlight.h = CELL_SIZE + 1;
 
     InitGrid(grid);
+    InitMenu();
 
     bool simulating = false;
     bool menuExpanded = false;

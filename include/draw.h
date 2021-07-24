@@ -69,7 +69,7 @@ void ToggleSimulation(bool*);
 void ToggleDropDown(bool*);
 Type SelectComponent(Button*);
 
-void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
+void InitMenu(){
     RunButton.buttonRect.x = 10;
     RunButton.buttonRect.y = 10;
     RunButton.buttonRect.w = MENU_WIDTH-20;
@@ -79,10 +79,6 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
     RunButton.textRect.w = RunButton.buttonRect.w/4;
     RunButton.textRect.h = RunButton.buttonRect.h/2;
 
-    SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g, RunButton.color.b, 255);
-    SDL_RenderFillRect(renderer, &RunButton.buttonRect);
-    DisplayText(renderer, RunButton.text, &RunButton.textRect);
-
     ComponentsButton.buttonRect.x = 10;
     ComponentsButton.buttonRect.y = 50;
     ComponentsButton.buttonRect.w = MENU_WIDTH-20;
@@ -91,6 +87,24 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
     ComponentsButton.textRect.y = ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h/4;
     ComponentsButton.textRect.w = ComponentsButton.buttonRect.w/2;
     ComponentsButton.textRect.h = ComponentsButton.buttonRect.h/2;
+
+    for(int i=0; i<9; i++){
+        Components[i].buttonRect.x = 20;
+        Components[i].buttonRect.y = ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+i*(25+2)+2;
+        Components[i].buttonRect.w = MENU_WIDTH-40;
+        Components[i].buttonRect.h = 25;
+        Components[i].textRect.x = Components[i].buttonRect.x + 1.5*Components[i].buttonRect.w/4;
+        Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h/5;
+        Components[i].textRect.w = Components[i].buttonRect.w/4;
+        Components[i].textRect.h = 3*Components[i].buttonRect.h/5;
+    }
+}
+
+void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
+
+    SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g, RunButton.color.b, 255);
+    SDL_RenderFillRect(renderer, &RunButton.buttonRect);
+    DisplayText(renderer, RunButton.text, &RunButton.textRect);
 
     SDL_SetRenderDrawColor(renderer, ComponentsButton.color.r, ComponentsButton.color.g, ComponentsButton.color.b, 255);
     SDL_RenderFillRect(renderer, &ComponentsButton.buttonRect);
@@ -103,14 +117,6 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
 
         for(int i=0; i<9; i++){
             SDL_SetRenderDrawColor(renderer, Components[i].color.r, Components[i].color.g, Components[i].color.b, 255);
-            Components[i].buttonRect.x = 20;
-            Components[i].buttonRect.y = ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+i*(25+2)+2;
-            Components[i].buttonRect.w = MENU_WIDTH-40;
-            Components[i].buttonRect.h = 25;
-            Components[i].textRect.x = Components[i].buttonRect.x + 1.5*Components[i].buttonRect.w/4;
-            Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h/5;
-            Components[i].textRect.w = Components[i].buttonRect.w/4;
-            Components[i].textRect.h = 3*Components[i].buttonRect.h/5;
             
             SDL_RenderFillRect(renderer, &Components[i].buttonRect);
             DisplayText(renderer, Components[i].text, &Components[i].textRect);
