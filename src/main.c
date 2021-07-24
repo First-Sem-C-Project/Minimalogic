@@ -141,6 +141,8 @@ int main(int argc, char** argv){
 
     SDL_Event e;
     while(1){
+        int begin = SDL_GetTicks();
+
         SDL_GetMouseState(&x, &y);
         gridPos.x = (x - MENU_WIDTH) / CELL_SIZE;
         gridPos.y = y / CELL_SIZE;
@@ -183,9 +185,15 @@ int main(int argc, char** argv){
         }
 
         time += 10;
-        time %= 1000; 
-        SDL_Delay(10);
+        time %= 1000;
+
         SDL_RenderPresent(renderer);
+
+        int end = SDL_GetTicks();
+        int delay = 0;
+        if((end-begin) < 50)
+            delay = 50 - (end-begin);
+        SDL_Delay(delay);
     }
     return 0;
 }
