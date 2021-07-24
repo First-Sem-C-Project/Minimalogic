@@ -189,11 +189,8 @@ int main(int argc, char** argv){
 
         SDL_RenderPresent(renderer);
 
-        int end = SDL_GetTicks();
-        int delay = 0;
-        if((end-begin) < 50)
-            delay = 50 - (end-begin);
-        SDL_Delay(delay);
+        if((SDL_GetTicks()-begin) < 50)
+            SDL_Delay(50 - (SDL_GetTicks() - begin));
     }
     return 0;
 }
