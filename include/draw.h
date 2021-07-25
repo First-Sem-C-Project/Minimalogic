@@ -66,7 +66,7 @@ void RenderGateText(SDL_Renderer *renderer, SDL_Rect compo, Type type){
 }
 
 void ToggleSimulation(bool*);
-void ToggleDropDown(bool*);
+void ToggleDropDown(bool*, char*);
 Type SelectComponent(Button*);
 
 void InitMenu(){
@@ -200,13 +200,32 @@ void UnHighlight(Type type){
     }
 }
 
-void ToggleDropDown(bool* state){
-    if(*state)
+void ToggleDropDown(bool* state, char *animationFlag){
+    if(*state){
         *state = false;
-    else
+        *animationFlag = 5;
+    }
+    else{
         *state = true;
+        *animationFlag = 1;
+    }
 }
 
+void AnimateDropDown(SDL_Renderer *renderer, char *animationFlag, bool menuExpanded){
+    if(menuExpanded){
+        SDL_SetRenderDrawColor(renderer, BG);
+        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+(2*(*animationFlag)-1)*(25+2), ComponentsButton.buttonRect.w, 2+(10-2*(*animationFlag))*(25+2)};
+        SDL_RenderFillRect(renderer, &cover);
+        *animationFlag += 1; 
+    }
+    else{
+        DrawMenu(renderer, true);
+        SDL_SetRenderDrawColor(renderer, BG);
+        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+(2*(*animationFlag))*(25+2), ComponentsButton.buttonRect.w, 2+(10-2*(*animationFlag))*(25+2)};
+        SDL_RenderFillRect(renderer, &cover);
+        *animationFlag -= 1;
+    }
+}
 
 Type SelectComponent(Button* button){
     return button->type;   

@@ -151,6 +151,7 @@ int main(int argc, char** argv){
 
     bool simulating = false;
     bool menuExpanded = false;
+    char dropDownAnimationFlag = 0;
 
     SDL_Event e;
     while(1){
@@ -190,7 +191,7 @@ int main(int argc, char** argv){
                         if(clickedButton == &RunButton)
                             ToggleSimulation(&simulating);
                         else if(clickedButton == &ComponentsButton)
-                            ToggleDropDown(&menuExpanded);
+                            ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
                         else if(clickedButton){
                             UnHighlight(selectedComponent.type);
                             selectedComponent.type = SelectComponent(clickedButton);
@@ -206,6 +207,8 @@ int main(int argc, char** argv){
         DrawMenu(renderer, menuExpanded);
         HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
         HighlightSelected(selectedComponent.type);
+        if(dropDownAnimationFlag>0 && dropDownAnimationFlag<6)
+            AnimateDropDown(renderer, &dropDownAnimationFlag, menuExpanded);
 
         DrawGrid(pad_x, pad_y);
         DrawComponents(pad_x, pad_y);
