@@ -96,7 +96,7 @@ void DrawComponents(){
         compo.y = ComponentList[i].start.y * CELL_SIZE + 1;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
-        /* RenderGateText(renderer, compo, ComponentList[i].type); */
+        RenderGateText(renderer, compo, ComponentList[i].type);
     }
 }
 
@@ -115,7 +115,6 @@ void InitGrid(int * grid){
 }
 
 int main(int argc, char** argv){
-    init();
     char *path;
     path = argv[0];
     for (int i = strlen(path); i >= 0;i--){
@@ -126,6 +125,8 @@ int main(int argc, char** argv){
     }
     _chdir(path);
     _chdir("../..");
+    init();
+    
 
     SDL_SetWindowResizable(window, SDL_TRUE);
     SDL_SetWindowMinimumSize(window, GRID_WIDTH + 2 * MENU_WIDTH, GRID_HEIGHT);
@@ -199,13 +200,8 @@ int main(int argc, char** argv){
         SDL_RenderPresent(renderer);
 
         if((SDL_GetTicks()-begin) < 50){
-            time += 50 - (SDL_GetTicks() - begin);
             SDL_Delay(50 - (SDL_GetTicks() - begin));
-        }
-        else{
-            time += 50;
-            SDL_Delay(50);
-        }
+        time += 50;
         time %= 1000;
     }
     return 0;

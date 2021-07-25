@@ -151,13 +151,14 @@ void ToggleSimulation(bool* state){
         *state = false;
         Color green = {GREEN};
         RunButton.color = green;
-        strcpy_s(RunButton.text, 3, "RUN");
+        strcpy(RunButton.text, "RUN");
+        printf("fuck");
     }
     else{
         *state = true;
         Color red = {RED};
         RunButton.color = red;
-        strcpy_s(RunButton.text, 4, "STOP");       
+        strcpy(RunButton.text, "STOP");       
     }    
 }
 
