@@ -186,7 +186,7 @@ void FlipColor(Component * component){
 }
 
 void Tick(Component * component){
-    if (time % 100 == 0)
+    if (time == 0)
         component->output = !component->output;
     FlipColor(component);
 }

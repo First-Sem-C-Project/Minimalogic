@@ -22,6 +22,7 @@ SDL_Renderer* renderer = NULL;
 
 #define MIN_WINDOW_WIDTH GRID_WIDTH + 2 * MENU_WIDTH
 #define MIN_WINDOW_HEIGHT GRID_HEIGHT
+#define DELAY 40
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 
@@ -38,7 +39,7 @@ typedef struct{
 void init(){
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
         exit(-1);
-    window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     Init_Font();
     if (!(window && renderer))
@@ -103,11 +104,37 @@ void DrawComponents(int pad_x, int pad_y){
     }
 }
 
+
 void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
         if (ComponentList[i].type != state)
             ComponentList[i].operate(&ComponentList[i]);
     }
+}
+
+void DrawCall(bool menuExpanded, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos){
+    SDL_Rect highlight;
+    highlight.w = CELL_SIZE + 1;
+    highlight.h = CELL_SIZE + 1;
+    SDL_SetRenderDrawColor(renderer, BG);
+    SDL_RenderClear(renderer);
+    DrawMenu(renderer, menuExpanded);
+    HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
+    HighlightSelected(selectedComponent.type);
+    if(*dropDownAnimationFlag>0 && *dropDownAnimationFlag<6)
+        AnimateDropDown(renderer, dropDownAnimationFlag, menuExpanded);
+
+    DrawGrid(pad_x, pad_y);
+    DrawComponents(pad_x, pad_y);
+
+    if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
+        SDL_SetRenderDrawColor(renderer, BLUE, 150);
+        highlight.x = gridPos.x * CELL_SIZE + pad_x;
+        highlight.y = gridPos.y * CELL_SIZE + pad_y;
+        SDL_RenderFillRect(renderer, &highlight);
+    }
+
+    SDL_RenderPresent(renderer);
 }
 
 void InitGrid(int * grid){
@@ -141,9 +168,6 @@ int main(int argc, char** argv){
     int x, y;
     int grid[GRID_ROW * GRID_COL];
     Pair gridPos;
-    SDL_Rect highlight;
-    highlight.w = CELL_SIZE + 1;
-    highlight.h = CELL_SIZE + 1;
     int w_width, w_height, pad_x, pad_y;
 
     InitGrid(grid);
@@ -201,33 +225,15 @@ int main(int argc, char** argv){
                 default: break;
             }
         }
+        DrawCall(menuExpanded, x, y, selectedComponent, pad_x, pad_y, simulating, &dropDownAnimationFlag, gridPos);
 
-        SDL_SetRenderDrawColor(renderer, BG);
-        SDL_RenderClear(renderer);
-        DrawMenu(renderer, menuExpanded);
-        HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
-        HighlightSelected(selectedComponent.type);
-        if(dropDownAnimationFlag>0 && dropDownAnimationFlag<6)
-            AnimateDropDown(renderer, &dropDownAnimationFlag, menuExpanded);
-
-        DrawGrid(pad_x, pad_y);
-        DrawComponents(pad_x, pad_y);
         if (simulating)
             UpdateComponents();
 
-        if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
-            SDL_SetRenderDrawColor(renderer, BLUE, 255);
-            highlight.x = gridPos.x * CELL_SIZE + pad_x - 1;
-            highlight.y = gridPos.y * CELL_SIZE + pad_y - 1;
-            SDL_RenderDrawRect(renderer, &highlight);
-        }
-
-        SDL_RenderPresent(renderer);
-
-        if((SDL_GetTicks()-begin) < 50)
-            SDL_Delay(50 - (SDL_GetTicks() - begin));
-        time += 50;
-        time %= 1000;
+        if((SDL_GetTicks()-begin) < DELAY)
+            SDL_Delay(DELAY - (SDL_GetTicks() - begin));
+        time += DELAY;
+        time %= (DELAY * DELAY);
     }
     return 0;
 }
