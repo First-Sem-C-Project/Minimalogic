@@ -192,9 +192,7 @@ void Tick(Component * component){
 }
 
 void ToggleState(Component * component){
-    // Toggle output on click
-    // will do that after getting gui and placing part done
-    component->output = true;
+    component->output = !component->output;
     FlipColor(component);
 }
 

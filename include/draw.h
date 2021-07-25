@@ -152,7 +152,6 @@ void ToggleSimulation(bool* state){
         Color green = {GREEN};
         RunButton.color = green;
         strcpy(RunButton.text, "RUN");
-        printf("fuck");
     }
     else{
         *state = true;

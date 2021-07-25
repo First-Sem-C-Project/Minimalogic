@@ -65,7 +65,8 @@ echo Building with MSVC
 if not exist "bin\MSVCBuild" mkdir bin\MSVCBuild
 pushd bin\MSVCBuild
 xcopy %SDL2_DLL% .\ /Y
-call cl -I%SDL2_Include% -nologo %CLFlags% -Zi -EHsc %SourceFiles% -Fe%OutputName% /link /LIBPATH:%SDL2_Library% SDL2.lib SDL2main.lib Shell32.lib /subsystem:console
+xcopy %SDL2_ttf_DLL% .\ /Y
+call cl -I%includes% -I%SDL2_Include% -nologo -Zi -EHsc %SourceFiles% -Fe%OutputName% /link /LIBPATH:%SDL2_Library% SDL2.lib SDL2main.lib Shell32.lib /LIBPATH:%SDL2_ttf_Library% SDL2_ttf.lib /subsystem:console
 popd
 echo MSVC Build Complete
 echo ----------------------------------------
@@ -83,7 +84,7 @@ if not exist "bin\ClangBuild" mkdir bin\ClangBuild
 pushd bin\ClangBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
-call clang -I%includes% -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %CLANGFlags% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -Xlinker -subsystem:console
+call clang -I%includes% -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -Xlinker -subsystem:console
 echo Clang Build Complete
 echo ----------------------------------------
 popd

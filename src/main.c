@@ -20,6 +20,9 @@ SDL_Renderer* renderer = NULL;
 #define GRID_ROW (GRID_WIDTH / CELL_SIZE)
 #define GRID_COL (GRID_HEIGHT / CELL_SIZE - 2)
 
+#define MIN_WINDOW_WIDTH GRID_WIDTH + 2 * MENU_WIDTH
+#define MIN_WINDOW_HEIGHT GRID_HEIGHT
+
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 Component ComponentList[256];
@@ -51,13 +54,13 @@ void closeProgram(){
     exit(0);
 }
 
-void DrawGrid(){
+void DrawGrid(int pad_x, int pad_y){
     SDL_SetRenderDrawColor(renderer, BG1);
     for (int i = 0; i < GRID_ROW + 1; i ++){
-        SDL_RenderDrawLine(renderer, MENU_WIDTH + i * CELL_SIZE, 0, MENU_WIDTH + i * CELL_SIZE, GRID_HEIGHT - 2 * CELL_SIZE);
+        SDL_RenderDrawLine(renderer, pad_x + i * CELL_SIZE, pad_y, pad_x + i * CELL_SIZE, GRID_HEIGHT - 2 * CELL_SIZE + pad_y);
     }
     for (int i = 0; i < GRID_COL + 1; i ++){
-        SDL_RenderDrawLine(renderer, MENU_WIDTH, i * CELL_SIZE, MENU_WIDTH + GRID_WIDTH, i * CELL_SIZE);
+        SDL_RenderDrawLine(renderer, pad_x, i * CELL_SIZE + pad_y, pad_x + GRID_WIDTH, i * CELL_SIZE + pad_y);
     }
 }
 
@@ -87,22 +90,23 @@ void InsertComponent(int* grid, Selection selected){
    componentCount ++;
 }
 
-void DrawComponents(){
+void DrawComponents(int pad_x, int pad_y){
     SDL_Rect compo;
     for(int i = 0; i < componentCount; i ++){
         compo.w = ComponentList[i].width * CELL_SIZE - 1;
         compo.h = ComponentList[i].size * CELL_SIZE - 1;
-        compo.x = ComponentList[i].start.x * CELL_SIZE + MENU_WIDTH + 1;
-        compo.y = ComponentList[i].start.y * CELL_SIZE + 1;
+        compo.x = ComponentList[i].start.x * CELL_SIZE + pad_x + 1;
+        compo.y = ComponentList[i].start.y * CELL_SIZE + pad_y + 1;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
-        RenderGateText(renderer, compo, ComponentList[i].type);
+        /* RenderGateText(renderer, compo, ComponentList[i].type); */
     }
 }
 
 void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
-        ComponentList[i].operate(&ComponentList[i]);
+        if (ComponentList[i].type != state)
+            ComponentList[i].operate(&ComponentList[i]);
     }
 }
 
@@ -129,7 +133,7 @@ int main(int argc, char** argv){
     
 
     SDL_SetWindowResizable(window, SDL_TRUE);
-    SDL_SetWindowMinimumSize(window, GRID_WIDTH + 2 * MENU_WIDTH, GRID_HEIGHT);
+    SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     Selection selectedComponent = {.type = g_and, .size = 2};
@@ -140,6 +144,7 @@ int main(int argc, char** argv){
     SDL_Rect highlight;
     highlight.w = CELL_SIZE + 1;
     highlight.h = CELL_SIZE + 1;
+    int w_width, w_height, pad_x, pad_y;
 
     InitGrid(grid);
     InitMenu();
@@ -152,25 +157,41 @@ int main(int argc, char** argv){
         int begin = SDL_GetTicks();
 
         SDL_GetMouseState(&x, &y);
-        gridPos.x = (x - MENU_WIDTH) / CELL_SIZE;
-        gridPos.y = y / CELL_SIZE;
+        SDL_GetWindowSize(window, &w_width, &w_height);
+        if (w_width > MIN_WINDOW_WIDTH)
+            pad_x = (MENU_WIDTH + w_width - GRID_WIDTH) / 2;
+        else
+            pad_x = MENU_WIDTH;
+        if (w_height > MIN_WINDOW_HEIGHT)
+            pad_y = (w_height - GRID_HEIGHT) / 2;
+        else
+            pad_y = 0;
+        gridPos.x = (x - pad_x) / CELL_SIZE;
+        gridPos.y = (y - pad_y) / CELL_SIZE;
 
         while(SDL_PollEvent(&e)){
             switch(e.type){
                 case (SDL_QUIT):
                     closeProgram();
                 case(SDL_MOUSEBUTTONDOWN):
-                    if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
+                    if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL && componentCount <= 255 && !simulating){
                         selectedComponent.pos = gridPos;
                         InsertComponent(grid, selectedComponent);
                     }
-                    else if(gridPos.x < 0){
+                    if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL && componentCount <= 255){
+                        int index = cell(gridPos.y, gridPos.x);
+                        if (index != -1){
+                            if (ComponentList[index].type == state)
+                                ComponentList[index].operate(&ComponentList[index]);
+                        }
+                    }
+                    if(x <= MENU_WIDTH){
                         Button *clickedButton = clickedOn(x, y, menuExpanded);
                         if(clickedButton == &RunButton)
                             ToggleSimulation(&simulating);
                         else if(clickedButton == &ComponentsButton)
                             ToggleDropDown(&menuExpanded);
-                        else if(clickedButton == &Components[0] || clickedButton == &Components[1] || clickedButton == &Components[2] || clickedButton == &Components[3] || clickedButton == &Components[4] || clickedButton == &Components[5] || clickedButton == &Components[6] || clickedButton == &Components[7] || clickedButton == &Components[8]){
+                        else if(clickedButton){
                             UnHighlight(selectedComponent.type);
                             selectedComponent.type = SelectComponent(clickedButton);
                         }
@@ -186,20 +207,21 @@ int main(int argc, char** argv){
         HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
         HighlightSelected(selectedComponent.type);
 
-        DrawGrid();
-        DrawComponents();
-        UpdateComponents();
+        DrawGrid(pad_x, pad_y);
+        DrawComponents(pad_x, pad_y);
+        if (simulating)
+            UpdateComponents();
 
-        if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
+        if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
             SDL_SetRenderDrawColor(renderer, BLUE, 255);
-            highlight.x = gridPos.x * CELL_SIZE + MENU_WIDTH - 1;
-            highlight.y = gridPos.y * CELL_SIZE - 1;
+            highlight.x = gridPos.x * CELL_SIZE + pad_x - 1;
+            highlight.y = gridPos.y * CELL_SIZE + pad_y - 1;
             SDL_RenderDrawRect(renderer, &highlight);
         }
 
         SDL_RenderPresent(renderer);
 
-        if((SDL_GetTicks()-begin) < 50){
+        if((SDL_GetTicks()-begin) < 50)
             SDL_Delay(50 - (SDL_GetTicks() - begin));
         time += 50;
         time %= 1000;
