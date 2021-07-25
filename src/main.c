@@ -87,7 +87,7 @@ void InsertComponent(int* grid, Selection selected){
    componentCount ++;
 }
 
-void DrawComponent(){
+void DrawComponents(){
     SDL_Rect compo;
     for(int i = 0; i < componentCount; i ++){
         compo.w = ComponentList[i].width * CELL_SIZE - 1;
@@ -96,7 +96,13 @@ void DrawComponent(){
         compo.y = ComponentList[i].start.y * CELL_SIZE + 1;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
-        RenderGateText(renderer, compo, ComponentList[i].type);
+        /* RenderGateText(renderer, compo, ComponentList[i].type); */
+    }
+}
+
+void UpdateComponents(){
+    for(int i = 0; i < componentCount; i ++){
+        ComponentList[i].operate(&ComponentList[i]);
     }
 }
 
@@ -180,7 +186,8 @@ int main(int argc, char** argv){
         HighlightSelected(selectedComponent.type);
 
         DrawGrid();
-        DrawComponent();
+        DrawComponents();
+        UpdateComponents();
 
         if (gridPos.x >= 0 && gridPos.x < GRID_ROW){
             SDL_SetRenderDrawColor(renderer, BLUE, 255);
@@ -189,13 +196,17 @@ int main(int argc, char** argv){
             SDL_RenderDrawRect(renderer, &highlight);
         }
 
-        time += 10;
-        time %= 1000;
-
         SDL_RenderPresent(renderer);
 
-        if((SDL_GetTicks()-begin) < 50)
+        if((SDL_GetTicks()-begin) < 50){
+            time += 50 - (SDL_GetTicks() - begin);
             SDL_Delay(50 - (SDL_GetTicks() - begin));
+        }
+        else{
+            time += 50;
+            SDL_Delay(50);
+        }
+        time %= 1000;
     }
     return 0;
 }
