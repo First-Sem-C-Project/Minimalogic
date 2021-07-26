@@ -32,6 +32,7 @@ void init(){
 void closeProgram(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    DestroyTextures();
     TTF_CloseFont(sans);
     TTF_Quit();
     SDL_Quit();
@@ -108,6 +109,7 @@ int main(int argc, char** argv){
 
     InitGrid(grid);
     InitMenu();
+    PreLoadTextures();
 
     bool simulating = false;
     bool menuExpanded = false;

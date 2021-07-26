@@ -7,7 +7,7 @@ typedef struct{
     unsigned char r, g, b;
 } Color;
 
-typedef enum {state, probe, clock, g_and, g_or, g_nand, g_nor, g_xor, g_xnor} Type;
+typedef enum {state, probe, clock, g_and, g_or, g_nand, g_nor, g_xor, g_xnor, g_not, g_total} Type;
 
 typedef struct _component{
     Pair start;

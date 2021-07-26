@@ -22,6 +22,8 @@ typedef struct Button{
     char text[10];
 } Button;
 
+void PreLoadTextures();
+void DestroyTextures();
 void ToggleSimulation(bool*);
 void ToggleDropDown(bool*, char*);
 Type SelectComponent(Button*);

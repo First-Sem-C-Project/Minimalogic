@@ -22,6 +22,7 @@ Button Components[9] = {{.type = state, .text = "STATE"},
                         {.type = g_xnor, .text = "XNOR"}};
 
 TTF_Font *sans = NULL;
+SDL_Texture *textures[g_total];
 
 void InitFont(){
     TTF_Init();
@@ -63,6 +64,38 @@ void InitMenu(){
     }
 }
 
+void PreLoadTextures(){
+    SDL_Surface* textSurface = NULL;
+    SDL_Color white = {WHITE, 200};
+
+    textSurface = TTF_RenderText_Solid(sans, "AND", white);
+    textures[g_and] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "OR", white);
+    textures[g_or] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "NOT", white);
+    textures[g_not] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "NAND", white);
+    textures[g_nand] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "NOR", white);
+    textures[g_nor] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "XOR", white);
+    textures[g_xor] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "XNOR", white);
+    textures[g_xnor] = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+}
+
+void DestroyTextures(){
+    for(int i = 0; i < g_total; i ++)
+        SDL_DestroyTexture(textures[0]);
+}
+
 void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){
     SDL_Surface* textSurface = NULL;
     SDL_Texture* textTexture = NULL;
@@ -82,40 +115,35 @@ void RenderGateText(SDL_Renderer *renderer, SDL_Rect compo, Type type){
         case(g_and):
             textRect.x -= 3 * CELL_SIZE / 2;
             textRect.w = 3 * CELL_SIZE;
-            DisplayText(renderer, "AND", &textRect);
             break;
         case(g_or):
             textRect.x -= CELL_SIZE;
             textRect.w = 2 * CELL_SIZE;
-            DisplayText(renderer, "OR", &textRect);
             break;
         case(g_nand):        
             textRect.x -= 2 * CELL_SIZE;
             textRect.w = 4 * CELL_SIZE;
-            DisplayText(renderer, "NAND", &textRect);
             break;
         case(g_nor):          
             textRect.x -= 3 * CELL_SIZE / 2;
             textRect.w = 3 * CELL_SIZE;
-            DisplayText(renderer, "NOR", &textRect);
             break;
         case(g_xor):            
             textRect.x -= 3 * CELL_SIZE / 2;
             textRect.w = 3 * CELL_SIZE;
-            DisplayText(renderer, "XOR", &textRect);
             break;
         case(g_xnor):
             textRect.x -= 4 * CELL_SIZE / 2;
             textRect.w = 4 * CELL_SIZE;
-            DisplayText(renderer, "XNOR", &textRect);
             break;            
         default:            
             break;
     }
+    if (type >= g_and)
+        SDL_RenderCopy(renderer, textures[type], NULL, &textRect);
 }
 
 void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
-
     SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g, RunButton.color.b, 255);
     SDL_RenderFillRect(renderer, &RunButton.buttonRect);
     DisplayText(renderer, RunButton.text, &RunButton.textRect);
