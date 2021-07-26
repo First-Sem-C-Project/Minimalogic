@@ -144,6 +144,12 @@ void RenderGateText(SDL_Rect compo, Type type){
         textRect.x -= CELL_SIZE;
         textRect.w = 2 * CELL_SIZE;
     }
+    else if (type == g_not){
+        textRect.x -= 3 * CELL_SIZE / 4;
+        textRect.w = 3 * CELL_SIZE / 2;
+        textRect.h = CELL_SIZE;
+        textRect.y = compo.y;
+    }
     else{
         textRect.x -= 3 * CELL_SIZE / 2;
         textRect.w = 3 * CELL_SIZE;

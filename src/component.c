@@ -8,6 +8,10 @@ void GetWidthHeight(int * w, int * h, Type type, int size){
         *w = 1;
         *h = 1;
     }
+    else if (type == g_not){
+        *w = 3;
+        *h = 1;
+    }
     else{
         *w = 4;
         *h = size;
@@ -78,6 +82,11 @@ void xnorGate(Component * component){
     }
 }
 
+void notGate(Component * component){
+    SetInputs(component);
+    component->output = !component->inputs[0];
+}
+
 void FlipColor(Component * component){
     if (component->output){
         component->color.r = 255;
@@ -103,6 +112,21 @@ void ToggleState(Component * component){
 void ToggleProbe(Component * component){
     component->output = component->inputs[0];
     FlipColor(component);
+}
+
+Component MakeNot(Pair pos){
+    Component component;
+    component.size  = 1;
+    component.width = 3;
+    component.start.x = pos.x;
+    component.start.y = pos.y;
+    component.operate = notGate;
+    component.color.r = 100;
+    component.color.g = 100;
+    component.color.b = 100;
+    component.type = g_not;
+    ClearInputs(&component);
+    return component;
 }
 
 Component MakeState(Pair pos){
@@ -207,6 +231,8 @@ Component GetComponent(Type type, char inpNum, Pair pos){
             return MakeProbe(pos);
         case clock:
             return MakeClock(pos);
+        case g_not:
+            return MakeNot(pos);
         default:
             return MultiInputComponent(type, inpNum, pos);
     }
