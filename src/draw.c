@@ -56,45 +56,25 @@ void InitMenu(){
         Components[i].textRect.y = Components[i].buttonRect.y;
         Components[i].textRect.w = 0;
         Components[i].textRect.h = MENU_FONT_SIZE;
-        switch (i){
-            case(state):
-                Components[i].textRect.x -= 5 * MENU_FONT_SIZE / 2;
-                Components[i].textRect.w = 5 * MENU_FONT_SIZE;
-                break;
-            case(probe):
-                Components[i].textRect.x -= 5 * MENU_FONT_SIZE / 2;
-                Components[i].textRect.w = 5 * MENU_FONT_SIZE;
-                break;
-            case(clock):
-                Components[i].textRect.x -= 5 * MENU_FONT_SIZE / 2;
-                Components[i].textRect.w = 5 * MENU_FONT_SIZE;
-                break;
-            case(g_and):
-                Components[i].textRect.x -= 3 * MENU_FONT_SIZE / 2;
-                Components[i].textRect.w = 3 * MENU_FONT_SIZE;
-                break;
-            case(g_or):
-                Components[i].textRect.x -= MENU_FONT_SIZE;
-                Components[i].textRect.w = 2 * MENU_FONT_SIZE;
-                break;
-            case(g_nand):        
-                Components[i].textRect.x -= 2 * MENU_FONT_SIZE;
-                Components[i].textRect.w = 4 * MENU_FONT_SIZE;
-                break;
-            case(g_nor):          
-                Components[i].textRect.x -= 3 * MENU_FONT_SIZE / 2;
-                Components[i].textRect.w = 3 * MENU_FONT_SIZE;
-                break;
-            case(g_xor):            
-                Components[i].textRect.x -= 3 * MENU_FONT_SIZE / 2;
-                Components[i].textRect.w = 3 * MENU_FONT_SIZE;
-                break;
-            case(g_xnor):
-                Components[i].textRect.x -= 4 * MENU_FONT_SIZE / 2;
-                Components[i].textRect.w = 4 * MENU_FONT_SIZE;
-                break;            
-            default:            
-                break;
+        if (i == state || i == probe || i == clock){
+            Components[i].textRect.x -= 4 * MENU_FONT_SIZE / 2;
+            Components[i].textRect.w = 4 * MENU_FONT_SIZE;
+            Components[i].textRect.h = 4 * Components[i].textRect.h / 5;
+            Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h / 2 - Components[i].textRect.h / 2;
+        }
+        else if (i == g_nand || i == g_xnor){
+            Components[i].textRect.x -= 3 * MENU_FONT_SIZE / 2;
+            Components[i].textRect.w = 3 * MENU_FONT_SIZE;
+            Components[i].textRect.h = 3 * Components[i].textRect.h / 4;
+            Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h / 2 - Components[i].textRect.h / 2;
+        }
+        else if (i == g_or){
+            Components[i].textRect.x -= MENU_FONT_SIZE;
+            Components[i].textRect.w = 2 * MENU_FONT_SIZE;
+        }
+        else{
+            Components[i].textRect.x -= 3 * MENU_FONT_SIZE / 2;
+            Components[i].textRect.w = 3 * MENU_FONT_SIZE;
         }
     }
 }
@@ -152,35 +132,21 @@ void DestroyTextures(){
     }
 }
 
-void RenderGateText(SDL_Renderer *renderer, SDL_Rect compo, Type type){
+void RenderGateText(SDL_Rect compo, Type type){
     SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE, 0, CELL_SIZE * 2};
-    switch (type){
-        case(g_and):
-            textRect.x -= 3 * CELL_SIZE / 2;
-            textRect.w = 3 * CELL_SIZE;
-            break;
-        case(g_or):
-            textRect.x -= CELL_SIZE;
-            textRect.w = 2 * CELL_SIZE;
-            break;
-        case(g_nand):        
-            textRect.x -= 2 * CELL_SIZE;
-            textRect.w = 4 * CELL_SIZE;
-            break;
-        case(g_nor):          
-            textRect.x -= 3 * CELL_SIZE / 2;
-            textRect.w = 3 * CELL_SIZE;
-            break;
-        case(g_xor):            
-            textRect.x -= 3 * CELL_SIZE / 2;
-            textRect.w = 3 * CELL_SIZE;
-            break;
-        case(g_xnor):
-            textRect.x -= 4 * CELL_SIZE / 2;
-            textRect.w = 4 * CELL_SIZE;
-            break;            
-        default:            
-            break;
+    if (type == g_nand || type == g_xnor){
+        textRect.x -= 3 * CELL_SIZE / 2;
+        textRect.w = 3 * CELL_SIZE;
+        textRect.h = textRect.h * 3 / 4;
+        textRect.y = compo.y + compo.h / 2 - textRect.h / 2;
+    }
+    else if (type == g_or){
+        textRect.x -= CELL_SIZE;
+        textRect.w = 2 * CELL_SIZE;
+    }
+    else{
+        textRect.x -= 3 * CELL_SIZE / 2;
+        textRect.w = 3 * CELL_SIZE;
     }
     if (type >= g_and)
         SDL_RenderCopy(renderer, compoTexts[type], NULL, &textRect);
@@ -383,7 +349,7 @@ void DrawComponents(int pad_x, int pad_y){
         compo.y = ComponentList[i].start.y * CELL_SIZE + pad_y + 1;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
-        RenderGateText(renderer, compo, ComponentList[i].type);
+        RenderGateText(compo, ComponentList[i].type);
     }
 }
 
