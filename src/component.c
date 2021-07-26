@@ -27,6 +27,13 @@ Component GetComponent(Type type, char inpNum, Pair pos){
     }
 }
 
+void ClearInputs(Component * component){
+    for (int i = 0; i < 5; i ++){
+        component->inpSrc[i] = -1;
+        component->inputs[i] = false;
+    }
+}
+
 Component MakeState(Pair pos){
     Component component;
     component.size  = 1;
@@ -38,6 +45,7 @@ Component MakeState(Pair pos){
     component.color.g = 100;
     component.color.b = 100;
     component.type = state;
+    ClearInputs(&component);
     return component;
 }
 
@@ -46,12 +54,13 @@ Component MakeProbe(Pair pos){
     component.start.x = pos.x;
     component.start.y = pos.y;
     component.size    = 1;
-    component.width = 1;
+    component.width   = 1;
     component.operate = ToggleProbe;
     component.color.r = 100;
     component.color.g = 100;
     component.color.b = 100;
     component.type = probe;
+    ClearInputs(&component);
     return component;
 }
 
@@ -66,6 +75,7 @@ Component MakeClock(Pair pos){
     component.color.g = 80;
     component.color.b = 0;
     component.type = clock;
+    ClearInputs(&component);
     return component;
 }
 
@@ -76,6 +86,7 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos){
     component.size    = inpNum;
     component.width = 4;
     component.type = type;
+    ClearInputs(&component);
     switch (type){
         case(g_and):
             component.operate = andGate; 
@@ -119,7 +130,7 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos){
 
 void SetInputs(Component * component){
     for (int i = 0; i < component->size; i ++){
-        if (component->inpSrc[i] == 0)
+        if (component->inpSrc[i] == -1)
             continue;
         Component * sender = ComponentList[component->inpSrc[i]];
         component->inputs[i] = sender->output;

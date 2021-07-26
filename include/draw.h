@@ -318,7 +318,7 @@ void DrawComponents(int pad_x, int pad_y){
         compo.y = ComponentList[i].start.y * CELL_SIZE + pad_y + 1;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
-        /* RenderGateText(renderer, compo, ComponentList[i].type); */
+        RenderGateText(renderer, compo, ComponentList[i].type);
     }
 }
 

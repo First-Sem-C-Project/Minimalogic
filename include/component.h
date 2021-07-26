@@ -20,20 +20,3 @@ typedef struct _component{
 
 void GetWidthHeight(int * w, int * h, Type type, int size);
 Component GetComponent(Type, char, Pair);
-
-Component MakeState(Pair);
-Component MakeProbe(Pair);
-Component MakeClock(Pair);
-Component MultiInputComponent(Type, int, Pair);
-
-void andGate(Component * component);
-void orGate(Component * component);
-void nandGate(Component * component);
-void norGate(Component * component);
-void xorGate(Component * component);
-void xnorGate(Component * component);
-
-void Tick(Component * component);
-void ToggleState(Component * component);
-void ToggleProbe(Component * component);
-
