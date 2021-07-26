@@ -20,7 +20,6 @@ typedef struct Button{
     SDL_Rect textRect;
     Type type;
     Color color;
-    char text[10];
 } Button;
 
 void PreLoadTextures();

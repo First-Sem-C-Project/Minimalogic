@@ -104,41 +104,41 @@ void PreLoadTextures(){
     SDL_Color white = {WHITE, 200};
     SDL_Color black = {BLACK, 200};
 
-    textSurface = TTF_RenderText_Solid(sans, "RUN", black);
+    textSurface = TTF_RenderText_Blended(sans, "RUN", black);
     runAndCompoButton[0] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Solid(sans, "STOP", black);
+    textSurface = TTF_RenderText_Blended(sans, "STOP", black);
     runAndCompoButton[1] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Solid(sans, "Components", white);
+    textSurface = TTF_RenderText_Blended(sans, "Components", white);
     runAndCompoButton[2] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "STATE", white);
+    textSurface = TTF_RenderText_Blended(sans, "STATE", white);
     compoTexts[state] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "PROBE", white);
+    textSurface = TTF_RenderText_Blended(sans, "PROBE", white);
     compoTexts[probe] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "CLOCK", white);
+    textSurface = TTF_RenderText_Blended(sans, "CLOCK", white);
     compoTexts[clock] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "AND", white);
+    textSurface = TTF_RenderText_Blended(sans, "AND", white);
     compoTexts[g_and] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "OR", white);
+    textSurface = TTF_RenderText_Blended(sans, "OR", white);
     compoTexts[g_or] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "NOT", white);
+    textSurface = TTF_RenderText_Blended(sans, "NOT", white);
     compoTexts[g_not] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "NAND", white);
+    textSurface = TTF_RenderText_Blended(sans, "NAND", white);
     compoTexts[g_nand] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "NOR", white);
+    textSurface = TTF_RenderText_Blended(sans, "NOR", white);
     compoTexts[g_nor] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "XOR", white);
+    textSurface = TTF_RenderText_Blended(sans, "XOR", white);
     compoTexts[g_xor] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "XNOR", white);
+    textSurface = TTF_RenderText_Blended(sans, "XNOR", white);
     compoTexts[g_xnor] = SDL_CreateTextureFromSurface(renderer, textSurface);
     SDL_FreeSurface(textSurface);
 }
@@ -151,19 +151,6 @@ void DestroyTextures(){
         SDL_DestroyTexture(runAndCompoButton[i]);
     }
 }
-
-/* void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){ */
-/*     SDL_Surface* textSurface = NULL; */
-/*     SDL_Texture* textTexture = NULL; */
-/*      */
-/*     SDL_Color white = {WHITE, 200}; */
-/*     textSurface = TTF_RenderText_Solid(sans, message, white); */
-/*     textTexture = SDL_CreateTextureFromSurface(renderer, textSurface); */
-/*  */
-/*     SDL_FreeSurface(textSurface); */
-/*     SDL_RenderCopy(renderer, textTexture, NULL, dstRect); */
-/*     SDL_DestroyTexture(textTexture); */
-/* } */
 
 void RenderGateText(SDL_Renderer *renderer, SDL_Rect compo, Type type){
     SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE, 0, CELL_SIZE * 2};
