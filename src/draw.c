@@ -23,6 +23,8 @@ Button Components[9] = {{.type = state, .text = "STATE"},
 
 TTF_Font *sans = NULL;
 SDL_Texture *textures[g_total];
+SDL_Texture *textureRun;
+SDL_Texture *textureComponents;
 
 void InitFont(){
     TTF_Init();
@@ -68,6 +70,21 @@ void PreLoadTextures(){
     SDL_Surface* textSurface = NULL;
     SDL_Color white = {WHITE, 200};
 
+    textSurface = TTF_RenderText_Solid(sans, "RUN", white);
+    textureRun = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "Components", white);
+    textureComponents = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "STATE", white);
+    textures[state] = SDL_CreateTextureFromSurface(renderer, textSurface);
+    
+    textSurface = TTF_RenderText_Solid(sans, "PROBE", white);
+    textures[probe] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Solid(sans, "CLOCK", white);
+    textures[clock] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
     textSurface = TTF_RenderText_Solid(sans, "AND", white);
     textures[g_and] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
@@ -92,21 +109,10 @@ void PreLoadTextures(){
 }
 
 void DestroyTextures(){
+    SDL_DestroyTexture(textureComponents);
+    SDL_DestroyTexture(textureRun);
     for(int i = 0; i < g_total; i ++)
         SDL_DestroyTexture(textures[0]);
-}
-
-void DisplayText(SDL_Renderer *renderer, char* message, SDL_Rect* dstRect){
-    SDL_Surface* textSurface = NULL;
-    SDL_Texture* textTexture = NULL;
-    
-    SDL_Color white = {WHITE, 200};
-    textSurface = TTF_RenderText_Solid(sans, message, white);
-    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    SDL_FreeSurface(textSurface);
-    SDL_RenderCopy(renderer, textTexture, NULL, dstRect);
-    SDL_DestroyTexture(textTexture);
 }
 
 void RenderGateText(SDL_Renderer *renderer, SDL_Rect compo, Type type){
@@ -146,11 +152,11 @@ void RenderGateText(SDL_Renderer *renderer, SDL_Rect compo, Type type){
 void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
     SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g, RunButton.color.b, 255);
     SDL_RenderFillRect(renderer, &RunButton.buttonRect);
-    DisplayText(renderer, RunButton.text, &RunButton.textRect);
+    SDL_RenderCopy(renderer, textureRun, NULL, &RunButton.textRect);
 
     SDL_SetRenderDrawColor(renderer, ComponentsButton.color.r, ComponentsButton.color.g, ComponentsButton.color.b, 255);
     SDL_RenderFillRect(renderer, &ComponentsButton.buttonRect);
-    DisplayText(renderer, ComponentsButton.text, &ComponentsButton.textRect);
+    SDL_RenderCopy(renderer, textureComponents, NULL, &ComponentsButton.textRect);
 
     if(menuExpanded){
         SDL_Rect wrapper = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h, ComponentsButton.buttonRect.w, 2+9*(25+2)};        
@@ -161,7 +167,7 @@ void DrawMenu(SDL_Renderer *renderer, bool menuExpanded){
             SDL_SetRenderDrawColor(renderer, Components[i].color.r, Components[i].color.g, Components[i].color.b, 255);
             
             SDL_RenderFillRect(renderer, &Components[i].buttonRect);
-            DisplayText(renderer, Components[i].text, &Components[i].textRect);
+            SDL_RenderCopy(renderer, textures[i], NULL, &Components[i].textRect);
         }
     }
 }
