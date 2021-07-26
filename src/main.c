@@ -1,6 +1,5 @@
 /* #include <stdio.h> */
 // relative paths to avoid stupid errors from editor
-#include <string.h>
 #include <direct.h>
 
 #include "../include/draw.h"
