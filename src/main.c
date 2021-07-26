@@ -28,6 +28,9 @@ SDL_Renderer* renderer = NULL;
 
 Component ComponentList[256];
 unsigned char componentCount;
+Wire WireList[1000];
+Wire tmpWire;
+unsigned int WireCount = 0;
 int time = 0;
 
 typedef struct{
@@ -77,11 +80,13 @@ bool PositionIsValid(int * grid, int w, int h, Pair pos){
     return true;
 }
 
-void InsertComponent(int* grid, Selection selected){
-    int width, height;
-    GetWidthHeight(&width, &height, selected.type, selected.size);
-    if (!PositionIsValid(grid, width, height, selected.pos))
-        return;
+bool WireIsValid(int * grid){
+    //TO DO:
+    //Implement this function
+    return true;
+}
+
+void InsertComponent(int* grid, Selection selected, int width, int height){
     ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos);
     for(int y = selected.pos.y; y < selected.pos.y + height; y ++){
         for(int x = selected.pos.x; x < selected.pos.x + width; x ++){
@@ -104,6 +109,12 @@ void DrawComponents(int pad_x, int pad_y){
     }
 }
 
+void DrawWires(){
+    for(int i=0; i<WireCount; i++){
+        DrawWire(renderer, WireList[i].start, WireList[i].end);
+    }
+}
+
 
 void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
@@ -112,7 +123,22 @@ void UpdateComponents(){
     }
 }
 
-void DrawCall(bool menuExpanded, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos){
+bool StartWiring(Pair pos){
+    tmpWire.start.x = pos.x;
+    tmpWire.start.y = pos.y;
+    tmpWire.end = tmpWire.start;
+
+    return true;
+}
+
+bool AddWire(Pair pos){
+    WireList[WireCount] = tmpWire;
+    WireCount++;
+
+    return false;
+}
+
+void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos){
     SDL_Rect highlight;
     highlight.w = CELL_SIZE + 1;
     highlight.h = CELL_SIZE + 1;
@@ -126,6 +152,10 @@ void DrawCall(bool menuExpanded, int x, int y, Selection selectedComponent, int 
 
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);
+    DrawWires();
+
+    if(drawingWire)
+        DrawWire(renderer, tmpWire.start, tmpWire.end);
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
         SDL_SetRenderDrawColor(renderer, BLUE, 150);
@@ -175,6 +205,7 @@ int main(int argc, char** argv){
 
     bool simulating = false;
     bool menuExpanded = false;
+    bool drawingWire = false;
     char dropDownAnimationFlag = 0;
 
     SDL_Event e;
@@ -201,7 +232,13 @@ int main(int argc, char** argv){
                 case(SDL_MOUSEBUTTONDOWN):
                     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL && componentCount <= 255 && !simulating){
                         selectedComponent.pos = gridPos;
-                        InsertComponent(grid, selectedComponent);
+                        int width, height;
+                        GetWidthHeight(&width, &height, selectedComponent.type, selectedComponent.size);
+                        if(PositionIsValid(grid, width, height,selectedComponent.pos))
+                            InsertComponent(grid, selectedComponent, width, height);
+                        else if(WireIsValid){
+                            drawingWire = StartWiring((Pair){x,y});
+                        }
                     }
                     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL && componentCount <= 255){
                         int index = cell(gridPos.y, gridPos.x);
@@ -222,10 +259,20 @@ int main(int argc, char** argv){
                         }
                     }
                     break;
+                case SDL_MOUSEMOTION:
+                    if(drawingWire){
+                        tmpWire.end.x = x;
+                        tmpWire.end.y = y;
+                    }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if(WireIsValid(grid))
+                        drawingWire = AddWire((Pair){x,y});
+                    break;
                 default: break;
             }
         }
-        DrawCall(menuExpanded, x, y, selectedComponent, pad_x, pad_y, simulating, &dropDownAnimationFlag, gridPos);
+        DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y, simulating, &dropDownAnimationFlag, gridPos);
 
         if (simulating)
             UpdateComponents();

@@ -2,6 +2,10 @@
 
 #define MENU_WIDTH 200
 
+typedef struct Wire{
+    SDL_Point start, end;
+} Wire;
+
 typedef struct Button{
     SDL_Rect buttonRect;
     SDL_Rect textRect;
@@ -229,4 +233,44 @@ void AnimateDropDown(SDL_Renderer *renderer, char *animationFlag, bool menuExpan
 
 Type SelectComponent(Button* button){
     return button->type;   
+}
+
+SDL_Point BezierPoint(float t, SDL_Point p[4]){
+    double tt = t * t;
+    double ttt = tt * t;
+    double u = 1 - t;
+    double uu = u * u;
+    double uuu = uu * u;
+
+    return (SDL_Point) {
+        uuu * p[0].x + 3 * uu * t * p[1].x + 3 * u * tt * p[2].x + ttt * p[3].x,
+        uuu * p[0].y + 3 * uu * t * p[1].y + 3 * u * tt* p[2].y + ttt * p[3].y
+    };
+}
+
+//The wire looks jagged. Might need to implement anti-aliasing
+void DrawWire(SDL_Renderer* renderer, SDL_Point start, SDL_Point end){
+    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+
+    for(int i=0; i<2; i++){
+        if(abs(start.x-end.x)>abs(start.y-end.y)){
+            start.y++;
+            end.y++;
+        }
+        else{
+            start.x++;
+            end.x++;
+        }
+        SDL_Point p2 = {start.x + (end.x - start.x)/3, start.y};
+        SDL_Point p3 = {end.x - (end.x - start.x)/3, end.y};
+
+        SDL_Point previousPoint = BezierPoint(0, (SDL_Point[4]){start, p2, p3, end});
+        for (int i=1; i<100; i++){
+            float t = (float)i/100;
+            SDL_Point currentPoint = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
+            SDL_RenderDrawLine(renderer, previousPoint.x, previousPoint.y, currentPoint.x, currentPoint.y);
+            previousPoint = currentPoint;
+        } 
+    }
+    
 }
