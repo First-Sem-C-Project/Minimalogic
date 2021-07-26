@@ -1,4 +1,4 @@
-/* #include <stdio.h> */
+#include <stdio.h>
 // relative paths to avoid stupid errors from editor
 #include <direct.h>
 
@@ -82,9 +82,10 @@ void InitGrid(int * grid){
 }
 
 int main(int argc, char** argv){
-    char *path;
+    char *path, len;
     path = argv[0];
-    for (int i = strlen(path); i >= 0;i--){
+    for (len = 0; path[len]; len++);
+    for (int i = len - 1; i >= 0; i--){
         if (path[i] == '\\'){
             path[i + 1] = '\0';
             break;
@@ -93,7 +94,6 @@ int main(int argc, char** argv){
     _chdir(path);
     _chdir("../..");
     init();
-    
 
     SDL_SetWindowResizable(window, SDL_TRUE);
     SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);

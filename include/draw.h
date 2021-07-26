@@ -3,7 +3,6 @@
 #include "component.h"
 #include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
 #include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL_ttf.h"
-#include <string.h>
 
 typedef struct{
     Type type;
@@ -20,7 +19,6 @@ typedef struct Button{
     SDL_Rect textRect;
     Type type;
     Color color;
-    char text[10];
 } Button;
 
 void PreLoadTextures();
