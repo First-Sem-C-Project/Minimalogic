@@ -1,13 +1,8 @@
-#include <stdio.h>
+/* #include <stdio.h> */
 // relative paths to avoid stupid errors from editor
-#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
-#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL_ttf.h"
 #include <string.h>
 #include <direct.h>
 
-#include "../include/colors.h"
-#include "../include/settings.h"
-#include "../include/component.h"
 #include "../include/draw.h"
 
 SDL_Window* window = NULL;
@@ -19,12 +14,17 @@ Component ComponentList[256];
 unsigned char componentCount;
 int time = 0;
 
+extern Wire tmpWire;
+extern Button ComponentsButton;
+extern TTF_Font * sans;
+extern Button RunButton;
+
 void init(){
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
         exit(-1);
     window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    Init_Font();
+    InitFont();
     if (!(window && renderer))
         exit (-2);
 }
