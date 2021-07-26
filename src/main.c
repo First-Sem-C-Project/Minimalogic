@@ -1,43 +1,23 @@
 #include <stdio.h>
-#include "SDL2/SDL.h"
-#include <SDL2/SDL_ttf.h>
+// relative paths to avoid stupid errors from editor
+#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
+#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL_ttf.h"
 #include <string.h>
 #include <direct.h>
 
-#include "colors.h"
-#include "component.h"
-#include "draw.h"
+#include "../include/colors.h"
+#include "../include/settings.h"
+#include "../include/component.h"
+#include "../include/draw.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
-
-#define WINDOW_WIDTH  500
-#define WINDOW_HEIGHT 500
-
-#define CELL_SIZE 25
-#define GRID_WIDTH  900
-#define GRID_HEIGHT 700
-#define GRID_ROW (GRID_WIDTH / CELL_SIZE)
-#define GRID_COL (GRID_HEIGHT / CELL_SIZE - 2)
-
-#define MIN_WINDOW_WIDTH GRID_WIDTH + 2 * MENU_WIDTH
-#define MIN_WINDOW_HEIGHT GRID_HEIGHT
-#define DELAY 40
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 Component ComponentList[256];
 unsigned char componentCount;
-Wire WireList[1000];
-Wire tmpWire;
-unsigned int WireCount = 0;
 int time = 0;
-
-typedef struct{
-    Type type;
-    char size;
-    Pair pos;
-}Selection;
 
 void init(){
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -56,16 +36,6 @@ void closeProgram(){
     TTF_Quit();
     SDL_Quit();
     exit(0);
-}
-
-void DrawGrid(int pad_x, int pad_y){
-    SDL_SetRenderDrawColor(renderer, BG1);
-    for (int i = 0; i < GRID_ROW + 1; i ++){
-        SDL_RenderDrawLine(renderer, pad_x + i * CELL_SIZE, pad_y, pad_x + i * CELL_SIZE, GRID_HEIGHT - 2 * CELL_SIZE + pad_y);
-    }
-    for (int i = 0; i < GRID_COL + 1; i ++){
-        SDL_RenderDrawLine(renderer, pad_x, i * CELL_SIZE + pad_y, pad_x + GRID_WIDTH, i * CELL_SIZE + pad_y);
-    }
 }
 
 bool PositionIsValid(int * grid, int w, int h, Pair pos){
@@ -96,75 +66,11 @@ void InsertComponent(int* grid, Selection selected, int width, int height){
    componentCount ++;
 }
 
-void DrawComponents(int pad_x, int pad_y){
-    SDL_Rect compo;
-    for(int i = 0; i < componentCount; i ++){
-        compo.w = ComponentList[i].width * CELL_SIZE - 1;
-        compo.h = ComponentList[i].size * CELL_SIZE - 1;
-        compo.x = ComponentList[i].start.x * CELL_SIZE + pad_x + 1;
-        compo.y = ComponentList[i].start.y * CELL_SIZE + pad_y + 1;
-        SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
-        SDL_RenderFillRect(renderer, &compo);
-        /* RenderGateText(renderer, compo, ComponentList[i].type); */
-    }
-}
-
-void DrawWires(){
-    for(int i=0; i<WireCount; i++){
-        DrawWire(renderer, WireList[i].start, WireList[i].end);
-    }
-}
-
-
 void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
         if (ComponentList[i].type != state)
             ComponentList[i].operate(&ComponentList[i]);
     }
-}
-
-bool StartWiring(Pair pos){
-    tmpWire.start.x = pos.x;
-    tmpWire.start.y = pos.y;
-    tmpWire.end = tmpWire.start;
-
-    return true;
-}
-
-bool AddWire(Pair pos){
-    WireList[WireCount] = tmpWire;
-    WireCount++;
-
-    return false;
-}
-
-void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos){
-    SDL_Rect highlight;
-    highlight.w = CELL_SIZE + 1;
-    highlight.h = CELL_SIZE + 1;
-    SDL_SetRenderDrawColor(renderer, BG);
-    SDL_RenderClear(renderer);
-    DrawMenu(renderer, menuExpanded);
-    HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
-    HighlightSelected(selectedComponent.type);
-    if(*dropDownAnimationFlag>0 && *dropDownAnimationFlag<6)
-        AnimateDropDown(renderer, dropDownAnimationFlag, menuExpanded);
-
-    DrawGrid(pad_x, pad_y);
-    DrawComponents(pad_x, pad_y);
-    DrawWires();
-
-    if(drawingWire)
-        DrawWire(renderer, tmpWire.start, tmpWire.end);
-
-    if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
-        SDL_SetRenderDrawColor(renderer, BLUE, 150);
-        highlight.x = gridPos.x * CELL_SIZE + pad_x;
-        highlight.y = gridPos.y * CELL_SIZE + pad_y;
-        SDL_RenderFillRect(renderer, &highlight);
-    }
-
-    SDL_RenderPresent(renderer);
 }
 
 void InitGrid(int * grid){
@@ -207,6 +113,7 @@ int main(int argc, char** argv){
     bool menuExpanded = false;
     bool drawingWire = false;
     char dropDownAnimationFlag = 0;
+    bool cursorInGrid;
 
     SDL_Event e;
     while(1){
@@ -225,22 +132,24 @@ int main(int argc, char** argv){
         gridPos.x = (x - pad_x) / CELL_SIZE;
         gridPos.y = (y - pad_y) / CELL_SIZE;
 
+        cursorInGrid = gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL;
+
         while(SDL_PollEvent(&e)){
             switch(e.type){
                 case (SDL_QUIT):
                     closeProgram();
                 case(SDL_MOUSEBUTTONDOWN):
-                    if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL && componentCount <= 255 && !simulating){
+                    if (cursorInGrid && componentCount <= 255 && !simulating){
                         selectedComponent.pos = gridPos;
                         int width, height;
                         GetWidthHeight(&width, &height, selectedComponent.type, selectedComponent.size);
-                        if(PositionIsValid(grid, width, height,selectedComponent.pos))
+                        if(PositionIsValid(grid, width, height, selectedComponent.pos))
                             InsertComponent(grid, selectedComponent, width, height);
-                        else if(WireIsValid){
+                        else if(WireIsValid(grid)){
                             drawingWire = StartWiring((Pair){x,y});
                         }
                     }
-                    if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL && componentCount <= 255){
+                    if (cursorInGrid && componentCount <= 255){
                         int index = cell(gridPos.y, gridPos.x);
                         if (index != -1){
                             if (ComponentList[index].type == state)

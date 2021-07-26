@@ -1,10 +1,23 @@
 #include "colors.h"
 
-#define MENU_WIDTH 200
+extern Component ComponentList[256];
+extern SDL_Window* window;
+extern SDL_Renderer* renderer;
+extern unsigned char componentCount;
+
+typedef struct{
+    Type type;
+    char size;
+    Pair pos;
+}Selection;
 
 typedef struct Wire{
     SDL_Point start, end;
 } Wire;
+
+Wire WireList[1000];
+Wire tmpWire;
+unsigned int WireCount = 0;
 
 typedef struct Button{
     SDL_Rect buttonRect;
@@ -251,6 +264,7 @@ SDL_Point BezierPoint(float t, SDL_Point p[4]){
 //The wire looks jagged. Might need to implement anti-aliasing
 void DrawWire(SDL_Renderer* renderer, SDL_Point start, SDL_Point end){
     SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+    SDL_Point wirePoints[100];
 
     for(int i=0; i<2; i++){
         if(abs(start.x-end.x)>abs(start.y-end.y)){
@@ -265,12 +279,84 @@ void DrawWire(SDL_Renderer* renderer, SDL_Point start, SDL_Point end){
         SDL_Point p3 = {end.x - (end.x - start.x)/3, end.y};
 
         SDL_Point previousPoint = BezierPoint(0, (SDL_Point[4]){start, p2, p3, end});
-        for (int i=1; i<100; i++){
+        for (int i=0; i<100; i++){
             float t = (float)i/100;
-            SDL_Point currentPoint = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
-            SDL_RenderDrawLine(renderer, previousPoint.x, previousPoint.y, currentPoint.x, currentPoint.y);
-            previousPoint = currentPoint;
+            wirePoints[i] = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
         } 
+        SDL_RenderDrawLines(renderer, wirePoints, 100);
     }
     
+}
+
+bool StartWiring(Pair pos){
+    tmpWire.start.x = pos.x;
+    tmpWire.start.y = pos.y;
+    tmpWire.end = tmpWire.start;
+
+    return true;
+}
+
+bool AddWire(Pair pos){
+    WireList[WireCount] = tmpWire;
+    WireCount++;
+
+    return false;
+}
+
+void DrawWires(){
+    for(int i=0; i<WireCount; i++){
+        DrawWire(renderer, WireList[i].start, WireList[i].end);
+    }
+}
+
+void DrawComponents(int pad_x, int pad_y){
+    SDL_Rect compo;
+    for(int i = 0; i < componentCount; i ++){
+        compo.w = ComponentList[i].width * CELL_SIZE - 1;
+        compo.h = ComponentList[i].size * CELL_SIZE - 1;
+        compo.x = ComponentList[i].start.x * CELL_SIZE + pad_x + 1;
+        compo.y = ComponentList[i].start.y * CELL_SIZE + pad_y + 1;
+        SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
+        SDL_RenderFillRect(renderer, &compo);
+        /* RenderGateText(renderer, compo, ComponentList[i].type); */
+    }
+}
+
+void DrawGrid(int pad_x, int pad_y){
+    SDL_SetRenderDrawColor(renderer, BG1);
+    for (int i = 0; i < GRID_ROW + 1; i ++){
+        SDL_RenderDrawLine(renderer, pad_x + i * CELL_SIZE, pad_y, pad_x + i * CELL_SIZE, GRID_HEIGHT - 2 * CELL_SIZE + pad_y);
+    }
+    for (int i = 0; i < GRID_COL + 1; i ++){
+        SDL_RenderDrawLine(renderer, pad_x, i * CELL_SIZE + pad_y, pad_x + GRID_WIDTH, i * CELL_SIZE + pad_y);
+    }
+}
+
+void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos){
+    SDL_Rect highlight;
+    highlight.w = CELL_SIZE + 1;
+    highlight.h = CELL_SIZE + 1;
+    SDL_SetRenderDrawColor(renderer, BG);
+    SDL_RenderClear(renderer);
+    DrawMenu(renderer, menuExpanded);
+    HoverOver(renderer, clickedOn(x, y, menuExpanded), menuExpanded);
+    HighlightSelected(selectedComponent.type);
+    if(*dropDownAnimationFlag>0 && *dropDownAnimationFlag<6)
+        AnimateDropDown(renderer, dropDownAnimationFlag, menuExpanded);
+
+    DrawGrid(pad_x, pad_y);
+    DrawComponents(pad_x, pad_y);
+    DrawWires();
+
+    if(drawingWire)
+        DrawWire(renderer, tmpWire.start, tmpWire.end);
+
+    if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
+        SDL_SetRenderDrawColor(renderer, BLUE, 150);
+        highlight.x = gridPos.x * CELL_SIZE + pad_x;
+        highlight.y = gridPos.y * CELL_SIZE + pad_y;
+        SDL_RenderFillRect(renderer, &highlight);
+    }
+
+    SDL_RenderPresent(renderer);
 }
