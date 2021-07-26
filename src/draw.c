@@ -70,40 +70,40 @@ void PreLoadTextures(){
     SDL_Surface* textSurface = NULL;
     SDL_Color white = {WHITE, 200};
 
-    textSurface = TTF_RenderText_Solid(sans, "RUN", white);
+    textSurface = TTF_RenderText_Blended(sans, "RUN", white);
     textureRun = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "Components", white);
+    textSurface = TTF_RenderText_Blended(sans, "Components", white);
     textureComponents = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "STATE", white);
+    textSurface = TTF_RenderText_Blended(sans, "STATE", white);
     textures[state] = SDL_CreateTextureFromSurface(renderer, textSurface);
     
-    textSurface = TTF_RenderText_Solid(sans, "PROBE", white);
+    textSurface = TTF_RenderText_Blended(sans, "PROBE", white);
     textures[probe] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "CLOCK", white);
+    textSurface = TTF_RenderText_Blended(sans, "CLOCK", white);
     textures[clock] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "AND", white);
+    textSurface = TTF_RenderText_Blended(sans, "AND", white);
     textures[g_and] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "OR", white);
+    textSurface = TTF_RenderText_Blended(sans, "OR", white);
     textures[g_or] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "NOT", white);
+    textSurface = TTF_RenderText_Blended(sans, "NOT", white);
     textures[g_not] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "NAND", white);
+    textSurface = TTF_RenderText_Blended(sans, "NAND", white);
     textures[g_nand] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "NOR", white);
+    textSurface = TTF_RenderText_Blended(sans, "NOR", white);
     textures[g_nor] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "XOR", white);
+    textSurface = TTF_RenderText_Blended(sans, "XOR", white);
     textures[g_xor] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Solid(sans, "XNOR", white);
+    textSurface = TTF_RenderText_Blended(sans, "XNOR", white);
     textures[g_xnor] = SDL_CreateTextureFromSurface(renderer, textSurface);
     SDL_FreeSurface(textSurface);
 }
