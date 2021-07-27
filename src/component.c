@@ -18,6 +18,19 @@ void GetWidthHeight(int * w, int * h, Type type, int size){
     }
 }
 
+void SetIOPos(Component * component, int inpNum){
+    for (int i = inpNum; i < 5; i ++){
+        component->inpPos[i].y = -1;
+        component->inpPos[i].x = -1;
+    }
+    for (int i = 0; i < inpNum; i ++){
+        component->inpPos[i].y = component->start.y + i;
+        component->inpPos[i].x = component->start.x;
+    }
+    component->outPos.x = component->start.x + component->width - 1;
+    component->outPos.y = component->start.y + component->size / 2;
+}
+
 void ClearInputs(Component * component){
     for (int i = 0; i < 5; i ++){
         component->inpSrc[i] = -1;
@@ -99,7 +112,7 @@ void FlipColor(Component * component){
 }
 
 void Tick(Component * component){
-    if (time == 0)
+    if (time % 200 == 0)
         component->output = !component->output;
     FlipColor(component);
 }
@@ -126,6 +139,7 @@ Component MakeNot(Pair pos){
     component.color.b = 100;
     component.type = g_not;
     ClearInputs(&component);
+    SetIOPos(&component, 1);
     return component;
 }
 
@@ -141,6 +155,7 @@ Component MakeState(Pair pos){
     component.color.b = 100;
     component.type = state;
     ClearInputs(&component);
+    SetIOPos(&component, 0);
     return component;
 }
 
@@ -156,6 +171,9 @@ Component MakeProbe(Pair pos){
     component.color.b = 100;
     component.type = probe;
     ClearInputs(&component);
+    SetIOPos(&component, 1);
+    component.outPos.x = -1;
+    component.outPos.y = -1;
     return component;
 }
 
@@ -171,6 +189,7 @@ Component MakeClock(Pair pos){
     component.color.b = 0;
     component.type = clock;
     ClearInputs(&component);
+    SetIOPos(&component, 0);
     return component;
 }
 
@@ -182,6 +201,7 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos){
     component.width = 4;
     component.type = type;
     ClearInputs(&component);
+    SetIOPos(&component, inpNum);
     switch (type){
         case(g_and):
             component.operate = andGate; 

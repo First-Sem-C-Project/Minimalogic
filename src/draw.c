@@ -229,6 +229,25 @@ void DrawWires(){
     }
 }
 
+void DrawIOPins(Component component, int pad_x, int pad_y){
+    SDL_Rect pin;
+    pin.w = TERMINAL_SIZE;
+    pin.h = TERMINAL_SIZE;
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    for(int i = 0; i < component.size; i ++){
+        if (component.inpPos[i].x >= 0){
+            pin.x = component.inpPos[i].x * CELL_SIZE + pad_x + 1;
+            pin.y = component.inpPos[i].y * CELL_SIZE + pad_y + 1 + CELL_SIZE / 2 - TERMINAL_SIZE / 2;
+            SDL_RenderFillRect(renderer, &pin);
+        }
+    }
+    if (component.outPos.x >= 0){
+        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - 10;
+        pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 + pad_y + 1 - TERMINAL_SIZE / 2;
+        SDL_RenderFillRect(renderer, &pin);
+    }
+}
+
 void DrawComponents(int pad_x, int pad_y){
     SDL_Rect compo;
     for(int i = 0; i < componentCount; i ++){
@@ -238,6 +257,7 @@ void DrawComponents(int pad_x, int pad_y){
         compo.y = ComponentList[i].start.y * CELL_SIZE + pad_y + 1;
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
+        DrawIOPins(ComponentList[i], pad_x, pad_y);
         RenderGateText(compo, ComponentList[i].type);
     }
 }
