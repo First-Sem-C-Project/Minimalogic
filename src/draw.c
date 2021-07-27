@@ -56,25 +56,23 @@ void InitMenu(){
         Components[i].textRect.y = Components[i].buttonRect.y;
         Components[i].textRect.w = 0;
         Components[i].textRect.h = MENU_FONT_SIZE;
+        Components[i].textRect.h = 3 * Components[i].textRect.h / 4;
+        Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h / 2 - Components[i].textRect.h / 2;
         if (i == state || i == probe || i == clock){
-            Components[i].textRect.x -= 4 * MENU_FONT_SIZE / 2;
-            Components[i].textRect.w = 4 * MENU_FONT_SIZE;
-            Components[i].textRect.h = 4 * Components[i].textRect.h / 5;
-            Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h / 2 - Components[i].textRect.h / 2;
+            Components[i].textRect.x -= 5 * Components[i].textRect.h / 2;
+            Components[i].textRect.w = 5 * Components[i].textRect.h;
         }
         else if (i == g_nand || i == g_xnor){
-            Components[i].textRect.x -= 3 * MENU_FONT_SIZE / 2;
-            Components[i].textRect.w = 3 * MENU_FONT_SIZE;
-            Components[i].textRect.h = 3 * Components[i].textRect.h / 4;
-            Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h / 2 - Components[i].textRect.h / 2;
+            Components[i].textRect.x -= 4 * Components[i].textRect.h / 2;
+            Components[i].textRect.w = 4 * Components[i].textRect.h;
         }
         else if (i == g_or){
-            Components[i].textRect.x -= MENU_FONT_SIZE;
-            Components[i].textRect.w = 2 * MENU_FONT_SIZE;
+            Components[i].textRect.x -= 2 * Components[i].textRect.h / 2;
+            Components[i].textRect.w = 2 * Components[i].textRect.h;
         }
         else{
-            Components[i].textRect.x -= 3 * MENU_FONT_SIZE / 2;
-            Components[i].textRect.w = 3 * MENU_FONT_SIZE;
+            Components[i].textRect.x -= 3 * Components[i].textRect.h / 2;
+            Components[i].textRect.w = 3 * Components[i].textRect.h;
         }
     }
 }
