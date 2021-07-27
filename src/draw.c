@@ -369,8 +369,8 @@ void DrawGrid(int pad_x, int pad_y){
 
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos, int * grid){
     SDL_Rect highlight;
-    highlight.w = CELL_SIZE + 1;
-    highlight.h = CELL_SIZE + 1;
+    highlight.w = CELL_SIZE - 1;
+    highlight.h = CELL_SIZE - 1;
     SDL_SetRenderDrawColor(renderer, BG);
     SDL_RenderClear(renderer);
     DrawMenu(menuExpanded, simulating);
@@ -389,8 +389,17 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selec
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
         if(grid[gridPos.y * GRID_ROW + gridPos.x] < 0){
             SDL_SetRenderDrawColor(renderer, BLUE, 150);
-            highlight.x = gridPos.x * CELL_SIZE + pad_x;
-            highlight.y = gridPos.y * CELL_SIZE + pad_y;
+            highlight.x = gridPos.x * CELL_SIZE + pad_x + 1;
+            highlight.y = gridPos.y * CELL_SIZE + pad_y + 1;
+            SDL_RenderFillRect(renderer, &highlight);
+        }
+        else{
+            Component toHighlight = ComponentList[grid[gridPos.y * GRID_ROW + gridPos.x]];
+            SDL_SetRenderDrawColor(renderer, BLUE, 100);
+            highlight.w = toHighlight.width * CELL_SIZE - 1;
+            highlight.h = toHighlight.size  * CELL_SIZE - 1;
+            highlight.x = toHighlight.start.x * CELL_SIZE + pad_x + 1;
+            highlight.y = toHighlight.start.y * CELL_SIZE + pad_y + 1;
             SDL_RenderFillRect(renderer, &highlight);
         }
     }

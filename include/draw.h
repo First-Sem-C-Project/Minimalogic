@@ -1,8 +1,8 @@
 #include "colors.h"
 #include "settings.h"
 #include "component.h"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_ttf.h"
+#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
+#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL_ttf.h"
 
 typedef struct{
     Type type;

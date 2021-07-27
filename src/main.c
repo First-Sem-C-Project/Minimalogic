@@ -1,5 +1,4 @@
 #include <stdio.h>
-// relative paths to avoid stupid errors from editor
 #include <direct.h>
 
 #include "../include/draw.h"
