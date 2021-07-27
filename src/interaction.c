@@ -1,8 +1,6 @@
 #include "../include/interaction.h"
 
-Wire WireList[1000];
 Wire tmpWire;
-unsigned int WireCount = 0;
 
 Button RunButton = {.color = {GREEN}};
 Button ComponentsButton = {.color = {BLACK}};
@@ -94,13 +92,6 @@ bool StartWiring(Pair pos){
     return true;
 }
 
-bool AddWire(){
-    WireList[WireCount] = tmpWire;
-    WireCount++;
-
-    return false;
-}
-
 void ToggleSimulation(bool* state){
     if(*state){
         *state = false;
@@ -137,10 +128,26 @@ bool PositionIsValid(int * grid, int w, int h, Pair pos){
     return true;
 }
 
-bool WireIsValid(int * grid){
-    //TO DO:
-    //Implement this function
-    return true;
+char WireIsValid(int * grid, Pair gridPos, int x, int y, int pad_x, int pad_y){
+    if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0){
+        return 0;
+    }
+    int index = grid[gridPos.y * GRID_ROW + gridPos.x];
+    Component component = ComponentList[index];
+    Pair pin;
+    for(int i = 0; i < component.size; i ++){
+        pin.x = component.inpPos[i].x * CELL_SIZE + pad_x + 1;
+        pin.y = component.inpPos[i].y * CELL_SIZE + pad_y + 1 + CELL_SIZE / 2 - TERMINAL_SIZE / 2;
+        if (x >= pin.x && x <= pin.x + TERMINAL_SIZE && y >= pin.y && y <= pin.y + TERMINAL_SIZE)
+            return i + 1;
+    }
+    if (component.outPos.x >= 0){
+        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - 10;
+        pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 + pad_y + 1 - TERMINAL_SIZE / 2;
+        if (x >= pin.x && x <= pin.x + TERMINAL_SIZE && y >= pin.y && y <= pin.y + TERMINAL_SIZE)
+            return -1;
+    }
+    return 0;
 }
 
 void InsertComponent(int* grid, Selection selected, int width, int height){

@@ -23,7 +23,6 @@ typedef struct Button{
 void InitMenu();
 Button* clickedOn(int, int, bool);
 bool StartWiring(Pair);
-bool AddWire();
 void ToggleSimulation(bool*);
 void ToggleDropDown(bool*, char*);
 
@@ -32,5 +31,5 @@ void InsertComponent(int*, Selection, int, int);
 Selection SelectComponent(Button*);
 
 bool PositionIsValid(int*, int, int, Pair);
-bool WireIsValid(int*);
+char WireIsValid(int*, Pair, int, int, int, int);
 void ChangeNumofInputs(bool, Selection *);

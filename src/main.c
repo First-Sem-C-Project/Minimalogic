@@ -16,6 +16,10 @@ void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
         if (ComponentList[i].type != state)
             ComponentList[i].operate(&ComponentList[i]);
+        else{
+            ComponentList[i].color.r = ComponentList[i].output * 255 + (1 - ComponentList[i].output) * 50;
+            ComponentList[i].color.b = ComponentList[i].output * 50 + (1 - ComponentList[i].output) * 255;
+        }
     }
 }
 
@@ -45,6 +49,8 @@ int main(int argc, char** argv){
     bool drawingWire = false;
     char dropDownAnimationFlag = 0;
     bool cursorInGrid;
+    char startAt = 0, endAt = 0;
+    int sender, receiver, receiveIndex;
 
     SDL_Event e;
     while(1){
@@ -66,13 +72,38 @@ int main(int argc, char** argv){
                         selectedComponent.pos = gridPos;
                         int w, h;
                         GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-                        if(!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos))
+                        if(!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos)){
                             InsertComponent(grid, selectedComponent, w, h);
-                        else if(WireIsValid(grid)){
-                            if (!drawingWire)
-                                drawingWire = StartWiring((Pair){x,y});
-                            else
-                                drawingWire = AddWire();
+                        }
+                        else{
+                            if (!drawingWire){
+                                startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
+                                if (startAt == -1){
+                                    sender = cell(gridPos.y, gridPos.x);
+                                    drawingWire = StartWiring((Pair){x,y});
+                                }
+                                else if (startAt){
+                                    receiver = cell(gridPos.y, gridPos.x);
+                                    receiveIndex = startAt - 1;
+                                    drawingWire = StartWiring((Pair){x,y});
+                                }
+                            }
+                            else{
+                                endAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
+                                if (endAt && startAt != endAt){
+                                    if (endAt == -1){
+                                        sender = cell(gridPos.y, gridPos.x);
+                                    }
+                                    else if (endAt){
+                                        receiver = cell(gridPos.y, gridPos.x);
+                                        receiveIndex = endAt - 1;
+                                    }
+                                    if (sender != receiver){
+                                        ComponentList[receiver].inpSrc[receiveIndex] = (char)sender;
+                                        drawingWire = false;
+                                    }
+                                }
+                            }
                         }
                     }
                     else if (cursorInGrid){

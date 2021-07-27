@@ -6,9 +6,7 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 extern unsigned char componentCount;
 
-extern Wire WireList[1000];
 extern Wire tmpWire;
-extern unsigned int WireCount;
 
 extern Button RunButton;
 extern Button ComponentsButton;
@@ -199,33 +197,36 @@ SDL_Point BezierPoint(float t, SDL_Point p[4]){
 //The wire looks jagged. Might need to implement anti-aliasing
 void DrawWire(SDL_Point start, SDL_Point end){
     SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-    SDL_Point wirePoints[100];
+    SDL_Rect wirePoints[1000];
+    SDL_Point temp;
 
-    for(int i=0; i<2; i++){
-        if(abs(start.x-end.x)>abs(start.y-end.y)){
-            start.y++;
-            end.y++;
-        }
-        else{
-            start.x++;
-            end.x++;
-        }
-        SDL_Point p2 = {start.x + (end.x - start.x)/3, start.y};
-        SDL_Point p3 = {end.x - (end.x - start.x)/3, end.y};
+    SDL_Point p2 = {start.x + (end.x - start.x)/3, start.y};
+    SDL_Point p3 = {end.x - (end.x - start.x)/3, end.y};
 
-        SDL_Point previousPoint = BezierPoint(0, (SDL_Point[4]){start, p2, p3, end});
-        for (int i=0; i<100; i++){
-            float t = (float)i/100;
-            wirePoints[i] = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
-        } 
-        SDL_RenderDrawLines(renderer, wirePoints, 100);
-    }
-    
+    SDL_Point previousPoint = BezierPoint(0, (SDL_Point[4]){start, p2, p3, end});
+    for (int i=0; i<1000; i++){
+        float t = (float)i/1000;
+        temp = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
+        wirePoints[i].x = temp.x;
+        wirePoints[i].y = temp.y;
+        wirePoints[i].w = 2;
+        wirePoints[i].h = 2;
+    } 
+    SDL_RenderFillRects(renderer, wirePoints, 1000);
 }
 
-void DrawWires(){
-    for(int i=0; i<WireCount; i++){
-        DrawWire(WireList[i].start, WireList[i].end);
+void DrawWires(Component component, int pad_x, int pad_y){
+    SDL_Point start, end;
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    for(int i = 0; i < component.size; i ++){
+        if (component.inpSrc[i] >= 0){
+            Component sender = ComponentList[component.inpSrc[i]];
+            start.x = component.inpPos[i].x * CELL_SIZE + pad_x + TERMINAL_SIZE / 2;
+            start.y = component.inpPos[i].y * CELL_SIZE + pad_y + CELL_SIZE / 2;
+            end.x = sender.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE / 2;
+            end.y = sender.start.y  * CELL_SIZE + sender.size * CELL_SIZE / 2 + pad_y;
+            DrawWire(start, end);
+        }
     }
 }
 
@@ -286,7 +287,9 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selec
 
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);
-    DrawWires();
+    for(int i = 0; i < componentCount; i ++){
+        DrawWires(ComponentList[i], pad_x, pad_y);
+    }
 
     if(drawingWire)
         DrawWire(tmpWire.start, tmpWire.end);
