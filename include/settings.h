@@ -6,6 +6,7 @@
 #define MENU_WIDTH 200
 
 #define CELL_SIZE 25
+#define MENU_FONT_SIZE 20
 #define GRID_ROW (GRID_WIDTH / CELL_SIZE)
 #define GRID_COL (GRID_HEIGHT / CELL_SIZE - 2)
 

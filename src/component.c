@@ -1,6 +1,6 @@
 #include "../include/component.h"
 
-extern Component ** ComponentList;
+extern Component ComponentList[256];
 extern int time;
 
 void GetWidthHeight(int * w, int * h, Type type, int size){
@@ -29,8 +29,8 @@ void SetInputs(Component * component){
     for (int i = 0; i < component->size; i ++){
         if (component->inpSrc[i] == -1)
             continue;
-        Component * sender = ComponentList[component->inpSrc[i]];
-        component->inputs[i] = sender->output;
+        Component sender = ComponentList[component->inpSrc[i]];
+        component->inputs[i] = sender.output;
     }
 }
 

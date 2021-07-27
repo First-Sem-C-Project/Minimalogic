@@ -3,124 +3,19 @@
 
 #include "../include/draw.h"
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-
 #define cell(y, x) grid[y * GRID_ROW + x]
-
-Component ComponentList[256];
-unsigned char componentCount;
+extern Component ComponentList[256];
+extern unsigned char componentCount;
 int time = 0;
 
-extern Wire tmpWire;
 extern Button ComponentsButton;
-extern TTF_Font * sans;
 extern Button RunButton;
 extern Button Components[g_total];
-
-void init(){
-    if(SDL_Init(SDL_INIT_VIDEO) < 0)
-        exit(-1);
-    window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    InitFont();
-    if (!(window && renderer))
-        exit (-2);
-}
-
-void closeProgram(){
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    DestroyTextures();
-    TTF_CloseFont(sans);
-    TTF_Quit();
-    SDL_Quit();
-    exit(0);
-}
-
-bool PositionIsValid(int * grid, int w, int h, Pair pos){
-    if (pos.x + w > GRID_ROW || pos.y + h > GRID_COL )
-        return false;
-    for(int y = pos.y; y < pos.y + h; y ++){
-        for(int x = pos.x; x < pos.x + w; x ++){
-            if (cell(y, x) != -1)
-                return false;
-        }
-    }
-    return true;
-}
-
-bool WireIsValid(int * grid){
-    //TO DO:
-    //Implement this function
-    return true;
-}
-
-void InsertComponent(int* grid, Selection selected, int width, int height){
-    ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos);
-    for(int y = selected.pos.y; y < selected.pos.y + height; y ++){
-        for(int x = selected.pos.x; x < selected.pos.x + width; x ++){
-            cell(y, x) = componentCount;
-        }
-    }
-   componentCount ++;
-}
-
-void DeleteComponent(int* grid, Pair gridPos){
-    int toDelete = cell(gridPos.y, gridPos.x);
-    if (cell(gridPos.y, gridPos.x) == -1)
-        return;
-
-    for (int i = 0; i < GRID_COL; i ++){
-        for(int j = 0; j < GRID_ROW; j ++){
-            if (cell(i, j) == toDelete)
-                cell(i, j) = -1;
-            else if (cell(i, j) > toDelete)
-                cell(i, j) --;
-        }
-    }
-
-    for (int i = 0; i < componentCount; i ++){
-        for (int j = 0; j < 5; j ++){
-            if (ComponentList[i].inpSrc[j] == toDelete)
-                ComponentList[i].inpSrc[j] = -1;
-            else if (ComponentList[i].inpSrc[j] > toDelete)
-                ComponentList[i].inpSrc[j] --;
-        }
-    }
-    for (int i = toDelete; i < componentCount - 1; i ++){
-        ComponentList[i] = ComponentList[i + 1];
-    }
-    componentCount --;
-}
 
 void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
         if (ComponentList[i].type != state)
             ComponentList[i].operate(&ComponentList[i]);
-    }
-}
-
-void InitGrid(int * grid){
-    for (int y = 0; y < GRID_COL; y ++){
-        for (int x = 0; x < GRID_ROW; x ++){
-            cell(y, x) = -1;
-        }
-    }
-}
-
-void ChangeNumofInputs(bool dec, Selection * selected){
-    if (dec){
-        if (selected->size > 2)
-            selected->size--;
-        if (Components[selected->type].selection.size > 2)
-            Components[selected->type].selection.size--;
-    }
-    else{
-        if (selected->size < 5)
-            selected->size++;
-        if (Components[selected->type].selection.size < 5)
-            Components[selected->type].selection.size++;
     }
 }
 
@@ -136,22 +31,14 @@ int main(int argc, char** argv){
     }
     _chdir(path);
     _chdir("../..");
-    init();
-
-    SDL_SetWindowResizable(window, SDL_TRUE);
-    SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     Selection selectedComponent = {.type = g_and, .size = 2};
 
     int x, y;
     int grid[GRID_ROW * GRID_COL];
     Pair gridPos;
-    int w_width, w_height, pad_x, pad_y;
-
-    InitGrid(grid);
-    InitMenu();
-    PreLoadTextures();
+    int pad_x, pad_y;
+    InitEverything(grid);
 
     bool simulating = false;
     bool menuExpanded = false;
@@ -162,33 +49,25 @@ int main(int argc, char** argv){
     SDL_Event e;
     while(1){
         int begin = SDL_GetTicks();
-
         SDL_GetMouseState(&x, &y);
-        SDL_GetWindowSize(window, &w_width, &w_height);
-        if (w_width > MIN_WINDOW_WIDTH)
-            pad_x = (MENU_WIDTH + w_width - GRID_WIDTH) / 2;
-        else
-            pad_x = MENU_WIDTH;
-        if (w_height > MIN_WINDOW_HEIGHT)
-            pad_y = (w_height - GRID_HEIGHT) / 2;
-        else
-            pad_y = 0;
+
+        PadGrid(&pad_x, &pad_y);
         gridPos.x = (x - pad_x) / CELL_SIZE;
         gridPos.y = (y - pad_y) / CELL_SIZE;
-
         cursorInGrid = gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL;
 
         while(SDL_PollEvent(&e)){
             switch(e.type){
                 case (SDL_QUIT):
-                    closeProgram();
+                    CloseEverything();
+                    exit(0);
                 case SDL_MOUSEBUTTONDOWN:
                     if (cursorInGrid && componentCount <= 255 && !simulating){
                         selectedComponent.pos = gridPos;
-                        int width, height;
-                        GetWidthHeight(&width, &height, selectedComponent.type, selectedComponent.size);
-                        if(!drawingWire && PositionIsValid(grid, width, height, selectedComponent.pos))
-                            InsertComponent(grid, selectedComponent, width, height);
+                        int w, h;
+                        GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
+                        if(!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos))
+                            InsertComponent(grid, selectedComponent, w, h);
                         else if(WireIsValid(grid)){
                             if (!drawingWire)
                                 drawingWire = StartWiring((Pair){x,y});
@@ -196,7 +75,7 @@ int main(int argc, char** argv){
                                 drawingWire = AddWire();
                         }
                     }
-                    if (cursorInGrid && componentCount <= 255){
+                    else if (cursorInGrid){
                         int index = cell(gridPos.y, gridPos.x);
                         if (index != -1){
                             if (ComponentList[index].type == state)
@@ -217,14 +96,11 @@ int main(int argc, char** argv){
                     break;
                 case SDL_MOUSEMOTION:
                     if(drawingWire){
-                        tmpWire.end.x = x;
-                        tmpWire.end.y = y;
+                        WireEndPos(x, y);
                     }
                     break;
                 case SDL_KEYDOWN:
-				{
-					switch(e.key.keysym.scancode)
-					{
+					switch(e.key.keysym.scancode){
                         case SDL_SCANCODE_MINUS:
                             ChangeNumofInputs(true, &selectedComponent);
                             break;
@@ -234,15 +110,20 @@ int main(int argc, char** argv){
                         case SDL_SCANCODE_DELETE:
                             DeleteComponent(grid, gridPos);
                             break;
-                        default:
-                            break;
+                        default: break;
                     }
                     break;
-                }
                 default: break;
             }
         }
-        DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y, simulating, &dropDownAnimationFlag, gridPos, grid);
+        DrawCall(menuExpanded,
+                drawingWire,
+                x, y,
+                selectedComponent,
+                pad_x, pad_y,
+                simulating,
+                &dropDownAnimationFlag,
+                gridPos, grid);
 
         if (simulating)
             UpdateComponents();

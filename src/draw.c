@@ -1,18 +1,18 @@
 #include "../include/draw.h"
-#define MENU_FONT_SIZE 20
+#define cell(y, x) grid[y * GRID_ROW + x]
 
 extern Component ComponentList[256];
-extern SDL_Window* window;
-extern SDL_Renderer* renderer;
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
 extern unsigned char componentCount;
 
-Wire WireList[1000];
-Wire tmpWire;
-unsigned int WireCount = 0;
+extern Wire WireList[1000];
+extern Wire tmpWire;
+extern unsigned int WireCount;
 
-Button RunButton = {.color = {GREEN}};
-Button ComponentsButton = {.color = {BLACK}};
-Button Components[g_total];
+extern Button RunButton;
+extern Button ComponentsButton;
+extern Button Components[g_total];
 
 TTF_Font *sans = NULL;
 SDL_Texture *compoTexts[g_total];
@@ -24,57 +24,6 @@ void InitFont(){
     if(sans == NULL){
         SDL_Log("Failed to load the font: %s\n", TTF_GetError());
         exit(1);
-    }
-}
-
-void InitMenu(){
-    RunButton.buttonRect.x = 10;
-    RunButton.buttonRect.y = 10;
-    RunButton.buttonRect.w = MENU_WIDTH-20;
-    RunButton.buttonRect.h = 30;
-    RunButton.textRect.x = RunButton.buttonRect.x + 1.5*RunButton.buttonRect.w/4;
-    RunButton.textRect.y = RunButton.buttonRect.y + RunButton.buttonRect.h/2 - CELL_SIZE / 2;
-    RunButton.textRect.w = RunButton.buttonRect.w/4;
-    RunButton.textRect.h = CELL_SIZE;
-
-    ComponentsButton.buttonRect.x = 10;
-    ComponentsButton.buttonRect.y = 50;
-    ComponentsButton.buttonRect.w = MENU_WIDTH - 20;
-    ComponentsButton.buttonRect.h = 30;
-    ComponentsButton.textRect.x = ComponentsButton.buttonRect.x + ComponentsButton.buttonRect.w/4;
-    ComponentsButton.textRect.y = ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h/4;
-    ComponentsButton.textRect.w = ComponentsButton.buttonRect.w/2;
-    ComponentsButton.textRect.h = ComponentsButton.buttonRect.h/2;
-
-    for(int i=0; i < g_total; i++){
-        Components[i].selection.type = i;
-        Components[i].selection.size = 2;
-        Components[i].buttonRect.x = 20;
-        Components[i].buttonRect.y = ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h + i * (CELL_SIZE + 2) + 2;
-        Components[i].buttonRect.w = MENU_WIDTH - 40;
-        Components[i].buttonRect.h = MENU_FONT_SIZE;
-        Components[i].textRect.x = Components[i].buttonRect.x + Components[i].buttonRect.w / 2;
-        Components[i].textRect.y = Components[i].buttonRect.y;
-        Components[i].textRect.w = 0;
-        Components[i].textRect.h = MENU_FONT_SIZE;
-        Components[i].textRect.h = 3 * Components[i].textRect.h / 4;
-        Components[i].textRect.y = Components[i].buttonRect.y + Components[i].buttonRect.h / 2 - Components[i].textRect.h / 2;
-        if (i == state || i == probe || i == clock){
-            Components[i].textRect.x -= 5 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 5 * Components[i].textRect.h;
-        }
-        else if (i == g_nand || i == g_xnor){
-            Components[i].textRect.x -= 4 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 4 * Components[i].textRect.h;
-        }
-        else if (i == g_or){
-            Components[i].textRect.x -= 2 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 2 * Components[i].textRect.h;
-        }
-        else{
-            Components[i].textRect.x -= 3 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 3 * Components[i].textRect.h;
-        }
     }
 }
 
@@ -179,41 +128,6 @@ void DrawMenu(bool menuExpanded, bool simulating){
     }
 }
 
-Button* clickedOn(int cursorX, int cursorY, bool menuExpanded){
-
-    if(cursorX>RunButton.buttonRect.x && cursorX<RunButton.buttonRect.x+RunButton.buttonRect.w
-        && cursorY>RunButton.buttonRect.y && cursorY<RunButton.buttonRect.y+RunButton.buttonRect.h){
-            return &RunButton;
-    }
-
-    if(cursorX>ComponentsButton.buttonRect.x && cursorX<ComponentsButton.buttonRect.x+ComponentsButton.buttonRect.w
-        && cursorY>ComponentsButton.buttonRect.y && cursorY<ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h){
-            return &ComponentsButton;
-    }
-
-    for(int i=0; i<g_total; i++){
-        if(cursorX>Components[i].buttonRect.x && cursorX<Components[i].buttonRect.x+Components[i].buttonRect.w &&
-            cursorY>Components[i].buttonRect.y && cursorY<Components[i].buttonRect.y+Components[i].buttonRect.h) {
-                return &Components[i];
-        }
-    }
-
-    return NULL;
-}
-
-void ToggleSimulation(bool* state){
-    if(*state){
-        *state = false;
-        Color green = {GREEN};
-        RunButton.color = green;
-    }
-    else{
-        *state = true;
-        Color red = {RED};
-        RunButton.color = red;
-    }    
-}
-
 void HoverOver(Button *button, bool menuExpanded){
     if(!menuExpanded){
         if(button == &RunButton || button == &ComponentsButton){
@@ -253,17 +167,6 @@ void UnHighlight(Type type){
     }
 }
 
-void ToggleDropDown(bool* state, char *animationFlag){
-    if(*state){
-        *state = false;
-        *animationFlag = 5;
-    }
-    else{
-        *state = true;
-        *animationFlag = 1;
-    }
-}
-
 void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating){
     if(menuExpanded){
         SDL_SetRenderDrawColor(renderer, BG);
@@ -278,10 +181,6 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating){
         SDL_RenderFillRect(renderer, &cover);
         *animationFlag -= 1;
     }
-}
-
-Selection SelectComponent(Button* button){
-    return button->selection;   
 }
 
 SDL_Point BezierPoint(float t, SDL_Point p[4]){
@@ -322,21 +221,6 @@ void DrawWire(SDL_Point start, SDL_Point end){
         SDL_RenderDrawLines(renderer, wirePoints, 100);
     }
     
-}
-
-bool StartWiring(Pair pos){
-    tmpWire.start.x = pos.x;
-    tmpWire.start.y = pos.y;
-    tmpWire.end = tmpWire.start;
-
-    return true;
-}
-
-bool AddWire(){
-    WireList[WireCount] = tmpWire;
-    WireCount++;
-
-    return false;
 }
 
 void DrawWires(){
@@ -406,4 +290,57 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selec
     }
 
     SDL_RenderPresent(renderer);
+}
+
+void WireEndPos(int x, int y){
+    tmpWire.end.x = x;
+    tmpWire.end.y = y;
+}
+
+void InitGrid(int * grid){
+    for (int y = 0; y < GRID_COL; y ++){
+        for (int x = 0; x < GRID_ROW; x ++){
+            cell(y, x) = -1;
+        }
+    }
+}
+
+void InitEverything(int* grid){
+    if(SDL_Init(SDL_INIT_VIDEO) < 0)
+        exit(-1);
+    window = SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    InitFont();
+    if (!(window && renderer))
+        exit (-2);
+
+    SDL_SetWindowResizable(window, SDL_TRUE);
+    SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    InitGrid(grid);
+    InitMenu();
+    PreLoadTextures();
+}
+
+void CloseEverything(){
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    DestroyTextures();
+    TTF_CloseFont(sans);
+    TTF_Quit();
+    SDL_Quit();
+}
+
+void PadGrid(int* pad_x, int* pad_y){
+    int w_width, w_height;
+    SDL_GetWindowSize(window, &w_width, &w_height);
+    if (w_width > MIN_WINDOW_WIDTH)
+        *pad_x = (MENU_WIDTH + w_width - GRID_WIDTH) / 2;
+    else
+        *pad_x = MENU_WIDTH;
+    if (w_height > MIN_WINDOW_HEIGHT)
+        *pad_y = (w_height - GRID_HEIGHT) / 2;
+    else
+        *pad_y = 0;
 }
