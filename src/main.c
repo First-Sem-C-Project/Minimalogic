@@ -100,7 +100,7 @@ int main(int argc, char** argv){
                     }
                     break;
                 case SDL_KEYDOWN:
-					switch(e.key.keysym.scancode){
+                    switch(e.key.keysym.scancode){
                         case SDL_SCANCODE_MINUS:
                             ChangeNumofInputs(true, &selectedComponent);
                             break;
