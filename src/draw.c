@@ -182,11 +182,11 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating){
 }
 
 SDL_Point BezierPoint(float t, SDL_Point p[4]){
-    double tt = t * t;
-    double ttt = tt * t;
-    double u = 1 - t;
-    double uu = u * u;
-    double uuu = uu * u;
+    float tt = t * t;
+    float ttt = tt * t;
+    float u = 1 - t;
+    float uu = u * u;
+    float uuu = uu * u;
 
     return (SDL_Point) {
         uuu * p[0].x + 3 * uu * t * p[1].x + 3 * u * tt * p[2].x + ttt * p[3].x,
@@ -197,16 +197,16 @@ SDL_Point BezierPoint(float t, SDL_Point p[4]){
 //The wire looks jagged. Might need to implement anti-aliasing
 void DrawWire(SDL_Point start, SDL_Point end){
     SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-    SDL_Point wirePoints[50];
+    SDL_Point wirePoints[100];
 
     SDL_Point p2 = {start.x + (end.x - start.x)/3, start.y};
     SDL_Point p3 = {end.x - (end.x - start.x)/3, end.y};
 
-    for (int i=0; i<50; i++){
-        float t = (float)i/50;
+    for (int i=0; i<100; i++){
+        float t = (float)i/100;
         wirePoints[i] = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
     } 
-    SDL_RenderDrawLines(renderer, wirePoints, 50);
+    SDL_RenderDrawLines(renderer, wirePoints, 100);
 }
 
 void DrawWires(Component component, int pad_x, int pad_y){
@@ -296,13 +296,35 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selec
             SDL_RenderFillRect(renderer, &highlight);
         }
         else{
+            bool done = false;
             Component toHighlight = ComponentList[grid[gridPos.y * GRID_ROW + gridPos.x]];
-            SDL_SetRenderDrawColor(renderer, BLUE, 100);
-            highlight.w = toHighlight.width * CELL_SIZE - 1;
-            highlight.h = toHighlight.size  * CELL_SIZE - 1;
-            highlight.x = toHighlight.start.x * CELL_SIZE + pad_x + 1;
-            highlight.y = toHighlight.start.y * CELL_SIZE + pad_y + 1;
-            SDL_RenderFillRect(renderer, &highlight);
+            SDL_SetRenderDrawColor(renderer, GREEN, 100);
+            highlight.w = TERMINAL_SIZE;
+            highlight.h = TERMINAL_SIZE;
+            for(int i = 0; i < toHighlight.size; i ++){
+                highlight.x = toHighlight.inpPos[i].x * CELL_SIZE + pad_x + 1;
+                highlight.y = toHighlight.inpPos[i].y * CELL_SIZE + pad_y + 1 + CELL_SIZE / 2 - TERMINAL_SIZE / 2;
+                if (x >= highlight.x && x <= highlight.x + TERMINAL_SIZE && y >= highlight.y && y <= highlight.y + TERMINAL_SIZE){
+                    SDL_RenderFillRect(renderer, &highlight);
+                    done = true;
+                }
+            }
+            if (toHighlight.outPos.x >= 0 && !done){
+                highlight.x = toHighlight.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - 10;
+                highlight.y = toHighlight.start.y * CELL_SIZE + toHighlight.size * CELL_SIZE / 2 + pad_y + 1 - TERMINAL_SIZE / 2;
+                if (x >= highlight.x && x <= highlight.x + TERMINAL_SIZE && y >= highlight.y && y <= highlight.y + TERMINAL_SIZE){
+                    SDL_RenderFillRect(renderer, &highlight);
+                    done = true;
+                }
+            }
+            if (!done){
+                SDL_SetRenderDrawColor(renderer, BLUE, 100);
+                highlight.w = toHighlight.width * CELL_SIZE - 1;
+                highlight.h = toHighlight.size  * CELL_SIZE - 1;
+                highlight.x = toHighlight.start.x * CELL_SIZE + pad_x + 1;
+                highlight.y = toHighlight.start.y * CELL_SIZE + pad_y + 1;
+                SDL_RenderFillRect(renderer, &highlight);
+            }
         }
     }
 

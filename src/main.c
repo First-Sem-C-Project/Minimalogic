@@ -16,10 +16,6 @@ void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
         if (ComponentList[i].type != state)
             ComponentList[i].operate(&ComponentList[i]);
-        else{
-            ComponentList[i].color.r = ComponentList[i].output * 255 + (1 - ComponentList[i].output) * 50;
-            ComponentList[i].color.b = ComponentList[i].output * 50 + (1 - ComponentList[i].output) * 255;
-        }
     }
 }
 
@@ -76,6 +72,10 @@ int main(int argc, char** argv){
                         selectedComponent.pos = gridPos;
                         int w, h;
                         GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
+                        if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0){
+                            if (ComponentList[cell(gridPos.y, gridPos.x)].type == state)
+                                ComponentList[cell(gridPos.y, gridPos.x)].operate(&ComponentList[cell(gridPos.y, gridPos.x)]);
+                        }
                         if(!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos)){
                             InsertComponent(grid, selectedComponent, w, h);
                         }
