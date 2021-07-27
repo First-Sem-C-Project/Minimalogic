@@ -110,6 +110,9 @@ int main(int argc, char** argv){
                         case SDL_SCANCODE_DELETE:
                             DeleteComponent(grid, gridPos);
                             break;
+                        case SDL_SCANCODE_ESCAPE:
+                            if(drawingWire)
+                                drawingWire = false;
                         default: break;
                     }
                     break;
