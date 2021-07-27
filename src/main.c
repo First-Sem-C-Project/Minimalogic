@@ -187,10 +187,13 @@ int main(int argc, char** argv){
                         selectedComponent.pos = gridPos;
                         int width, height;
                         GetWidthHeight(&width, &height, selectedComponent.type, selectedComponent.size);
-                        if(PositionIsValid(grid, width, height, selectedComponent.pos))
+                        if(!drawingWire && PositionIsValid(grid, width, height, selectedComponent.pos))
                             InsertComponent(grid, selectedComponent, width, height);
                         else if(WireIsValid(grid)){
-                            drawingWire = StartWiring((Pair){x,y});
+                            if (!drawingWire)
+                                drawingWire = StartWiring((Pair){x,y});
+                            else
+                                drawingWire = AddWire();
                         }
                     }
                     if (cursorInGrid && componentCount <= 255){
@@ -217,10 +220,6 @@ int main(int argc, char** argv){
                         tmpWire.end.x = x;
                         tmpWire.end.y = y;
                     }
-                    break;
-                case SDL_MOUSEBUTTONUP:
-                    if(WireIsValid(grid))
-                        drawingWire = AddWire((Pair){x,y});
                     break;
                 case SDL_KEYDOWN:
 				{

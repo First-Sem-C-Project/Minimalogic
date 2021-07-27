@@ -264,7 +264,7 @@ void ToggleDropDown(bool* state, char *animationFlag){
     }
 }
 
-void AnimateDropDown(SDL_Renderer *renderer, char *animationFlag, bool menuExpanded, bool simulating){
+void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating){
     if(menuExpanded){
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+(2*(*animationFlag)-1)*(25+2), ComponentsButton.buttonRect.w, 2+(g_total+1-2*(*animationFlag))*(25+2)};
@@ -298,7 +298,7 @@ SDL_Point BezierPoint(float t, SDL_Point p[4]){
 }
 
 //The wire looks jagged. Might need to implement anti-aliasing
-void DrawWire(SDL_Renderer* renderer, SDL_Point start, SDL_Point end){
+void DrawWire(SDL_Point start, SDL_Point end){
     SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
     SDL_Point wirePoints[100];
 
@@ -332,7 +332,7 @@ bool StartWiring(Pair pos){
     return true;
 }
 
-bool AddWire(Pair pos){
+bool AddWire(){
     WireList[WireCount] = tmpWire;
     WireCount++;
 
@@ -341,7 +341,7 @@ bool AddWire(Pair pos){
 
 void DrawWires(){
     for(int i=0; i<WireCount; i++){
-        DrawWire(renderer, WireList[i].start, WireList[i].end);
+        DrawWire(WireList[i].start, WireList[i].end);
     }
 }
 
@@ -378,14 +378,14 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selec
     HoverOver(clickedOn(x, y, menuExpanded), menuExpanded);
     HighlightSelected(selectedComponent.type);
     if(*dropDownAnimationFlag>0 && *dropDownAnimationFlag<6)
-        AnimateDropDown(renderer, dropDownAnimationFlag, menuExpanded, simulating);
+        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating);
 
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);
     DrawWires();
 
     if(drawingWire)
-        DrawWire(renderer, tmpWire.start, tmpWire.end);
+        DrawWire(tmpWire.start, tmpWire.end);
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
         if(grid[gridPos.y * GRID_ROW + gridPos.x] < 0){

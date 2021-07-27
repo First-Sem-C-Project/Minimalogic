@@ -32,5 +32,5 @@ Button* clickedOn(int cursorX, int cursorY, bool menuExpanded);
 void ToggleSimulation(bool* state);
 void UnHighlight(Type type);
 bool StartWiring(Pair pos);
-bool AddWire(Pair pos);
+bool AddWire();
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos, int * grid);
