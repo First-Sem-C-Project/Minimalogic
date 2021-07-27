@@ -17,7 +17,7 @@ typedef struct Wire{
 typedef struct Button{
     SDL_Rect buttonRect;
     SDL_Rect textRect;
-    Type type;
+    Selection selection;
     Color color;
 } Button;
 
@@ -25,7 +25,7 @@ void PreLoadTextures();
 void DestroyTextures();
 void ToggleSimulation(bool*);
 void ToggleDropDown(bool*, char*);
-Type SelectComponent(Button*);
+Selection SelectComponent(Button*);
 void InitMenu();
 void InitFont();
 Button* clickedOn(int cursorX, int cursorY, bool menuExpanded);

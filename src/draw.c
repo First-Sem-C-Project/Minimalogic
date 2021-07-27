@@ -47,7 +47,8 @@ void InitMenu(){
     ComponentsButton.textRect.h = ComponentsButton.buttonRect.h/2;
 
     for(int i=0; i < g_total; i++){
-        Components[i].type = i;
+        Components[i].selection.type = i;
+        Components[i].selection.size = 2;
         Components[i].buttonRect.x = 20;
         Components[i].buttonRect.y = ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h + i * (CELL_SIZE + 2) + 2;
         Components[i].buttonRect.w = MENU_WIDTH - 40;
@@ -173,7 +174,7 @@ void DrawMenu(bool menuExpanded, bool simulating){
         for(int i=0; i < g_total; i++){
             SDL_SetRenderDrawColor(renderer, Components[i].color.r, Components[i].color.g, Components[i].color.b, 255);
             SDL_RenderFillRect(renderer, &Components[i].buttonRect);
-            SDL_RenderCopy(renderer, compoTexts[Components[i].type], NULL, &Components[i].textRect);
+            SDL_RenderCopy(renderer, compoTexts[Components[i].selection.type], NULL, &Components[i].textRect);
         }
     }
 }
@@ -234,7 +235,7 @@ void HoverOver(Button *button, bool menuExpanded){
 
 void HighlightSelected(Type type){
     for(int i=0; i<g_total; i++){
-        if(Components[i].type == type){
+        if(Components[i].selection.type == type){
             Components[i].color.r = 50;
             Components[i].color.g = 50;
             Components[i].color.b = 50;
@@ -244,7 +245,7 @@ void HighlightSelected(Type type){
 
 void UnHighlight(Type type){
     for(int i=0; i<g_total; i++){
-        if(Components[i].type == type){
+        if(Components[i].selection.type == type){
             Components[i].color.r = 0;
             Components[i].color.g = 0;
             Components[i].color.b = 0;
@@ -279,8 +280,8 @@ void AnimateDropDown(SDL_Renderer *renderer, char *animationFlag, bool menuExpan
     }
 }
 
-Type SelectComponent(Button* button){
-    return button->type;   
+Selection SelectComponent(Button* button){
+    return button->selection;   
 }
 
 SDL_Point BezierPoint(float t, SDL_Point p[4]){

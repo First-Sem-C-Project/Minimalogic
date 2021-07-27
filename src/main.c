@@ -164,7 +164,7 @@ int main(int argc, char** argv){
                             ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
                         else if(clickedButton){
                             UnHighlight(selectedComponent.type);
-                            selectedComponent.type = SelectComponent(clickedButton);
+                            selectedComponent = SelectComponent(clickedButton);
                         }
                     }
                     break;
