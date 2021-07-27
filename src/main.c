@@ -182,7 +182,7 @@ int main(int argc, char** argv){
                 default: break;
             }
         }
-        DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y, simulating, &dropDownAnimationFlag, gridPos);
+        DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y, simulating, &dropDownAnimationFlag, gridPos, grid);
 
         if (simulating)
             UpdateComponents();
