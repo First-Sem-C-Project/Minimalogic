@@ -258,6 +258,7 @@ void DrawComponents(int pad_x, int pad_y){
             SDL_RenderFillRect(renderer, &inpTerminal);
             }
         }
+        
     }
 }
 

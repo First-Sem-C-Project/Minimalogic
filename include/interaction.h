@@ -32,5 +32,5 @@ void InsertComponent(int*, Selection, int, int, Pair);
 Selection SelectComponent(Button*);
 
 bool PositionIsValid(int*, int, int, Pair);
-bool WireIsValid(int*, Pair, Pair);
+bool WireIsValid(int*, Pair, Pair, bool*, unsigned char*, unsigned char*, char*, bool);
 void ChangeNumofInputs(bool, Selection *);

@@ -110,6 +110,7 @@ void ToggleState(Component * component){
 }
 
 void ToggleProbe(Component * component){
+    SetInputs(component);
     component->output = component->inputs[0];
     FlipColor(component);
 }

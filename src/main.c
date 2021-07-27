@@ -46,6 +46,13 @@ int main(int argc, char** argv){
     char dropDownAnimationFlag = 0;
     bool cursorInGrid;
 
+    bool wireBeginIsInput = false;
+    bool wireEndIsInput = false;
+
+    unsigned char wireBegin;
+    unsigned char wireEnd;
+    char whichInput;
+
     SDL_Event e;
     while(1){
         int begin = SDL_GetTicks();
@@ -68,12 +75,19 @@ int main(int argc, char** argv){
                         GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
                         if(!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos))
                             InsertComponent(grid, selectedComponent, w, h, (Pair){pad_x, pad_y});
-                        else if(WireIsValid(grid, (Pair){x, y}, (Pair){pad_x, pad_y})){
-                            if (!drawingWire)
+                        else if(!drawingWire){
+                            if (WireIsValid(grid, (Pair){x, y}, (Pair){pad_x, pad_y}, &wireBeginIsInput, &wireBegin, &wireEnd, &whichInput, true))
                                 drawingWire = StartWiring((Pair){x,y});
-                            else
-                                drawingWire = AddWire();
                         }
+                        else{
+                            if (WireIsValid(grid, (Pair){x, y}, (Pair){pad_x, pad_y}, &wireEndIsInput, &wireBegin, &wireEnd, &whichInput, false)){
+                                if(wireEndIsInput == wireBeginIsInput)
+                                    drawingWire = false;
+                                else
+                                    drawingWire = AddWire();
+                            }
+                        }
+                        
                     }
                     else if (cursorInGrid){
                         int index = cell(gridPos.y, gridPos.x);
@@ -130,6 +144,17 @@ int main(int argc, char** argv){
 
         if (simulating)
             UpdateComponents();
+
+        if(wireEndIsInput && !wireBeginIsInput){
+            ComponentList[wireEnd].inpSrc[whichInput] = wireBegin;
+            wireEndIsInput = false;
+            wireBeginIsInput = false;
+        }
+        else if(wireBeginIsInput && !wireEndIsInput && !drawingWire){
+            ComponentList[wireBegin].inpSrc[whichInput] = wireEnd;
+            wireEndIsInput = false;
+            wireBeginIsInput = false;
+        }
 
         if((SDL_GetTicks()-begin) < DELAY)
             SDL_Delay(DELAY - (SDL_GetTicks() - begin));

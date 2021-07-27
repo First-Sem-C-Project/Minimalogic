@@ -137,17 +137,28 @@ bool PositionIsValid(int * grid, int w, int h, Pair pos){
     return true;
 }
 
-bool WireIsValid(int * grid, Pair pos, Pair pad){
+bool WireIsValid(int * grid, Pair pos, Pair pad, bool * isInput, unsigned char* wireBegin, unsigned char* wireEnd, char* whichInput, bool starting){
     Pair gridPos = {(pos.x - pad.x)/CELL_SIZE, (pos.y - pad.y)/CELL_SIZE};
     Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
+
+    if(starting)
+        *wireBegin = cell(gridPos.y, gridPos.x);
+    else
+        *wireEnd = cell(gridPos.y, gridPos.x);
+
     if(compo.type != probe){
-        if(pos.x>=compo.outTerminal.x && pos.x<=compo.outTerminal.x+TERMINAL_SIZE && pos.y>=compo.outTerminal.y && pos.y<=compo.outTerminal.y+TERMINAL_SIZE)
+        if(pos.x>=compo.outTerminal.x && pos.x<=compo.outTerminal.x+TERMINAL_SIZE && pos.y>=compo.outTerminal.y && pos.y<=compo.outTerminal.y+TERMINAL_SIZE){
+            *isInput = false;
             return true;
+        }
     }
     if(compo.type != state && compo.type != clock){
         for(int i=0; i<compo.size; i++){
-            if(pos.x>=compo.inTerminal[i].x && pos.x<=compo.inTerminal[i].x+TERMINAL_SIZE && pos.y>=compo.inTerminal[i].y && pos.y<=compo.inTerminal[i].y+TERMINAL_SIZE)
+            if(pos.x>=compo.inTerminal[i].x && pos.x<=compo.inTerminal[i].x+TERMINAL_SIZE && pos.y>=compo.inTerminal[i].y && pos.y<=compo.inTerminal[i].y+TERMINAL_SIZE){
+                *isInput = true;
+                *whichInput = i;
                 return true;
+            }
         }
     }
 
