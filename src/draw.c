@@ -266,14 +266,14 @@ void ToggleDropDown(bool* state, char *animationFlag){
 void AnimateDropDown(SDL_Renderer *renderer, char *animationFlag, bool menuExpanded, bool simulating){
     if(menuExpanded){
         SDL_SetRenderDrawColor(renderer, BG);
-        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+(2*(*animationFlag)-1)*(25+2), ComponentsButton.buttonRect.w, 2+(10-2*(*animationFlag))*(25+2)};
+        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+(2*(*animationFlag)-1)*(25+2), ComponentsButton.buttonRect.w, 2+(g_total+1-2*(*animationFlag))*(25+2)};
         SDL_RenderFillRect(renderer, &cover);
         *animationFlag += 1; 
     }
     else{
         DrawMenu(true, simulating);
         SDL_SetRenderDrawColor(renderer, BG);
-        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+(2*(*animationFlag))*(25+2), ComponentsButton.buttonRect.w, 2+(10-2*(*animationFlag))*(25+2)};
+        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y+ComponentsButton.buttonRect.h+(2*(*animationFlag))*(25+2), ComponentsButton.buttonRect.w, 2+(g_total+1-2*(*animationFlag))*(25+2)};
         SDL_RenderFillRect(renderer, &cover);
         *animationFlag -= 1;
     }
@@ -367,7 +367,7 @@ void DrawGrid(int pad_x, int pad_y){
     }
 }
 
-void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos){
+void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selectedComponent, int pad_x, int pad_y, bool simulating, char * dropDownAnimationFlag, Pair gridPos, int * grid){
     SDL_Rect highlight;
     highlight.w = CELL_SIZE + 1;
     highlight.h = CELL_SIZE + 1;
@@ -387,10 +387,12 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y, Selection selec
         DrawWire(renderer, tmpWire.start, tmpWire.end);
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 && gridPos.y < GRID_COL){
-        SDL_SetRenderDrawColor(renderer, BLUE, 150);
-        highlight.x = gridPos.x * CELL_SIZE + pad_x;
-        highlight.y = gridPos.y * CELL_SIZE + pad_y;
-        SDL_RenderFillRect(renderer, &highlight);
+        if(grid[gridPos.y * GRID_ROW + gridPos.x] < 0){
+            SDL_SetRenderDrawColor(renderer, BLUE, 150);
+            highlight.x = gridPos.x * CELL_SIZE + pad_x;
+            highlight.y = gridPos.y * CELL_SIZE + pad_y;
+            SDL_RenderFillRect(renderer, &highlight);
+        }
     }
 
     SDL_RenderPresent(renderer);
