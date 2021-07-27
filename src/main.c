@@ -16,6 +16,7 @@ extern Wire tmpWire;
 extern Button ComponentsButton;
 extern TTF_Font * sans;
 extern Button RunButton;
+extern Button Components[g_total];
 
 void init(){
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -80,6 +81,21 @@ void InitGrid(int * grid){
     }
 }
 
+void ChangeNumofInputs(bool dec, Selection * selected){
+    if (dec){
+        if (selected->size > 2)
+            selected->size--;
+        if (Components[selected->type].selection.size > 2)
+            Components[selected->type].selection.size--;
+    }
+    else{
+        if (selected->size < 5)
+            selected->size++;
+        if (Components[selected->type].selection.size < 5)
+            Components[selected->type].selection.size++;
+    }
+}
+
 int main(int argc, char** argv){
     char *path, len;
     path = argv[0];
@@ -138,7 +154,7 @@ int main(int argc, char** argv){
             switch(e.type){
                 case (SDL_QUIT):
                     closeProgram();
-                case(SDL_MOUSEBUTTONDOWN):
+                case SDL_MOUSEBUTTONDOWN:
                     if (cursorInGrid && componentCount <= 255 && !simulating){
                         selectedComponent.pos = gridPos;
                         int width, height;
@@ -178,6 +194,21 @@ int main(int argc, char** argv){
                     if(WireIsValid(grid))
                         drawingWire = AddWire((Pair){x,y});
                     break;
+                case SDL_KEYDOWN:
+				{
+					switch(e.key.keysym.scancode)
+					{
+                        case SDL_SCANCODE_MINUS:
+                            ChangeNumofInputs(true, &selectedComponent);
+                            break;
+                        case SDL_SCANCODE_EQUALS:
+                            ChangeNumofInputs(false, &selectedComponent);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
                 default: break;
             }
         }
