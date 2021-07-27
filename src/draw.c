@@ -231,6 +231,8 @@ void DrawWires(){
 
 void DrawComponents(int pad_x, int pad_y){
     SDL_Rect compo;
+    SDL_Rect outputTerminal = {.w = TERMINAL_SIZE, .h = TERMINAL_SIZE};
+    SDL_Rect inpTerminal = {.w = TERMINAL_SIZE, .h = TERMINAL_SIZE};
     for(int i = 0; i < componentCount; i ++){
         compo.w = ComponentList[i].width * CELL_SIZE - 1;
         compo.h = ComponentList[i].size * CELL_SIZE - 1;
@@ -239,6 +241,23 @@ void DrawComponents(int pad_x, int pad_y){
         SDL_SetRenderDrawColor(renderer, ComponentList[i].color.r, ComponentList[i].color.g, ComponentList[i].color.b, 255);
         SDL_RenderFillRect(renderer, &compo);
         RenderGateText(compo, ComponentList[i].type);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        if(ComponentList[i].type != probe){
+            outputTerminal.x = ComponentList[i].outTerminal.x;
+            outputTerminal.y = ComponentList[i].outTerminal.y;
+
+            SDL_RenderFillRect(renderer, &outputTerminal);
+        }
+
+        if(ComponentList[i].type != clock && ComponentList[i].type != state){
+            for(int j=0; j<ComponentList[i].size; j++){
+            inpTerminal.x = ComponentList[i].inTerminal[j].x;;
+            inpTerminal.y = ComponentList[i].inTerminal[j].y;
+
+            SDL_RenderFillRect(renderer, &inpTerminal);
+            }
+        }
     }
 }
 

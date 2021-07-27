@@ -1,7 +1,7 @@
 #include "colors.h"
 #include "settings.h"
 #include "component.h"
-#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
+#include "SDL2/SDL.h"
 
 typedef struct{
     Type type;
@@ -28,9 +28,9 @@ void ToggleSimulation(bool*);
 void ToggleDropDown(bool*, char*);
 
 void DeleteComponent(int*, Pair);
-void InsertComponent(int*, Selection, int, int);
+void InsertComponent(int*, Selection, int, int, Pair);
 Selection SelectComponent(Button*);
 
 bool PositionIsValid(int*, int, int, Pair);
-bool WireIsValid(int*);
+bool WireIsValid(int*, Pair, Pair);
 void ChangeNumofInputs(bool, Selection *);

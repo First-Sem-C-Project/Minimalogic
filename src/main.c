@@ -67,8 +67,8 @@ int main(int argc, char** argv){
                         int w, h;
                         GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
                         if(!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos))
-                            InsertComponent(grid, selectedComponent, w, h);
-                        else if(WireIsValid(grid)){
+                            InsertComponent(grid, selectedComponent, w, h, (Pair){pad_x, pad_y});
+                        else if(WireIsValid(grid, (Pair){x, y}, (Pair){pad_x, pad_y})){
                             if (!drawingWire)
                                 drawingWire = StartWiring((Pair){x,y});
                             else

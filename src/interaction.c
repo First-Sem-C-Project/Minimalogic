@@ -137,14 +137,25 @@ bool PositionIsValid(int * grid, int w, int h, Pair pos){
     return true;
 }
 
-bool WireIsValid(int * grid){
-    //TO DO:
-    //Implement this function
-    return true;
+bool WireIsValid(int * grid, Pair pos, Pair pad){
+    Pair gridPos = {(pos.x - pad.x)/CELL_SIZE, (pos.y - pad.y)/CELL_SIZE};
+    Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
+    if(compo.type != probe){
+        if(pos.x>=compo.outTerminal.x && pos.x<=compo.outTerminal.x+TERMINAL_SIZE && pos.y>=compo.outTerminal.y && pos.y<=compo.outTerminal.y+TERMINAL_SIZE)
+            return true;
+    }
+    if(compo.type != state && compo.type != clock){
+        for(int i=0; i<compo.size; i++){
+            if(pos.x>=compo.inTerminal[i].x && pos.x<=compo.inTerminal[i].x+TERMINAL_SIZE && pos.y>=compo.inTerminal[i].y && pos.y<=compo.inTerminal[i].y+TERMINAL_SIZE)
+                return true;
+        }
+    }
+
+    return false;
 }
 
-void InsertComponent(int* grid, Selection selected, int width, int height){
-    ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos);
+void InsertComponent(int* grid, Selection selected, int width, int height, Pair pad){
+    ComponentList[componentCount] = GetComponent(selected.type, selected.size, selected.pos, pad);
     for(int y = selected.pos.y; y < selected.pos.y + height; y ++){
         for(int x = selected.pos.x; x < selected.pos.x + width; x ++){
             cell(y, x) = componentCount;

@@ -114,7 +114,7 @@ void ToggleProbe(Component * component){
     FlipColor(component);
 }
 
-Component MakeNot(Pair pos){
+Component MakeNot(Pair pos, Pair pad){
     Component component;
     component.size  = 1;
     component.width = 3;
@@ -125,11 +125,14 @@ Component MakeNot(Pair pos){
     component.color.g = 100;
     component.color.b = 100;
     component.type = g_not;
+    component.inTerminal = (Pair*)malloc(component.size*sizeof(Pair));
+    component.outTerminal = GetOutputTerminal(&component, pad.x, pad.y);
+    GetInputTerminal(&component, pad.x, pad.y, component.inTerminal);
     ClearInputs(&component);
     return component;
 }
 
-Component MakeState(Pair pos){
+Component MakeState(Pair pos, Pair pad){
     Component component;
     component.size  = 1;
     component.width = 1;
@@ -140,11 +143,13 @@ Component MakeState(Pair pos){
     component.color.g = 100;
     component.color.b = 100;
     component.type = state;
+    component.inTerminal = NULL;
+    component.outTerminal = GetOutputTerminal(&component, pad.x, pad.y);
     ClearInputs(&component);
     return component;
 }
 
-Component MakeProbe(Pair pos){
+Component MakeProbe(Pair pos, Pair pad){
     Component component;
     component.start.x = pos.x;
     component.start.y = pos.y;
@@ -155,11 +160,13 @@ Component MakeProbe(Pair pos){
     component.color.g = 100;
     component.color.b = 100;
     component.type = probe;
+    component.inTerminal = (Pair*)malloc(component.size*sizeof(Pair));
+    GetInputTerminal(&component, pad.x, pad.y, component.inTerminal);
     ClearInputs(&component);
     return component;
 }
 
-Component MakeClock(Pair pos){
+Component MakeClock(Pair pos, Pair pad){
     Component component;
     component.size = 1;
     component.width = 1;
@@ -170,17 +177,22 @@ Component MakeClock(Pair pos){
     component.color.g = 80;
     component.color.b = 0;
     component.type = clock;
+    component.inTerminal = NULL;
+    component.outTerminal = GetOutputTerminal(&component, pad.x, pad.y);
     ClearInputs(&component);
     return component;
 }
 
-Component MultiInputComponent(Type type, int inpNum, Pair pos){
+Component MultiInputComponent(Type type, int inpNum, Pair pos, Pair pad){
     Component component;
     component.start.x = pos.x;
     component.start.y = pos.y;
     component.size    = inpNum;
     component.width = 4;
     component.type = type;
+    component.inTerminal = (Pair*)malloc(component.size*sizeof(Pair));
+    component.outTerminal = GetOutputTerminal(&component, pad.x, pad.y);
+    GetInputTerminal(&component, pad.x, pad.y, component.inTerminal);
     ClearInputs(&component);
     switch (type){
         case(g_and):
@@ -223,18 +235,29 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos){
     return component;
 }
 
-Component GetComponent(Type type, char inpNum, Pair pos){
+Component GetComponent(Type type, char inpNum, Pair pos, Pair pad){
     switch (type){
         case state:
-            return MakeState(pos);
+            return MakeState(pos, pad);
         case probe:
-            return MakeProbe(pos);
+            return MakeProbe(pos, pad);
         case clock:
-            return MakeClock(pos);
+            return MakeClock(pos, pad);
         case g_not:
-            return MakeNot(pos);
+            return MakeNot(pos, pad);
         default:
-            return MultiInputComponent(type, inpNum, pos);
+            return MultiInputComponent(type, inpNum, pos, pad);
+    }
+}
+
+Pair GetOutputTerminal(Component * component, int pad_x, int pad_y){
+    return (Pair) {pad_x + (component->start.x + component->width)*CELL_SIZE - TERMINAL_SIZE, pad_y + (component->start.y*CELL_SIZE + (component->size*CELL_SIZE-TERMINAL_SIZE)/2)};
+}
+
+void GetInputTerminal(Component * component, int pad_x, int pad_y, Pair * inputTerminals){
+    for (int i=0; i<component->size; i++){
+        inputTerminals[i].x = pad_x + component->start.x*CELL_SIZE+1;
+        inputTerminals[i].y = pad_y + (component->start.y*CELL_SIZE + (i+1)*(CELL_SIZE)-(CELL_SIZE+TERMINAL_SIZE)/2);
     }
 }
 
