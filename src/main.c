@@ -68,6 +68,10 @@ int main(int argc, char** argv){
                     CloseEverything();
                     exit(0);
                 case SDL_MOUSEBUTTONDOWN:
+                    if (e.button.button == SDL_BUTTON_RIGHT){
+                        drawingWire = false;
+                        break;
+                    }
                     if (cursorInGrid && componentCount <= 255 && !simulating){
                         selectedComponent.pos = gridPos;
                         int w, h;
