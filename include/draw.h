@@ -1,5 +1,5 @@
 #include "interaction.h"
-#include "SDL2/SDL_ttf.h"
+#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL_ttf.h"
 
 void PreLoadTextures();
 void DestroyTextures();
