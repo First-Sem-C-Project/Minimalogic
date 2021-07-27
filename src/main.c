@@ -66,6 +66,34 @@ void InsertComponent(int* grid, Selection selected, int width, int height){
    componentCount ++;
 }
 
+void DeleteComponent(int* grid, Pair gridPos){
+    int toDelete = cell(gridPos.y, gridPos.x);
+    if (cell(gridPos.y, gridPos.x) == -1)
+        return;
+
+    for (int i = 0; i < GRID_COL; i ++){
+        for(int j = 0; j < GRID_ROW; j ++){
+            if (cell(i, j) == toDelete)
+                cell(i, j) = -1;
+            else if (cell(i, j) > toDelete)
+                cell(i, j) --;
+        }
+    }
+
+    for (int i = 0; i < componentCount; i ++){
+        for (int j = 0; j < 5; j ++){
+            if (ComponentList[i].inpSrc[j] == toDelete)
+                ComponentList[i].inpSrc[j] = -1;
+            else if (ComponentList[i].inpSrc[j] > toDelete)
+                ComponentList[i].inpSrc[j] --;
+        }
+    }
+    for (int i = toDelete; i < componentCount - 1; i ++){
+        ComponentList[i] = ComponentList[i + 1];
+    }
+    componentCount --;
+}
+
 void UpdateComponents(){
     for(int i = 0; i < componentCount; i ++){
         if (ComponentList[i].type != state)
@@ -203,6 +231,9 @@ int main(int argc, char** argv){
                             break;
                         case SDL_SCANCODE_EQUALS:
                             ChangeNumofInputs(false, &selectedComponent);
+                            break;
+                        case SDL_SCANCODE_DELETE:
+                            DeleteComponent(grid, gridPos);
                             break;
                         default:
                             break;
