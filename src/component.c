@@ -100,31 +100,18 @@ void notGate(Component *component) {
   component->output = !component->inputs[0];
 }
 
-void FlipColor(Component *component) {
-  if (component->output) {
-    component->color.r = 255;
-    component->color.b = 50;
-  } else {
-    component->color.r = 50;
-    component->color.b = 255;
-  }
-}
-
 void Tick(Component *component) {
   if (time % 200 == 0)
     component->output = !component->output;
-  FlipColor(component);
 }
 
 void ToggleState(Component *component) {
   component->output = !component->output;
-  FlipColor(component);
 }
 
 void ToggleProbe(Component *component) {
   SetInputs(component);
   component->output = component->inputs[0];
-  FlipColor(component);
 }
 
 Component MakeSingleInputCompo(Type type, Pair pos){
@@ -133,9 +120,6 @@ Component MakeSingleInputCompo(Type type, Pair pos){
   component.width = 1;
   component.start.x = pos.x;
   component.start.y = pos.y;
-  component.color.r = 100;
-  component.color.g = 100;
-  component.color.b = 100;
   component.type = type;
   ClearInputs(&component);
   switch(type){
@@ -174,39 +158,21 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos) {
   switch (type) {
   case (g_and):
     component.operate = andGate;
-    component.color.r = 150;
-    component.color.g = 0;
-    component.color.b = 0;
     break;
   case (g_or):
     component.operate = orGate;
-    component.color.r = 0;
-    component.color.g = 150;
-    component.color.b = 0;
     break;
   case (g_nand):
     component.operate = nandGate;
-    component.color.r = 0;
-    component.color.g = 150;
-    component.color.b = 150;
     break;
   case (g_nor):
     component.operate = norGate;
-    component.color.r = 150;
-    component.color.g = 0;
-    component.color.b = 150;
     break;
   case (g_xor):
     component.operate = xorGate;
-    component.color.r = 0;
-    component.color.g = 0;
-    component.color.b = 150;
     break;
   default:
     component.operate = xnorGate;
-    component.color.r = 150;
-    component.color.g = 150;
-    component.color.b = 0;
     break;
   }
   return component;

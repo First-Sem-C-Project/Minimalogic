@@ -6,10 +6,6 @@ typedef struct{
     int x, y;
 } Pair;
 
-typedef struct{
-    unsigned char r, g, b;
-} Color;
-
 typedef enum {state, probe, clock, g_and, g_or, g_nand, g_nor, g_xor, g_xnor, g_not, g_total} Type;
 
 typedef struct _component{
@@ -17,7 +13,6 @@ typedef struct _component{
     char size, width, inpSrc[MAX_INPUT_NUM];
     bool inputs[MAX_INPUT_NUM], output;
     Type type;
-    Color color;
     void(*operate)(struct _component*);
 } Component;
 

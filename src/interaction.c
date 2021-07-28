@@ -107,11 +107,11 @@ bool StartWiring(Pair pos) {
 void ToggleSimulation(bool *state) {
   if (*state) {
     *state = false;
-    Color green = {GREEN};
+    SDL_Color green = {GREEN};
     RunButton.color = green;
   } else {
     *state = true;
-    Color red = {RED};
+    SDL_Color red = {RED};
     RunButton.color = red;
   }
 }

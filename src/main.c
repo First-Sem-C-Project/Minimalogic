@@ -97,6 +97,8 @@ int main(int argc, char **argv)
                     {
                         if (ComponentList[cell(gridPos.y, gridPos.x)].type == state)
                             ComponentList[cell(gridPos.y, gridPos.x)].operate(&ComponentList[cell(gridPos.y, gridPos.x)]);
+                        else if (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating)
+                            ComponentList[cell(gridPos.y, gridPos.x)].output = !ComponentList[cell(gridPos.y, gridPos.x)].output;
                         else if (!movingCompo)
                         {
                             Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
@@ -230,7 +232,8 @@ int main(int argc, char **argv)
                     ChangeNumofInputs(false, &selectedComponent);
                     break;
                 case SDL_SCANCODE_DELETE:
-                    DeleteComponent(grid, gridPos);
+                    if (!simulating)
+                        DeleteComponent(grid, gridPos);
                     break;
                 default:
                     break;

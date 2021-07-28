@@ -17,7 +17,7 @@ typedef struct Button {
   SDL_Rect buttonRect;
   SDL_Rect textRect;
   Selection selection;
-  Color color;
+  SDL_Color color;
 } Button;
 
 void InitMenu();
