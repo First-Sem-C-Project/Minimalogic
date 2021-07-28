@@ -194,15 +194,15 @@ Selection SelectComponent(Button* button){
 
 void ChangeNumofInputs(bool dec, Selection * selected){
     if (dec){
-        if (selected->size > 2)
+        if (selected->size > MIN_INPUT_NUM)
             selected->size--;
-        if (Components[selected->type].selection.size > 2)
+        if (Components[selected->type].selection.size > MIN_INPUT_NUM)
             Components[selected->type].selection.size--;
     }
     else{
-        if (selected->size < 5)
+        if (selected->size < MAX_INPUT_NUM)
             selected->size++;
-        if (Components[selected->type].selection.size < 5)
+        if (Components[selected->type].selection.size < MAX_INPUT_NUM)
             Components[selected->type].selection.size++;
     }
 }

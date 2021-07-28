@@ -1,5 +1,7 @@
 #include <stdbool.h>
 
+#define MAX_INPUT_NUM 5
+#define MIN_INPUT_NUM 2
 typedef struct{
     int x, y;
 } Pair;

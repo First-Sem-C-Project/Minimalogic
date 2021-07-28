@@ -197,16 +197,30 @@ SDL_Point BezierPoint(float t, SDL_Point p[4]){
 //The wire looks jagged. Might need to implement anti-aliasing
 void DrawWire(SDL_Point start, SDL_Point end){
     SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-    SDL_Point wirePoints[100];
+    SDL_Point wirePoints[MAX_WIRE_PTS];
 
     SDL_Point p2 = {start.x + (end.x - start.x)/3, start.y};
     SDL_Point p3 = {end.x - (end.x - start.x)/3, end.y};
 
-    for (int i=0; i<100; i++){
-        float t = (float)i/100;
-        wirePoints[i] = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
-    } 
-    SDL_RenderDrawLines(renderer, wirePoints, 100);
+    for(int i=0; i<2; i++){
+        if(abs(start.x-end.x)>abs(start.y-end.y)){
+            start.y++;
+            end.y++;
+        }
+        else{
+            start.x++;
+            end.x++;
+        }
+        SDL_Point p2 = {start.x + (end.x - start.x)/3, start.y};
+        SDL_Point p3 = {end.x - (end.x - start.x)/3, end.y};
+
+        SDL_Point previousPoint = BezierPoint(0, (SDL_Point[4]){start, p2, p3, end});
+        for (int i=0; i<MAX_WIRE_PTS; i++){
+            float t = (float)i/MAX_WIRE_PTS;
+            wirePoints[i] = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
+        } 
+        SDL_RenderDrawLines(renderer, wirePoints, MAX_WIRE_PTS);
+    }
 }
 
 void DrawWires(Component component, int pad_x, int pad_y){
@@ -237,7 +251,7 @@ void DrawIOPins(Component component, int pad_x, int pad_y){
         }
     }
     if (component.outPos.x >= 0){
-        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - 10;
+        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE;
         pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 + pad_y + 1 - TERMINAL_SIZE / 2;
         SDL_RenderFillRect(renderer, &pin);
     }

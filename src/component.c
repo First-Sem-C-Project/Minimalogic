@@ -19,7 +19,7 @@ void GetWidthHeight(int * w, int * h, Type type, int size){
 }
 
 void SetIOPos(Component * component, int inpNum){
-    for (int i = inpNum; i < 5; i ++){
+    for (int i = inpNum; i < MAX_INPUT_NUM; i ++){
         component->inpPos[i].y = -1;
         component->inpPos[i].x = -1;
     }
@@ -32,7 +32,7 @@ void SetIOPos(Component * component, int inpNum){
 }
 
 void ClearInputs(Component * component){
-    for (int i = 0; i < 5; i ++){
+    for (int i = 0; i < MAX_INPUT_NUM; i ++){
         component->inpSrc[i] = -1;
         component->inputs[i] = false;
     }
