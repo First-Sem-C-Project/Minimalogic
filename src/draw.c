@@ -394,7 +394,7 @@ void InitEverything(int *grid) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
     exit(-1);
   window =
-      SDL_CreateWindow("MinimaLogic", 0, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
+      SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
                        WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
   renderer = SDL_CreateRenderer(
       window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -402,7 +402,6 @@ void InitEverything(int *grid) {
   if (!(window && renderer))
     exit(-2);
 
-  /* SDL_SetWindowResizable(window, SDL_TRUE); */
   SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
