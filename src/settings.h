@@ -15,3 +15,4 @@
 #define DELAY 40
 
 #define TERMINAL_SIZE 10
+#define MAX_WIRE_PTS 50

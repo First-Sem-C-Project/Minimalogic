@@ -4,9 +4,22 @@ setlocal
 
 set SourceFiles=../../src/*.c
 set OutputName=MinimaLogic.exe
-set includes=../../include
 
 pushd ..
+
+set CLFlags=-Od
+set CLANGFlags=-g -gcodeview
+set GCCFlags=-O
+
+if "%1" neq "optimize" goto DoneConfig
+set CLFlags=-O2
+set CLANGFlags=-O2 -gcodeview
+set GCCFlags=-O2
+
+echo -------------------------------------
+echo Optimize Build configured
+echo -------------------------------------
+:DoneConfig
 
 if not exist "Libraries" mkdir Libraries
 if exist "Libraries/SDL2/SDL2-2.0.14" if exist "Libraries/SDL2/SDL2_ttf-2.0.15" goto SkipDownloadSDL
@@ -54,6 +67,7 @@ set SDL2MinGw_DLL="..\..\..\Libraries\SDL2MinGw\SDL2-2.0.14\x86_64-w64-mingw32\b
 
 set SDL2MinGw_ttf_Library="../../../Libraries/SDL2MinGw/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib/"
 set SDL2MinGw_ttf_DLL="..\..\..\Libraries\SDL2MinGw\SDL2_ttf-2.0.15\x86_64-w64-mingw32\bin\*.dll"
+set FontFile="..\..\fonts\*.ttf"
 
 if not exist "bin" mkdir bin
 
@@ -66,7 +80,8 @@ if not exist "bin\MSVCBuild" mkdir bin\MSVCBuild
 pushd bin\MSVCBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
-call cl -I%includes% -I%SDL2_Include% -nologo -Zi -EHsc %SourceFiles% -Fe%OutputName% /link /LIBPATH:%SDL2_Library% SDL2.lib SDL2main.lib Shell32.lib /LIBPATH:%SDL2_ttf_Library% SDL2_ttf.lib /subsystem:console
+xcopy %FontFile% .\ /Y
+call cl -I%SDL2_Include% %CLFlags% -nologo -Zi -EHsc %SourceFiles% -Fe%OutputName% /link /LIBPATH:%SDL2_Library% SDL2.lib SDL2main.lib Shell32.lib /LIBPATH:%SDL2_ttf_Library% SDL2_ttf.lib /subsystem:windows
 popd
 echo MSVC Build Complete
 echo ----------------------------------------
@@ -84,7 +99,8 @@ if not exist "bin\ClangBuild" mkdir bin\ClangBuild
 pushd bin\ClangBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
-call clang -I%includes% -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -Xlinker -subsystem:console
+xcopy %FontFile% .\ /Y
+call clang -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %CLANGFlags% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -Xlinker -subsystem:windows
 echo Clang Build Complete
 echo ----------------------------------------
 popd
@@ -102,7 +118,8 @@ if not exist "bin\GccBuild" mkdir bin\GccBuild
 pushd bin\GccBuild
 xcopy %SDL2MinGw_DLL% .\ /Y
 xcopy %SDL2MinGw_ttf_DLL% .\ /Y
-call gcc -I%includes% -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,console -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+xcopy %FontFile% .\ /Y
+call gcc -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %GCCFlags% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,windows -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
 echo Gcc Build Complete
 echo ----------------------------------------
 popd
