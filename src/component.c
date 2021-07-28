@@ -127,69 +127,38 @@ void ToggleProbe(Component *component) {
   FlipColor(component);
 }
 
-Component MakeNot(Pair pos) {
-  Component component;
-  component.size = 1;
-  component.width = 3;
-  component.start.x = pos.x;
-  component.start.y = pos.y;
-  component.operate = notGate;
-  component.color.r = 100;
-  component.color.g = 100;
-  component.color.b = 100;
-  component.type = g_not;
-  ClearInputs(&component);
-  SetIOPos(&component, 1);
-  return component;
-}
-
-Component MakeState(Pair pos) {
+Component MakeSingleInputCompo(Type type, Pair pos){
   Component component;
   component.size = 1;
   component.width = 1;
   component.start.x = pos.x;
   component.start.y = pos.y;
-  component.operate = ToggleState;
   component.color.r = 100;
   component.color.g = 100;
   component.color.b = 100;
-  component.type = state;
+  component.type = type;
   ClearInputs(&component);
-  SetIOPos(&component, 0);
-  return component;
-}
-
-Component MakeProbe(Pair pos) {
-  Component component;
-  component.start.x = pos.x;
-  component.start.y = pos.y;
-  component.size = 1;
-  component.width = 1;
-  component.operate = ToggleProbe;
-  component.color.r = 100;
-  component.color.g = 100;
-  component.color.b = 100;
-  component.type = probe;
-  ClearInputs(&component);
-  SetIOPos(&component, 1);
-  component.outPos.x = -1;
-  component.outPos.y = -1;
-  return component;
-}
-
-Component MakeClock(Pair pos) {
-  Component component;
-  component.size = 1;
-  component.width = 1;
-  component.start.x = pos.x;
-  component.start.y = pos.y;
-  component.operate = Tick;
-  component.color.r = 80;
-  component.color.g = 80;
-  component.color.b = 0;
-  component.type = clock;
-  ClearInputs(&component);
-  SetIOPos(&component, 0);
+  switch(type){
+    case(g_not):
+      component.width = 3;
+      component.operate = notGate;
+      SetIOPos(&component, 1);
+      break;
+    case(state):
+      component.operate = ToggleState;
+      SetIOPos(&component, 0);
+      break;
+    case(clock):
+      component.operate = Tick;
+      SetIOPos(&component, 0);
+      break;
+    default:
+      component.operate = ToggleProbe;
+      SetIOPos(&component, 1);
+      component.outPos.x = -1;
+      component.outPos.y = -1;
+      break;
+  }
   return component;
 }
 
@@ -244,16 +213,8 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos) {
 }
 
 Component GetComponent(Type type, char inpNum, Pair pos) {
-  switch (type) {
-  case state:
-    return MakeState(pos);
-  case probe:
-    return MakeProbe(pos);
-  case clock:
-    return MakeClock(pos);
-  case g_not:
-    return MakeNot(pos);
-  default:
-    return MultiInputComponent(type, inpNum, pos);
-  }
+    if (type == state || type == clock || type == g_not || type == probe)
+        return MakeSingleInputCompo(type, pos);
+    else
+        return MultiInputComponent(type, inpNum, pos);
 }

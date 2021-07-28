@@ -18,7 +18,7 @@ SDL_Texture *runAndCompoButton[3];
 
 void InitFont() {
   TTF_Init();
-  sans = TTF_OpenFont("fonts/sans.ttf", CELL_SIZE * 2);
+  sans = TTF_OpenFont("sans.ttf", CELL_SIZE * 2);
   if (sans == NULL) {
     SDL_Log("Failed to load the font: %s\n", TTF_GetError());
     exit(1);
@@ -331,9 +331,13 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
   if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
       gridPos.y < GRID_COL) {
     if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0) {
+      int w, h;
+      GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
       SDL_SetRenderDrawColor(renderer, BLUE, 150);
       highlight.x = gridPos.x * CELL_SIZE + pad_x + 1;
       highlight.y = gridPos.y * CELL_SIZE + pad_y + 1;
+      highlight.w = w * CELL_SIZE;
+      highlight.h = h * CELL_SIZE;
       SDL_RenderFillRect(renderer, &highlight);
     } else {
       bool done = false;
