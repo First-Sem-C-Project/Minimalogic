@@ -2,6 +2,7 @@
 
 SOURCEFILES=../../src/*.c
 OUTPUTFILE=MinimaLogic.o
+FONTFILES=../../fonts/*.ttf
 
 if [ ! -d "./bin" ]; then
   mkdir bin
@@ -21,6 +22,7 @@ then
   exit
 fi
 pushd bin/linux
+cp $FONTFILES ./
 gcc $SOURCEFILES -o $OUTPUTFILE -w -Wall -lSDL2main -lSDL2 -lSDL2_ttf
 popd
 echo -------------------------
