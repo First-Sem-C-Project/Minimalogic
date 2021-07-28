@@ -330,7 +330,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
 
   if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
       gridPos.y < GRID_COL) {
-    if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0) {
+    if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire) {
       int w, h;
       GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
       SDL_SetRenderDrawColor(renderer, BLUE, 150);
