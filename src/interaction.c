@@ -174,7 +174,7 @@ void ToggleDropDown(bool *state, char *animationFlag) {
 }
 
 bool PositionIsValid(int *grid, int w, int h, Pair pos) {
-  if (pos.x >= 0 && pos.y >= 0 && pos.x + w > GRID_ROW || pos.y + h > GRID_COL)
+  if (pos.x + w > GRID_ROW || pos.y + h > GRID_COL)
     return false;
   for (int y = pos.y; y < pos.y + h; y++) {
     for (int x = pos.x; x < pos.x + w; x++) {

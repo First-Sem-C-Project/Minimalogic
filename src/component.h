@@ -13,9 +13,9 @@ typedef struct _component{
     char size, width, inpSrc[MAX_INPUT_NUM];
     bool inputs[MAX_INPUT_NUM], output;
     Type type;
+    void(*operate)(struct _component*);
 } Component;
 
 void GetWidthHeight(int * w, int * h, Type type, int size);
 Component GetComponent(Type, char, Pair);
 void SetIOPos(Component *component, int inpNum);
-void update(Component *);
