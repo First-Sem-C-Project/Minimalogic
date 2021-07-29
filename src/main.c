@@ -96,7 +96,8 @@ int main(int argc, char **argv)
                     drawingWire = false;
                     break;
                 }
-                if (cursorInGrid){
+                if (cursorInGrid)
+                {
                     if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
                     {
                         if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))

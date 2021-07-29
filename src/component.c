@@ -72,39 +72,42 @@ void ClearIO(Component *component)
     component->output = false;
 }
 
-Component MakeSingleInputCompo(Type type, Pair pos){
-  Component component;
-  component.size = 1;
-  component.width = 1 + 2 * (type == g_not);
-  component.start.x = pos.x;
-  component.start.y = pos.y;
-  component.depth = 0;
-  component.type = type;
-  ClearIO(&component);
-  if (type == g_not || type == probe)
-      SetIOPos(&component, 1);
-  else
-      SetIOPos(&component, 0);
-  return component;
+Component MakeSingleInputCompo(Type type, Pair pos)
+{
+    Component component;
+    component.size = 1;
+    component.width = 1 + 2 * (type == g_not);
+    component.start.x = pos.x;
+    component.start.y = pos.y;
+    component.depth = 0;
+    component.type = type;
+    ClearIO(&component);
+    if (type == g_not || type == probe)
+        SetIOPos(&component, 1);
+    else
+        SetIOPos(&component, 0);
+    return component;
 }
 
-Component MakeMultiInputCompo(Type type, int inpNum, Pair pos) {
-  Component component;
-  component.start.x = pos.x;
-  component.start.y = pos.y;
-  component.size = inpNum;
-  component.width = 4;
-  component.type = type;
-  component.depth = 0;
-  ClearIO(&component);
-  SetIOPos(&component, inpNum);
-  return component;
+Component MakeMultiInputCompo(Type type, int inpNum, Pair pos)
+{
+    Component component;
+    component.start.x = pos.x;
+    component.start.y = pos.y;
+    component.size = inpNum;
+    component.width = 4;
+    component.type = type;
+    component.depth = 0;
+    ClearIO(&component);
+    SetIOPos(&component, inpNum);
+    return component;
 }
 
-Component GetComponent(Type type, char inpNum, Pair pos) {
+Component GetComponent(Type type, char inpNum, Pair pos)
+{
     if (type == state || type == clock || type == g_not || type == probe)
         return MakeSingleInputCompo(type, pos);
-    else 
+    else
         return MakeMultiInputCompo(type, inpNum, pos);
 }
 
