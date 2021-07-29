@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     char dropDownAnimationFlag = 0;
     bool cursorInGrid;
     char startAt = 0, endAt = 0;
-    int sender, receiver, receiveIndex;
+    int sender, receiver, sendIndex, receiveIndex;
     int compoMoved;
     Pair initialPos;
 
@@ -91,17 +91,12 @@ int main(int argc, char **argv)
                 CloseEverything();
                 exit(0);
             case SDL_MOUSEBUTTONDOWN:
-                if (e.button.button == SDL_BUTTON_RIGHT)
-                {
-                    drawingWire = false;
-                    break;
-                }
                 if (cursorInGrid)
                 {
                     if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
                     {
                         if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
-                            ComponentList[cell(gridPos.y, gridPos.x)].output = !ComponentList[cell(gridPos.y, gridPos.x)].output;
+                            ComponentList[cell(gridPos.y, gridPos.x)].outputs[0] = !ComponentList[cell(gridPos.y, gridPos.x)].outputs[0];
                         if (!drawingWire && !movingCompo)
                         {
                             Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
@@ -123,12 +118,13 @@ int main(int argc, char **argv)
                         else if (!drawingWire && !movingCompo)
                         {
                             startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
-                            if (startAt == -1)
+                            if (startAt < 0)
                             {
                                 sender = cell(gridPos.y, gridPos.x);
+                                sendIndex = startAt * -1 - 1;
                                 drawingWire = StartWiring((Pair){x, y});
                             }
-                            else if (startAt)
+                            else if (startAt > 0)
                             {
                                 receiver = cell(gridPos.y, gridPos.x);
                                 receiveIndex = startAt - 1;
@@ -165,18 +161,19 @@ int main(int argc, char **argv)
                     endAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
                     if (endAt && startAt != endAt)
                     {
-                        if (endAt == -1)
+                        if (endAt < 0)
                         {
                             sender = cell(gridPos.y, gridPos.x);
+                            sendIndex = endAt * -1 - 1;
                         }
-                        else if (endAt)
+                        else if (endAt > 0)
                         {
                             receiver = cell(gridPos.y, gridPos.x);
                             receiveIndex = endAt - 1;
                         }
                         if (sender != receiver)
                         {
-                            ComponentList[receiver].inpSrc[receiveIndex] = (char)sender;
+                            ComponentList[receiver].inpSrc[receiveIndex] = (Pair){sender, sendIndex};
                             ComponentList[receiver].inputs[receiveIndex] = &ComponentList[sender];
                         }
                     }
@@ -188,10 +185,7 @@ int main(int argc, char **argv)
                     if (!PositionIsValid(grid, compo.width, compo.size, compo.start) || compo.start.x < 0 || compo.start.y < 0)
                     {
                         ComponentList[compoMoved].start = initialPos;
-                        if (compo.type != state && compo.type != clock)
-                            SetIOPos(&ComponentList[compoMoved], compo.size);
-                        else
-                            SetIOPos(&ComponentList[compoMoved], 0);
+                        SetIOPos(&ComponentList[compoMoved]);
                     }
                     else
                         initialPos = compo.start;
@@ -209,10 +203,7 @@ int main(int argc, char **argv)
                 {
                     Component compo = ComponentList[compoMoved];
                     ComponentList[compoMoved].start = gridPos;
-                    if (compo.type != state && compo.type != clock)
-                        SetIOPos(&ComponentList[compoMoved], compo.size);
-                    else
-                        SetIOPos(&ComponentList[compoMoved], 0);
+                    SetIOPos(&ComponentList[compoMoved]);
                 }
                 break;
             case SDL_KEYDOWN:
@@ -225,7 +216,7 @@ int main(int argc, char **argv)
                     ChangeNumofInputs(false, &selectedComponent);
                     break;
                 case SDL_SCANCODE_DELETE:
-                    if (!simulating)
+                    if (!simulating && cursorInGrid)
                         DeleteComponent(grid, gridPos);
                     break;
                 default:

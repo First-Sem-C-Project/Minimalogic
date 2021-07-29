@@ -41,82 +41,97 @@ void GetWidthHeight(int *w, int *h, Type type, int size)
     }
 }
 
-void SetIOPos(Component *component, int inpNum)
+void SetIOPos(Component *component)
 {
-    for (int i = inpNum; i < MAX_INPUT_NUM; i++)
+    for (int i = component->inum; i < MAX_TERM_NUM; i++)
     {
         component->inpPos[i].y = -1;
         component->inpPos[i].x = -1;
     }
-    for (int i = 0; i < inpNum; i++)
+    for (int i = component->onum; i < MAX_TERM_NUM; i++)
     {
-        component->inpPos[i].y = component->start.y + i;
-        component->inpPos[i].x = component->start.x;
+        component->outPos[i].y = -1;
+        component->outPos[i].x = -1;
     }
-    component->outPos.x = component->start.x + component->width - 1;
-    component->outPos.y = component->start.y + component->size / 2;
-    if (component->type == probe)
+    for (int i = 0; i < component->inum; i++)
     {
-        component->outPos.x = -1;
-        component->outPos.y = -1;
+        component->inpPos[i].x = component->start.x;
+        component->inpPos[i].y = (2 * component->start.y + component->size) / component->inum * (i + 1);
+    }
+    for (int i = 0; i < component->onum; i++)
+    {
+        component->outPos[i].x = component->start.x + component->width - 1;
+        component->outPos[i].y = (2 * component->start.y + component->size) / component->onum * (i + 1);
     }
 }
 
 void ClearIO(Component *component)
 {
-    for (int i = 0; i < MAX_INPUT_NUM; i++)
+    for (int i = 0; i < MAX_TERM_NUM; i++)
     {
-        component->inpSrc[i] = -1;
+        component->inpSrc[i] = (Pair){-1, -1};
         component->inputs[i] = false;
+        component->outputs[i] = false;
     }
-    component->output = false;
 }
 
-Component MakeSingleInputCompo(Type type, Pair pos)
+Component SingleInputBuiltin(Type type, Pair pos)
 {
     Component component;
     component.size = 1;
     component.width = 1 + 2 * (type == g_not);
-    component.start.x = pos.x;
-    component.start.y = pos.y;
+    component.start = pos;
     component.depth = 0;
     component.type = type;
     ClearIO(&component);
-    if (type == g_not || type == probe)
-        SetIOPos(&component, 1);
+    if (type == g_not)
+    {
+        component.inum = 1;
+        component.onum = 1;
+    }
+    else if (type == probe)
+    {
+        component.inum = 1;
+        component.onum = 0;
+    }
     else
-        SetIOPos(&component, 0);
+    {
+        component.inum = 0;
+        component.onum = 1;
+    }
+    SetIOPos(&component);
     return component;
 }
 
-Component MakeMultiInputCompo(Type type, int inpNum, Pair pos)
+Component MultiInputBuiltin(Type type, int inpNum, Pair pos)
 {
     Component component;
-    component.start.x = pos.x;
-    component.start.y = pos.y;
+    component.start = pos;
     component.size = inpNum;
+    component.inum = inpNum;
+    component.onum = 1;
     component.width = 4;
     component.type = type;
     component.depth = 0;
     ClearIO(&component);
-    SetIOPos(&component, inpNum);
+    SetIOPos(&component);
     return component;
 }
 
 Component GetComponent(Type type, char inpNum, Pair pos)
 {
     if (type == state || type == clock || type == g_not || type == probe)
-        return MakeSingleInputCompo(type, pos);
+        return SingleInputBuiltin(type, pos);
     else
-        return MakeMultiInputCompo(type, inpNum, pos);
+        return MultiInputBuiltin(type, inpNum, pos);
 }
 
 void SetInputs(Component *component)
 {
     component->depth += 1;
-    for (int i = 0; i < component->size; i++)
+    for (int i = 0; i < component->inum; i++)
     {
-        if (component->inpSrc[i] != -1 && component->depth < 2)
+        if (component->inpSrc[i].x != -1 && component->depth < 2)
             update(component->inputs[i]);
     }
 }
@@ -124,23 +139,23 @@ void SetInputs(Component *component)
 void andGate(Component *component)
 {
     SetInputs(component);
-    if (component->inpSrc[0] >= 0)
+    if (component->inpSrc[0].x >= 0)
     {
-        component->output = component->inputs[0]->output;
+        component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
     }
     else
     {
-        component->output = false;
+        component->outputs[0] = false;
     }
-    for (int i = 1; i < component->size; i++)
+    for (int i = 1; i < component->inum; i++)
     {
-        if (component->inpSrc[i] >= 0)
+        if (component->inpSrc[i].x >= 0)
         {
-            component->output = component->output && component->inputs[i]->output;
+            component->outputs[0] = component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y];
         }
         else
         {
-            component->output = false;
+            component->outputs[0] = false;
             break;
         }
     }
@@ -149,23 +164,23 @@ void andGate(Component *component)
 void orGate(Component *component)
 {
     SetInputs(component);
-    if (component->inpSrc[0] >= 0)
+    if (component->inpSrc[0].x >= 0)
     {
-        component->output = component->inputs[0]->output;
+        component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
     }
     else
     {
-        component->output = false;
+        component->outputs[0] = false;
     }
-    for (int i = 1; i < component->size; i++)
+    for (int i = 1; i < component->inum; i++)
     {
-        if (component->inpSrc[i] >= 0)
+        if (component->inpSrc[i].x >= 0)
         {
-            component->output = component->output || component->inputs[i]->output;
+            component->outputs[0] = component->outputs[0] || component->inputs[i]->outputs[component->inpSrc[i].y];
         }
         else
         {
-            component->output = component->output || false;
+            component->outputs[0] = component->outputs[0] || false;
         }
     }
 }
@@ -173,23 +188,23 @@ void orGate(Component *component)
 void nandGate(Component *component)
 {
     SetInputs(component);
-    if (component->inpSrc[0] >= 0)
+    if (component->inpSrc[0].x >= 0)
     {
-        component->output = component->inputs[0]->output;
+        component->outputs[0] = component->inputs[0]->outputs[0];
     }
     else
     {
-        component->output = false;
+        component->outputs[0] = false;
     }
-    for (int i = 1; i < component->size; i++)
+    for (int i = 1; i < component->inum; i++)
     {
-        if (component->inpSrc[i] >= 0)
+        if (component->inpSrc[i].x >= 0)
         {
-            component->output = !(component->output && component->inputs[i]->output);
+            component->outputs[0] = !(component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y]);
         }
         else
         {
-            component->output = true;
+            component->outputs[0] = true;
             break;
         }
     }
@@ -198,23 +213,23 @@ void nandGate(Component *component)
 void norGate(Component *component)
 {
     SetInputs(component);
-    if (component->inpSrc[0] >= 0)
+    if (component->inpSrc[0].x >= 0)
     {
-        component->output = component->inputs[0]->output;
+        component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
     }
     else
     {
-        component->output = false;
+        component->outputs[0] = false;
     }
-    for (int i = 1; i < component->size; i++)
+    for (int i = 1; i < component->inum; i++)
     {
-        if (component->inpSrc[i] >= 0)
+        if (component->inpSrc[i].x >= 0)
         {
-            component->output = !(component->output || component->inputs[i]->output);
+            component->outputs[0] = !(component->outputs[0] || component->inputs[i]->outputs[component->inpSrc[i].y]);
         }
         else
         {
-            component->output = !component->output;
+            component->outputs[0] = !component->outputs[0];
         }
     }
 }
@@ -222,20 +237,20 @@ void norGate(Component *component)
 void xorGate(Component *component)
 {
     SetInputs(component);
-    if (component->inpSrc[0] >= 0)
+    if (component->inpSrc[0].x >= 0)
     {
-        component->output = component->inputs[0]->output;
+        component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
     }
     else
     {
-        component->output = false;
+        component->outputs[0] = false;
     }
     for (int i = 1; i < component->size; i++)
     {
-        if (component->inpSrc[i] >= 0)
+        if (component->inpSrc[i].x >= 0)
         {
-            component->output = (component->output && !component->inputs[i]->output) ||
-                                (!component->output && component->inputs[i]->output);
+            component->outputs[0] = (component->outputs[0] && !component->inputs[i]->outputs[component->inpSrc[i].y]) ||
+                                (!component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y]);
         }
     }
 }
@@ -243,24 +258,24 @@ void xorGate(Component *component)
 void xnorGate(Component *component)
 {
     SetInputs(component);
-    if (component->inpSrc[0] >= 0)
+    if (component->inpSrc[0].x >= 0)
     {
-        component->output = component->inputs[0]->output;
+        component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
     }
     else
     {
-        component->output = false;
+        component->outputs[0] = false;
     }
     for (int i = 1; i < component->size; i++)
     {
-        if (component->inpSrc[i] >= 0)
+        if (component->inpSrc[i].x >= 0)
         {
-            component->output = (!component->output && !component->inputs[i]->output) ||
-                                (component->output && component->inputs[i]->output);
+            component->outputs[0] = (!component->outputs[0] && !component->inputs[i]->outputs[component->inpSrc[i].y]) ||
+                                (component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y]);
         }
         else
         {
-            component->output = !component->output;
+            component->outputs[0] = !component->outputs[0];
         }
     }
 }
@@ -268,29 +283,24 @@ void xnorGate(Component *component)
 void notGate(Component *component)
 {
     SetInputs(component);
-    if (component->inpSrc[0] >= 0)
+    if (component->inpSrc[0].x >= 0)
     {
-        component->output = !component->inputs[0]->output;
+        component->outputs[0] = !component->inputs[0]->outputs[component->inpSrc[0].y];
     }
     else
     {
-        component->output = true;
+        component->outputs[0] = true;
     }
 }
 
 void Tick(Component *component)
 {
     if (time == 0)
-        component->output = !component->output;
+        component->outputs[0] = !component->outputs[0];
 }
 
 void ToggleState(Component *component)
-{
-    return;
-}
+{ return; }
 
 void ToggleProbe(Component *component)
-{
-    SetInputs(component);
-    component->output = component->inputs[0]->output;
-}
+{ SetInputs(component); }

@@ -177,7 +177,8 @@ void ToggleSimulation(bool *state)
         RunButton.color = green;
         for (int i = 0; i < componentCount; i++)
         {
-            ComponentList[i].output = false;
+            for (int j = 0; j < ComponentList[i].onum; j ++)
+                ComponentList[i].outputs[j] = false;
             ComponentList[i].depth = 0;
         }
     }
@@ -227,23 +228,21 @@ char WireIsValid(int *grid, Pair gridPos, int x, int y, int pad_x, int pad_y)
     int index = grid[gridPos.y * GRID_ROW + gridPos.x];
     Component component = ComponentList[index];
     Pair pin;
-    for (int i = 0; i < component.size; i++)
+    for (int i = 0; i < component.inum; i++)
     {
-        pin.x = component.inpPos[i].x * CELL_SIZE + pad_x + 1;
-        pin.y = component.inpPos[i].y * CELL_SIZE + pad_y + 1 + CELL_SIZE / 2 -
-                TERMINAL_SIZE / 2;
+        pin.x = component.inpPos[i].x * CELL_SIZE + pad_x;
+        pin.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.inum - CELL_SIZE * component.size / component.inum / 2 - TERMINAL_SIZE / 2;
         if (x >= pin.x && x <= pin.x + TERMINAL_SIZE && y >= pin.y &&
             y <= pin.y + TERMINAL_SIZE)
             return i + 1;
     }
-    if (component.outPos.x >= 0)
+    for (int i = 0; i < component.onum; i++)
     {
-        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - 10;
-        pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 +
-                pad_y + 1 - TERMINAL_SIZE / 2;
+        pin.x = component.outPos[i].x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
+        pin.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.onum - CELL_SIZE * component.size / component.onum / 2 - TERMINAL_SIZE / 2;
         if (x >= pin.x && x <= pin.x + TERMINAL_SIZE && y >= pin.y &&
             y <= pin.y + TERMINAL_SIZE)
-            return -1;
+            return -(i + 1);
     }
     return 0;
 }
@@ -283,10 +282,10 @@ void DeleteComponent(int *grid, Pair gridPos)
     {
         for (int j = 0; j < 5; j++)
         {
-            if (ComponentList[i].inpSrc[j] == toDelete)
-                ComponentList[i].inpSrc[j] = -1;
-            else if (ComponentList[i].inpSrc[j] > toDelete)
-                ComponentList[i].inpSrc[j]--;
+            if (ComponentList[i].inpSrc[j].x == toDelete)
+                ComponentList[i].inpSrc[j] = (Pair){-1, -1};
+            else if (ComponentList[i].inpSrc[j].x > toDelete)
+                ComponentList[i].inpSrc[j].x--;
         }
     }
     for (int i = toDelete; i < componentCount - 1; i++)
@@ -309,9 +308,9 @@ void ChangeNumofInputs(bool dec, Selection *selected)
     }
     else
     {
-        if (selected->size < MAX_INPUT_NUM)
+        if (selected->size < MAX_BUILTIN_INPUTS)
             selected->size++;
-        if (Components[selected->type].selection.size < MAX_INPUT_NUM)
+        if (Components[selected->type].selection.size < MAX_BUILTIN_INPUTS)
             Components[selected->type].selection.size++;
     }
 }

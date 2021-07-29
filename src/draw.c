@@ -20,7 +20,7 @@ extern SDL_Rect InputsCountText;
 
 static TTF_Font *font = NULL;
 static SDL_Texture *compoTexts[g_total];
-static SDL_Texture *inputCountTexts[MAX_INPUT_NUM - MIN_INPUT_NUM + 1];
+static SDL_Texture *inputCountTexts[MAX_TERM_NUM - MIN_INPUT_NUM + 1];
 static SDL_Texture *runAndCompoButton[3];
 static SDL_Texture *plus;
 static SDL_Texture *minus;
@@ -301,7 +301,7 @@ void DrawWire(SDL_Point start, SDL_Point end)
     SDL_Point p2 = {start.x + (end.x - start.x) / 3, start.y};
     SDL_Point p3 = {end.x - (end.x - start.x) / 3, end.y};
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
         if (abs(start.x - end.x) > abs(start.y - end.y))
         {
@@ -330,16 +330,15 @@ void DrawWire(SDL_Point start, SDL_Point end)
 void DrawWires(Component component, int pad_x, int pad_y)
 {
     SDL_Point start, end;
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    for (int i = 0; i < component.size; i++)
+    for (int i = 0; i < component.inum; i++)
     {
-        if (component.inpSrc[i] >= 0)
+        if (component.inpSrc[i].x >= 0)
         {
-            Component sender = ComponentList[component.inpSrc[i]];
+            Component sender = ComponentList[component.inpSrc[i].x];
             start.x = component.inpPos[i].x * CELL_SIZE + pad_x + TERMINAL_SIZE / 2;
-            start.y = component.inpPos[i].y * CELL_SIZE + pad_y + CELL_SIZE / 2;
-            end.x = sender.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE / 2;
-            end.y = sender.start.y * CELL_SIZE + sender.size * CELL_SIZE / 2 + pad_y;
+            start.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.inum - CELL_SIZE * component.size / component.inum / 2 - TERMINAL_SIZE / 2 + 3;
+            end.x = sender.outPos[component.inpSrc[i].y].x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE / 2;
+            end.y = sender.start.y * CELL_SIZE + pad_y + (component.inpSrc[i].y + 1) * CELL_SIZE * sender.size / sender.onum - CELL_SIZE * sender.size / sender.onum / 2 - TERMINAL_SIZE / 2 + 3;
             DrawWire(start, end);
         }
     }
@@ -350,38 +349,56 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
     SDL_Rect pin;
     pin.w = TERMINAL_SIZE;
     pin.h = TERMINAL_SIZE;
-    for (int i = 0; i < component.size; i++)
+    char hnum = 0, lnum = 0, bnum = 0;
+    SDL_Rect high[MAX_TERM_NUM * 2], low[MAX_TERM_NUM * 2], border[MAX_TERM_NUM * 2];
+    for (int i = 0; i < component.inum; i++)
     {
         if (component.inpPos[i].x >= 0)
         {
             pin.x = component.inpPos[i].x * CELL_SIZE + pad_x;
-            pin.y = component.inpPos[i].y * CELL_SIZE + pad_y + CELL_SIZE / 2 -
-                    TERMINAL_SIZE / 2;
-            if (component.inpSrc[i] >= 0)
-                if (component.inputs[i]->output)
-                    SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
-                else
-                    SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
-            else
-                SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
-            SDL_RenderFillRect(renderer, &pin);
-            SDL_SetRenderDrawColor(renderer, BLACK, 255);
-            SDL_RenderDrawRect(renderer, &pin);
+            pin.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.inum - CELL_SIZE * component.size / component.inum / 2 - TERMINAL_SIZE / 2;
+            if (component.inpSrc[i].x >= 0){
+                if (component.inputs[i]->outputs[component.inpSrc[i].y]){
+                    high[hnum] = pin;
+                    hnum += 1;
+                }
+                else{
+                    low[lnum] = pin;
+                    lnum += 1;
+                }
+            }
+            else{
+                low[lnum] = pin;
+                lnum += 1;
+            }
+            border[bnum] = pin; 
+            bnum ++;
         }
     }
-    if (component.outPos.x >= 0)
+    for (int i = 0; i < component.onum; i++)
     {
-        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
-        pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 +
-                pad_y + 1 - TERMINAL_SIZE / 2;
-        if (component.output)
-            SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
-        else
-            SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
-        SDL_RenderFillRect(renderer, &pin);
-        SDL_SetRenderDrawColor(renderer, BLACK, 255);
-        SDL_RenderDrawRect(renderer, &pin);
+        if (component.outPos[i].x >= 0)
+        {
+            pin.x = component.outPos[i].x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
+            pin.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.onum - CELL_SIZE * component.size / component.onum / 2 - TERMINAL_SIZE / 2;
+            if (component.outputs[i]){
+                high[hnum] = pin;
+                hnum += 1;
+            }
+            else{
+                low[lnum] = pin;
+                lnum += 1;
+            }
+            border[bnum] = pin; 
+            bnum ++;
+        }
     }
+    SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+    SDL_RenderFillRects(renderer, high, hnum);
+    SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
+    SDL_RenderFillRects(renderer, low, lnum);
+    SDL_SetRenderDrawColor(renderer, BLACK, 255);
+    SDL_RenderDrawRects(renderer, border, bnum);
 }
 
 void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int opacity, bool isHigh)
@@ -411,7 +428,12 @@ void DrawComponents(int pad_x, int pad_y)
 {
     for (int i = 0; i < componentCount; i++)
     {
-        DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, ComponentList[i].output);
+        if (ComponentList[i].type != probe)
+            DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, ComponentList[i].outputs[0]);
+        else if (ComponentList[i].inpSrc[0].y >= 0)
+            DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, ComponentList[i].inputs[0]->outputs[ComponentList[i].inpSrc[0].y]);
+        else
+            DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, false);
         DrawIOPins(ComponentList[i], pad_x, pad_y);
     }
 }
@@ -485,11 +507,10 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
             SDL_SetRenderDrawColor(renderer, GREEN, 200);
             highlight.w = TERMINAL_SIZE;
             highlight.h = TERMINAL_SIZE;
-            for (int i = 0; i < toHighlight.size; i++)
+            for (int i = 0; i < toHighlight.inum; i++)
             {
                 highlight.x = toHighlight.inpPos[i].x * CELL_SIZE + pad_x;
-                highlight.y = toHighlight.inpPos[i].y * CELL_SIZE + pad_y +
-                              CELL_SIZE / 2 - TERMINAL_SIZE / 2;
+                highlight.y = toHighlight.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * toHighlight.size / toHighlight.inum - CELL_SIZE * toHighlight.size / toHighlight.inum / 2 - TERMINAL_SIZE / 2;
                 if (x >= highlight.x && x <= highlight.x + TERMINAL_SIZE &&
                     y >= highlight.y && y <= highlight.y + TERMINAL_SIZE)
                 {
@@ -497,12 +518,10 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
                     done = true;
                 }
             }
-            if (toHighlight.outPos.x >= 0 && !done)
+            for (int i = 0; i < toHighlight.onum; i++)
             {
-                highlight.x = toHighlight.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
-                highlight.y = toHighlight.start.y * CELL_SIZE +
-                              toHighlight.size * CELL_SIZE / 2 + pad_y + 1 -
-                              TERMINAL_SIZE / 2;
+                highlight.x = toHighlight.outPos[i].x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
+                highlight.y = toHighlight.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * toHighlight.size / toHighlight.onum - CELL_SIZE * toHighlight.size / toHighlight.onum / 2 - TERMINAL_SIZE / 2;
                 if (x >= highlight.x && x <= highlight.x + TERMINAL_SIZE &&
                     y >= highlight.y && y <= highlight.y + TERMINAL_SIZE)
                 {
@@ -546,7 +565,7 @@ void InitEverything(int *grid)
         SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
                          WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(
-        window, -1, SDL_RENDERER_SOFTWARE);
+        window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     InitFont();
     if (!(window && renderer))
         exit(-2);
