@@ -158,8 +158,6 @@ void ToggleSimulation(bool *state) {
     RunButton.color = green;
     for (int i = 0; i < componentCount; i ++){
         ComponentList[i].output = false;
-        for (int j = 0; j < ComponentList[i].size; j ++)
-            ComponentList[j].inputs[j] = false;
     }
   } else {
     *state = true;
@@ -191,7 +189,7 @@ bool PositionIsValid(int *grid, int w, int h, Pair pos) {
 }
 
 char WireIsValid(int *grid, Pair gridPos, int x, int y, int pad_x, int pad_y) {
-  if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0) {
+  if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 || gridPos.x < 0 || gridPos.y < 0) {
     return 0;
   }
   int index = grid[gridPos.y * GRID_ROW + gridPos.x];

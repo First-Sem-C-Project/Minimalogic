@@ -26,7 +26,7 @@ void UpdateComponents()
     for (int i = 0; i < componentCount; i++)
     {
         if (ComponentList[i].type != state)
-            ComponentList[i].operate(&ComponentList[i]);
+            update(&ComponentList[i]);
     }
 }
 

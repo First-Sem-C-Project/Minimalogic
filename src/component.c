@@ -5,8 +5,6 @@ extern Component ComponentList[256];
 extern int time;
 
 void Tick(Component *component);
-void ToggleState(Component *component);
-void ToggleProbe(Component *component);
 void orGate(Component *component);
 void andGate(Component *component);
 void notGate(Component *component);
@@ -14,7 +12,11 @@ void norGate(Component *component);
 void xorGate(Component *component);
 void xnorGate(Component *component);
 void nandGate(Component *component);
+void ToggleState(Component *component);
+void ToggleProbe(Component *component);
+
 static void (*operate[g_total])(Component *component) = {ToggleState, ToggleProbe, Tick, andGate, orGate, nandGate, norGate, xorGate, xnorGate, notGate};
+
 void update(Component *component)
 {
     operate[component->type](component);
@@ -85,7 +87,7 @@ Component MakeSingleInputCompo(Type type, Pair pos){
   return component;
 }
 
-Component MultiInputComponent(Type type, int inpNum, Pair pos) {
+Component MakeMultiInputCompo(Type type, int inpNum, Pair pos) {
   Component component;
   component.start.x = pos.x;
   component.start.y = pos.y;
@@ -100,6 +102,9 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos) {
 Component GetComponent(Type type, char inpNum, Pair pos) {
     if (type == state || type == clock || type == g_not || type == probe)
         return MakeSingleInputCompo(type, pos);
+    else 
+        return MakeMultiInputCompo(type, inpNum, pos);
+}
 
 void SetInputs(Component *component)
 {

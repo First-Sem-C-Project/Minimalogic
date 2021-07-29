@@ -174,9 +174,9 @@ void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
 
         SDL_SetRenderDrawColor(renderer, IncreaseInputs.color.r, IncreaseInputs.color.g,
                                IncreaseInputs.color.b, 255);
-        SDL_RenderFillRect(renderer, &IncreaseInputs);
+        SDL_RenderFillRect(renderer, &IncreaseInputs.buttonRect);
         SDL_RenderCopy(renderer, plus, NULL, &IncreaseInputs.textRect);
-        SDL_RenderFillRect(renderer, &DecreaseInputs);
+        SDL_RenderFillRect(renderer, &DecreaseInputs.buttonRect);
         SDL_RenderCopy(renderer, minus, NULL, &DecreaseInputs.textRect);
     }
 
@@ -350,7 +350,6 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
     SDL_Rect pin;
     pin.w = TERMINAL_SIZE;
     pin.h = TERMINAL_SIZE;
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     for (int i = 0; i < component.size; i++)
     {
         if (component.inpPos[i].x >= 0)
@@ -366,14 +365,22 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
             else
                 SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
             SDL_RenderFillRect(renderer, &pin);
+            SDL_SetRenderDrawColor(renderer, BLACK, 255);
+            SDL_RenderDrawRect(renderer, &pin);
         }
     }
     if (component.outPos.x >= 0)
     {
-        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE;
+        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
         pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 +
                 pad_y + 1 - TERMINAL_SIZE / 2;
+        if (component.output)
+            SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+        else
+            SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
         SDL_RenderFillRect(renderer, &pin);
+        SDL_SetRenderDrawColor(renderer, BLACK, 255);
+        SDL_RenderDrawRect(renderer, &pin);
     }
 }
 
