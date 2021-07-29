@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #ifdef _WIN32
 #include <direct.h>
@@ -19,12 +18,16 @@ int time = 0;
 extern Button ComponentsButton;
 extern Button RunButton;
 extern Button Components[g_total];
+extern Button IncreaseInputs;
+extern Button DecreaseInputs;
 
 void UpdateComponents()
 {
     for (int i = 0; i < componentCount; i++)
+    {
         if (ComponentList[i].type != state)
-            update(&ComponentList[i]);
+            ComponentList[i].operate(&ComponentList[i]);
+    }
 }
 
 int main(int argc, char **argv)
@@ -87,10 +90,12 @@ int main(int argc, char **argv)
                     drawingWire = false;
                     break;
                 }
-                if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cursorInGrid && cell(gridPos.y, gridPos.x) >= 0){
+                if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cursorInGrid && cell(gridPos.y, gridPos.x) >= 0)
+                {
                     if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
                         ComponentList[cell(gridPos.y, gridPos.x)].output = !ComponentList[cell(gridPos.y, gridPos.x)].output;
-                    if (!drawingWire && !movingCompo){
+                    if (!drawingWire && !movingCompo)
+                    {
                         Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
                         initialPos = compo.start;
                         compoMoved = cell(gridPos.y, gridPos.x);
@@ -130,11 +135,19 @@ int main(int argc, char **argv)
                         ToggleSimulation(&simulating);
                     else if (clickedButton == &ComponentsButton)
                         ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
-                    else if (clickedButton && dropDownAnimationFlag)
+                    else if (clickedButton)
                     {
                         UnHighlight(selectedComponent.type);
                         selectedComponent = SelectComponent(clickedButton);
                     }
+                }
+                if (x >= MENU_WIDTH + GRID_WIDTH)
+                {
+                    Button *clickedButton = clickedOn(x, y, menuExpanded);
+                    if (clickedButton == &IncreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
+                        ChangeNumofInputs(false, &selectedComponent);
+                    else if (clickedButton == &DecreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
+                        ChangeNumofInputs(true, &selectedComponent);
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
@@ -144,13 +157,16 @@ int main(int argc, char **argv)
                     if (endAt && startAt != endAt)
                     {
                         if (endAt == -1)
+                        {
                             sender = cell(gridPos.y, gridPos.x);
+                        }
                         else if (endAt)
                         {
                             receiver = cell(gridPos.y, gridPos.x);
                             receiveIndex = endAt - 1;
                         }
-                        if (sender != receiver){
+                        if (sender != receiver)
+                        {
                             ComponentList[receiver].inpSrc[receiveIndex] = (char)sender;
                             ComponentList[receiver].inputs[receiveIndex] = &ComponentList[sender];
                         }
@@ -177,8 +193,11 @@ int main(int argc, char **argv)
                 }
             case SDL_MOUSEMOTION:
                 if (drawingWire)
+                {
                     WireEndPos(x, y);
-                else if (movingCompo){
+                }
+                if (movingCompo)
+                {
                     Component compo = ComponentList[compoMoved];
                     ComponentList[compoMoved].start = gridPos;
                     if (compo.type != state && compo.type != clock)
@@ -211,9 +230,10 @@ int main(int argc, char **argv)
         DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
                  simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
 
-        if (simulating){
+        if (simulating)
+        {
             drawingWire = false;
-            /* UpdateComponents(); */
+            UpdateComponents();
         }
 
         if ((SDL_GetTicks() - begin) < DELAY)
