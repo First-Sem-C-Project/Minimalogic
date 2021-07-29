@@ -18,6 +18,8 @@ int time = 0;
 extern Button ComponentsButton;
 extern Button RunButton;
 extern Button Components[g_total];
+extern Button IncreaseInputs;
+extern Button DecreaseInputs;
 
 void UpdateComponents()
 {
@@ -155,6 +157,13 @@ int main(int argc, char **argv)
                         UnHighlight(selectedComponent.type);
                         selectedComponent = SelectComponent(clickedButton);
                     }
+                }
+                if(x >= MENU_WIDTH + GRID_WIDTH){
+                    Button *clickedButton = clickedOn(x,y, menuExpanded);
+                    if(clickedButton == &IncreaseInputs && selectedComponent.type >= g_and && selectedComponent.type<g_not && !simulating)
+                        ChangeNumofInputs(false, &selectedComponent);
+                    else if(clickedButton == &DecreaseInputs && selectedComponent.type >= g_and  && selectedComponent.type<g_not && !simulating)
+                        ChangeNumofInputs(true, &selectedComponent);
                 }
                 break;
             case SDL_MOUSEBUTTONUP:

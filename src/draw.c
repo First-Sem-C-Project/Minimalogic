@@ -1,4 +1,5 @@
 #include "draw.h"
+#include <stdio.h>
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 extern Component ComponentList[256];
@@ -11,10 +12,18 @@ extern Wire tmpWire;
 extern Button RunButton;
 extern Button ComponentsButton;
 extern Button Components[g_total];
+extern Button IncreaseInputs;
+extern Button DecreaseInputs;
+
+extern SDL_Rect InputsCount;
+extern SDL_Rect InputsCountText;
 
 TTF_Font *font = NULL;
 SDL_Texture *compoTexts[g_total];
+SDL_Texture *inputCountTexts[MAX_INPUT_NUM - MIN_INPUT_NUM + 1];
 SDL_Texture *runAndCompoButton[3];
+SDL_Texture *plus;
+SDL_Texture *minus;
 SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -80,6 +89,21 @@ void PreLoadTextures()
 
     textSurface = TTF_RenderText_Blended(font, "XNOR", white);
     compoTexts[g_xnor] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Blended(font, "Inputs: 2", white);
+    inputCountTexts[0] = SDL_CreateTextureFromSurface(renderer, textSurface);
+    textSurface = TTF_RenderText_Blended(font, "Inputs: 3", white);
+    inputCountTexts[1] = SDL_CreateTextureFromSurface(renderer, textSurface);
+    textSurface = TTF_RenderText_Blended(font, "Inputs: 4", white);
+    inputCountTexts[2] = SDL_CreateTextureFromSurface(renderer, textSurface);
+    textSurface = TTF_RenderText_Blended(font, "Inputs: 5", white);
+    inputCountTexts[3] = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Blended(font, "+", white);
+    plus = SDL_CreateTextureFromSurface(renderer, textSurface);
+    textSurface = TTF_RenderText_Blended(font, "-", white);
+    minus = SDL_CreateTextureFromSurface(renderer, textSurface);
+    
     SDL_FreeSurface(textSurface);
 }
 
@@ -93,6 +117,11 @@ void DestroyTextures()
     {
         SDL_DestroyTexture(runAndCompoButton[i]);
     }
+    for(int i = 0; i<4; i++){
+        SDL_DestroyTexture(inputCountTexts[i]);
+    }
+    SDL_DestroyTexture(minus);
+    SDL_DestroyTexture(plus);
 }
 
 void RenderGateText(SDL_Rect compo, Type type)
@@ -127,7 +156,7 @@ void RenderGateText(SDL_Rect compo, Type type)
         SDL_RenderCopy(renderer, compoTexts[type], NULL, &textRect);
 }
 
-void DrawMenu(bool menuExpanded, bool simulating)
+void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
 {
     SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g,
                            RunButton.color.b, 255);
@@ -141,6 +170,19 @@ void DrawMenu(bool menuExpanded, bool simulating)
     SDL_RenderFillRect(renderer, &ComponentsButton.buttonRect);
     SDL_RenderCopy(renderer, runAndCompoButton[2], NULL,
                    &ComponentsButton.textRect);
+
+    if(selected.type >= g_and && selected.type < g_not){              
+        SDL_SetRenderDrawColor(renderer, BLACK, 255);
+        SDL_RenderFillRect(renderer, &InputsCount);
+        SDL_RenderCopy(renderer, inputCountTexts[selected.size-2], NULL, &InputsCountText);
+
+        SDL_SetRenderDrawColor(renderer, IncreaseInputs.color.r, IncreaseInputs.color.g,
+                            IncreaseInputs.color.b, 255);
+        SDL_RenderFillRect(renderer, &IncreaseInputs);
+        SDL_RenderCopy(renderer, plus, NULL, &IncreaseInputs.textRect);
+        SDL_RenderFillRect(renderer, &DecreaseInputs);
+        SDL_RenderCopy(renderer, minus, NULL, &DecreaseInputs.textRect);
+    }
 
     if (menuExpanded)
     {
@@ -212,7 +254,7 @@ void UnHighlight(Type type)
     }
 }
 
-void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating)
+void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection selected)
 {
     if (menuExpanded)
     {
@@ -228,7 +270,7 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating)
     }
     else
     {
-        DrawMenu(true, simulating);
+        DrawMenu(true, simulating, selected);
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_Rect cover = {ComponentsButton.buttonRect.x,
                           ComponentsButton.buttonRect.y +
@@ -389,11 +431,11 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     highlight.h = CELL_SIZE - 1;
     SDL_SetRenderDrawColor(renderer, BG);
     SDL_RenderClear(renderer);
-    DrawMenu(menuExpanded, simulating);
+    DrawMenu(menuExpanded, simulating, selectedComponent);
     HoverOver(clickedOn(x, y, menuExpanded), menuExpanded);
     HighlightSelected(selectedComponent.type);
     if (*dropDownAnimationFlag > 0 && *dropDownAnimationFlag < 6)
-        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating);
+        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, selectedComponent);
 
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);

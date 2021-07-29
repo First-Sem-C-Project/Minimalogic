@@ -5,6 +5,11 @@ Wire tmpWire;
 Button RunButton = {.color = {GREEN}};
 Button ComponentsButton = {.color = {BLACK}};
 Button Components[g_total];
+Button IncreaseInputs = {.color = RED};
+Button DecreaseInputs = {.color = RED};
+
+SDL_Rect InputsCount;
+SDL_Rect InputsCountText;
 
 Component ComponentList[256];
 unsigned char componentCount;
@@ -33,6 +38,34 @@ void InitMenu() {
       ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h / 4;
   ComponentsButton.textRect.w = ComponentsButton.buttonRect.w / 2;
   ComponentsButton.textRect.h = ComponentsButton.buttonRect.h / 2;
+
+  DecreaseInputs.buttonRect.x = MENU_WIDTH + GRID_WIDTH + 10;
+  DecreaseInputs.buttonRect.y = 10;
+  DecreaseInputs.buttonRect.w = 20;
+  DecreaseInputs.buttonRect.h = 30;
+  DecreaseInputs.textRect.x = DecreaseInputs.buttonRect.x+5;
+  DecreaseInputs.textRect.y = DecreaseInputs.buttonRect.y + 5;
+  DecreaseInputs.textRect.w = DecreaseInputs.buttonRect.w-10;
+  DecreaseInputs.textRect.h = DecreaseInputs.buttonRect.h - 10;
+
+  IncreaseInputs.buttonRect.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 130;
+  IncreaseInputs.buttonRect.y = 10;
+  IncreaseInputs.buttonRect.w = 20;
+  IncreaseInputs.buttonRect.h = 30;
+  IncreaseInputs.textRect.x = IncreaseInputs.buttonRect.x+5;
+  IncreaseInputs.textRect.y = IncreaseInputs.buttonRect.y + 5;
+  IncreaseInputs.textRect.w = IncreaseInputs.buttonRect.w-10;
+  IncreaseInputs.textRect.h = IncreaseInputs.buttonRect.h - 10;
+
+  InputsCount.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w +5;
+  InputsCount.y = DecreaseInputs.buttonRect.y;
+  InputsCount.w = 120;
+  InputsCount.h = DecreaseInputs.buttonRect.h;
+
+  InputsCountText.x = InputsCount.x + InputsCount.w/4;
+  InputsCountText.y = InputsCount.y + InputsCount.h/4;
+  InputsCountText.w = InputsCount.w/2;
+  InputsCountText.h = InputsCount.h/2;
 
   for (int i = 0; i < g_total; i++) {
     Components[i].selection.type = i;
@@ -83,6 +116,20 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded) {
       cursorY < ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h) {
     return &ComponentsButton;
   }
+
+  if (cursorX > IncreaseInputs.buttonRect.x &&
+      cursorX < IncreaseInputs.buttonRect.x + IncreaseInputs.buttonRect.w &&
+      cursorY > IncreaseInputs.buttonRect.y &&
+      cursorY < IncreaseInputs.buttonRect.y + IncreaseInputs.buttonRect.h) {
+    return &IncreaseInputs;
+  }
+
+  if (cursorX > DecreaseInputs.buttonRect.x &&
+      cursorX < DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w &&
+      cursorY > DecreaseInputs.buttonRect.y &&
+      cursorY < DecreaseInputs.buttonRect.y + DecreaseInputs.buttonRect.h) {
+    return &DecreaseInputs;
+  }  
 
   for (int i = 0; i < g_total; i++) {
     if (cursorX > Components[i].buttonRect.x &&
