@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #ifdef _WIN32
 #include <direct.h>
@@ -22,10 +23,8 @@ extern Button Components[g_total];
 void UpdateComponents()
 {
     for (int i = 0; i < componentCount; i++)
-    {
         if (ComponentList[i].type != state)
-            ComponentList[i].operate(&ComponentList[i]);
-    }
+            update(&ComponentList[i]);
 }
 
 int main(int argc, char **argv)
@@ -88,36 +87,26 @@ int main(int argc, char **argv)
                     drawingWire = false;
                     break;
                 }
+                if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cursorInGrid && cell(gridPos.y, gridPos.x) >= 0){
+                    if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
+                        ComponentList[cell(gridPos.y, gridPos.x)].output = !ComponentList[cell(gridPos.y, gridPos.x)].output;
+                    if (!drawingWire && !movingCompo){
+                        Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
+                        initialPos = compo.start;
+                        compoMoved = cell(gridPos.y, gridPos.x);
+                        movingCompo = true;
+                        for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
+                            for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
+                                cell(i, j) = -1;
+                    }
+                }
                 if (cursorInGrid && componentCount <= 255 && !simulating)
                 {
                     selectedComponent.pos = gridPos;
                     int w, h;
                     GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-                    if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0 && !drawingWire)
-                    {
-                        if (ComponentList[cell(gridPos.y, gridPos.x)].type == state)
-                            ComponentList[cell(gridPos.y, gridPos.x)].operate(&ComponentList[cell(gridPos.y, gridPos.x)]);
-                        else if (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating)
-                            ComponentList[cell(gridPos.y, gridPos.x)].output = !ComponentList[cell(gridPos.y, gridPos.x)].output;
-                        else if (!movingCompo)
-                        {
-                            Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
-                            initialPos = compo.start;
-                            compoMoved = cell(gridPos.y, gridPos.x);
-                            movingCompo = true;
-                            for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
-                            {
-                                for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
-                                {
-                                    cell(i, j) = -1;
-                                }
-                            }
-                        }
-                    }
                     if (!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos) && !movingCompo)
-                    {
                         InsertComponent(grid, selectedComponent, w, h);
-                    }
                     else if (!drawingWire && !movingCompo)
                     {
                         startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
@@ -134,15 +123,6 @@ int main(int argc, char **argv)
                         }
                     }
                 }
-                else if (cursorInGrid)
-                {
-                    int index = cell(gridPos.y, gridPos.x);
-                    if (index != -1)
-                    {
-                        if (ComponentList[index].type == state)
-                            ComponentList[index].operate(&ComponentList[index]);
-                    }
-                }
                 if (x <= MENU_WIDTH)
                 {
                     Button *clickedButton = clickedOn(x, y, menuExpanded);
@@ -150,7 +130,7 @@ int main(int argc, char **argv)
                         ToggleSimulation(&simulating);
                     else if (clickedButton == &ComponentsButton)
                         ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
-                    else if (clickedButton)
+                    else if (clickedButton && dropDownAnimationFlag)
                     {
                         UnHighlight(selectedComponent.type);
                         selectedComponent = SelectComponent(clickedButton);
@@ -164,56 +144,39 @@ int main(int argc, char **argv)
                     if (endAt && startAt != endAt)
                     {
                         if (endAt == -1)
-                        {
                             sender = cell(gridPos.y, gridPos.x);
-                        }
                         else if (endAt)
                         {
                             receiver = cell(gridPos.y, gridPos.x);
                             receiveIndex = endAt - 1;
                         }
                         if (sender != receiver)
-                        {
                             ComponentList[receiver].inpSrc[receiveIndex] = (char)sender;
-                        }
                     }
                     drawingWire = false;
                 }
                 if (movingCompo)
                 {
                     Component compo = ComponentList[compoMoved];
-                    if (!PositionIsValid(grid, compo.width, compo.size, compo.start))
+                    if (!PositionIsValid(grid, compo.width, compo.size, compo.start) || compo.start.x < 0 || compo.start.y < 0)
                     {
                         ComponentList[compoMoved].start = initialPos;
                         if (compo.type != state && compo.type != clock)
                             SetIOPos(&ComponentList[compoMoved], compo.size);
                         else
                             SetIOPos(&ComponentList[compoMoved], 0);
-                        for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
-                        {
-                            for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
-                            {
-                                cell(i, j) = compoMoved;
-                            }
-                        }
                     }
-                    else{
-                        for (int i = compo.start.y; i < compo.start.y + compo.size; i++)
-                        {
-                            for (int j = compo.start.x; j < compo.start.x + compo.width; j++)
-                            {
-                                cell(i, j) = compoMoved;
-                            }
-                        }
-                    }
+                    else
+                        initialPos = compo.start;
+                    for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
+                        for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
+                            cell(i, j) = compoMoved;
                     movingCompo = false;
                 }
             case SDL_MOUSEMOTION:
                 if (drawingWire)
-                {
                     WireEndPos(x, y);
-                }
-                if (movingCompo){
+                else if (movingCompo){
                     Component compo = ComponentList[compoMoved];
                     ComponentList[compoMoved].start = gridPos;
                     if (compo.type != state && compo.type != clock)
@@ -246,8 +209,10 @@ int main(int argc, char **argv)
         DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
                  simulating, &dropDownAnimationFlag, gridPos, grid);
 
-        if (simulating)
+        if (simulating){
+            drawingWire = false;
             UpdateComponents();
+        }
 
         if ((SDL_GetTicks() - begin) < DELAY)
             SDL_Delay(DELAY - (SDL_GetTicks() - begin));
