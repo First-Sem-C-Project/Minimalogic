@@ -10,7 +10,7 @@ typedef enum {state, probe, clock, g_and, g_or, g_nand, g_nor, g_xor, g_xnor, g_
 
 typedef struct _component{
     Pair start, inpPos[MAX_INPUT_NUM], outPos;
-    char size, width, inpSrc[MAX_INPUT_NUM];
+    char size, width, inpSrc[MAX_INPUT_NUM], depth;
     bool output;
     Type type;
     struct _component * inputs[MAX_INPUT_NUM];

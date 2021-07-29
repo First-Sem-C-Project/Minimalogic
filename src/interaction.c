@@ -158,6 +158,7 @@ void ToggleSimulation(bool *state) {
     RunButton.color = green;
     for (int i = 0; i < componentCount; i ++){
         ComponentList[i].output = false;
+        ComponentList[i].depth = 0;
     }
   } else {
     *state = true;

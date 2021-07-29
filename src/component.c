@@ -78,6 +78,7 @@ Component MakeSingleInputCompo(Type type, Pair pos){
   component.width = 1 + 2 * (type == g_not);
   component.start.x = pos.x;
   component.start.y = pos.y;
+  component.depth = 0;
   component.type = type;
   ClearIO(&component);
   if (type == g_not || type == probe)
@@ -94,6 +95,7 @@ Component MakeMultiInputCompo(Type type, int inpNum, Pair pos) {
   component.size = inpNum;
   component.width = 4;
   component.type = type;
+  component.depth = 0;
   ClearIO(&component);
   SetIOPos(&component, inpNum);
   return component;
@@ -108,9 +110,10 @@ Component GetComponent(Type type, char inpNum, Pair pos) {
 
 void SetInputs(Component *component)
 {
+    component->depth += 1;
     for (int i = 0; i < component->size; i++)
     {
-        if (component->inpSrc[i] != -1)
+        if (component->inpSrc[i] != -1 && component->depth < 2)
             update(component->inputs[i]);
     }
 }
