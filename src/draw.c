@@ -213,9 +213,14 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating)
     if (menuExpanded)
     {
         SDL_SetRenderDrawColor(renderer, BG);
-        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h + 2 * (*animationFlag) - 1) * (25 + 2), ComponentsButton.buttonRect.w, 2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
+        SDL_Rect cover = {ComponentsButton.buttonRect.x,
+                          ComponentsButton.buttonRect.y +
+                              ComponentsButton.buttonRect.h +
+                              (2 * (*animationFlag)) * (25 + 2),
+                          ComponentsButton.buttonRect.w,
+                          2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
         SDL_RenderFillRect(renderer, &cover);
-        *animationFlag ++;
+        *animationFlag += 1;
     }
     else
     {
@@ -223,7 +228,7 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating)
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h + (2 * (*animationFlag)) * (25 + 2), ComponentsButton.buttonRect.w, 2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
         SDL_RenderFillRect(renderer, &cover);
-        *animationFlag --;
+        *animationFlag -= 1;
     }
 }
 
@@ -306,8 +311,11 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
             pin.x = component.inpPos[i].x * CELL_SIZE + pad_x;
             pin.y = component.inpPos[i].y * CELL_SIZE + pad_y + CELL_SIZE / 2 -
                     TERMINAL_SIZE / 2;
-            if (component.inputs[i])
-                SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+            if (component.inpSrc[i] >= 0)
+                if(component.inputs[i]->output)
+                    SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+                else
+                    SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
             else
                 SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
             SDL_RenderFillRect(renderer, &pin);
@@ -378,7 +386,7 @@ void DrawGrid(int pad_x, int pad_y)
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
               Selection selectedComponent, int pad_x, int pad_y,
               bool simulating, char *dropDownAnimationFlag, Pair gridPos,
-              int *grid)
+              int *grid, bool movingCompo)
 {
     SDL_Rect highlight;
     highlight.w = CELL_SIZE;
@@ -404,7 +412,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
         gridPos.y < GRID_COL)
     {
-        if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire)
+        if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire && !movingCompo)
         {
             if(!simulating){
                 int w, h;
@@ -440,7 +448,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
             }
             if (toHighlight.outPos.x >= 0 && !done)
             {
-                highlight.x = toHighlight.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - 10;
+                highlight.x = toHighlight.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
                 highlight.y = toHighlight.start.y * CELL_SIZE +
                               toHighlight.size * CELL_SIZE / 2 + pad_y + 1 -
                               TERMINAL_SIZE / 2;

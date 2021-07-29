@@ -109,6 +109,11 @@ void ToggleSimulation(bool *state) {
     *state = false;
     SDL_Color green = {GREEN};
     RunButton.color = green;
+    for (int i = 0; i < componentCount; i ++){
+        ComponentList[i].output = false;
+        for (int j = 0; j < ComponentList[i].size; j ++)
+            ComponentList[j].inputs[j] = false;
+    }
   } else {
     *state = true;
     SDL_Color red = {RED};

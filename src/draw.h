@@ -7,6 +7,6 @@ void InitEverything(int *);
 void CloseEverything();
 void PadGrid(int *, int *);
 void DrawCall(bool, bool, int, int, Selection, int, int, bool, char *, Pair,
-              int *);
+              int *, bool);
 void UnHighlight(Type);
 void WireEndPos(int, int);

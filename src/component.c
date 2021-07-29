@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "component.h"
 
 extern Component ComponentList[256];
@@ -94,66 +95,128 @@ Component GetComponent(Type type, char inpNum, Pair pos) {
 
 void SetInputs(Component *component) {
   for (int i = 0; i < component->size; i++) {
-    if (component->inpSrc[i] == -1)
-      continue;
-    Component sender = ComponentList[component->inpSrc[i]];
-    component->inputs[i] = sender.output;
+    if (component->inpSrc[i] != -1)
+        update(component->inputs[i]);
   }
 }
 
 void andGate(Component *component) {
   SetInputs(component);
-  component->output = component->inputs[0];
+  if (component->inpSrc[0] >= 0){
+    component->output = component->inputs[0]->output;
+  }
+  else {
+    component->output = false;
+  }
   for (int i = 1; i < component->size; i++) {
-    component->output = component->output && component->inputs[i];
+    if (component->inpSrc[i] >= 0){
+        component->output = component->output && component->inputs[i]->output;
+    }
+    else {
+        component->output = false;
+        break;
+    }
   }
 }
 
 void orGate(Component *component) {
   SetInputs(component);
-  component->output = component->inputs[0];
+  if (component->inpSrc[0] >= 0){
+    component->output = component->inputs[0]->output;
+  }
+  else {
+    component->output = false;
+  }
   for (int i = 1; i < component->size; i++) {
-    component->output = component->output || component->inputs[i];
+    if (component->inpSrc[i] >= 0){
+        component->output = component->output || component->inputs[i]->output;
+    }
+    else{
+        component->output = component->output || false;
+    }
   }
 }
 
 void nandGate(Component *component) {
   SetInputs(component);
-  component->output = component->inputs[0];
+  if (component->inpSrc[0] >= 0){
+    component->output = component->inputs[0]->output;
+  }
+  else {
+    component->output = false;
+  }
   for (int i = 1; i < component->size; i++) {
-    component->output = !(component->output && component->inputs[i]);
+    if (component->inpSrc[i] >= 0){
+        component->output = !(component->output && component->inputs[i]->output);
+    }
+    else{
+        component->output = true;
+        break;
+    }
   }
 }
 
 void norGate(Component *component) {
   SetInputs(component);
-  component->output = component->inputs[0];
+  if (component->inpSrc[0] >= 0){
+    component->output = component->inputs[0]->output;
+  }
+  else {
+    component->output = false;
+  }
   for (int i = 1; i < component->size; i++) {
-    component->output = !(component->output || component->inputs[i]);
+    if (component->inpSrc[i] >= 0){
+      component->output = !(component->output || component->inputs[i]->output);
+    }
+    else {
+      component->output = !component->output;
+    }
   }
 }
 
 void xorGate(Component *component) {
   SetInputs(component);
-  component->output = component->inputs[0];
+  if (component->inpSrc[0] >= 0){
+    component->output = component->inputs[0]->output;
+  }
+  else {
+    component->output = false;
+  }
   for (int i = 1; i < component->size; i++) {
-    component->output = (component->output && !component->inputs[i]) ||
-                        (!component->output && component->inputs[i]);
+    if (component->inpSrc[i] >= 0){
+        component->output = (component->output && !component->inputs[i]->output) ||
+                            (!component->output && component->inputs[i]->output);
+    }
   }
 }
 
 void xnorGate(Component *component) {
   SetInputs(component);
-  component->output = component->inputs[0];
+  if (component->inpSrc[0] >= 0){
+    component->output = component->inputs[0]->output;
+  }
+  else {
+    component->output = false;
+  }
   for (int i = 1; i < component->size; i++) {
-    component->output = (!component->output && !component->inputs[i]) ||
-                        (component->output && component->inputs[i]);
+    if (component->inpSrc[i] >= 0){
+        component->output = (!component->output && !component->inputs[i]->output) ||
+                            (component->output && component->inputs[i]->output);
+    }
+    else {
+        component->output = !component->output;
+    }
   }
 }
 
 void notGate(Component *component) {
   SetInputs(component);
-  component->output = !component->inputs[0];
+  if (component->inpSrc[0] >= 0){
+    component->output = !component->inputs[0]->output;
+  }
+  else {
+    component->output = true;
+  }
 }
 
 void Tick(Component *component) {
@@ -162,11 +225,11 @@ void Tick(Component *component) {
 }
 
 void ToggleState(Component *component) {
-  component->output = !component->output;
+    return;
 }
 
 void ToggleProbe(Component *component) {
   SetInputs(component);
-  component->output = component->inputs[0];
+  component->output = component->inputs[0]->output;
 }
 

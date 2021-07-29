@@ -150,8 +150,10 @@ int main(int argc, char **argv)
                             receiver = cell(gridPos.y, gridPos.x);
                             receiveIndex = endAt - 1;
                         }
-                        if (sender != receiver)
+                        if (sender != receiver){
                             ComponentList[receiver].inpSrc[receiveIndex] = (char)sender;
+                            ComponentList[receiver].inputs[receiveIndex] = &ComponentList[sender];
+                        }
                     }
                     drawingWire = false;
                 }
@@ -207,11 +209,11 @@ int main(int argc, char **argv)
             }
         }
         DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
-                 simulating, &dropDownAnimationFlag, gridPos, grid);
+                 simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
 
         if (simulating){
             drawingWire = false;
-            UpdateComponents();
+            /* UpdateComponents(); */
         }
 
         if ((SDL_GetTicks() - begin) < DELAY)
