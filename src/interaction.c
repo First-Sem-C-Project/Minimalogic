@@ -189,7 +189,7 @@ bool PositionIsValid(int *grid, int w, int h, Pair pos) {
 }
 
 char WireIsValid(int *grid, Pair gridPos, int x, int y, int pad_x, int pad_y) {
-  if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 || gridPos.x < 0 || gridPos.y < 0) {
+  if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0) {
     return 0;
   }
   int index = grid[gridPos.y * GRID_ROW + gridPos.x];

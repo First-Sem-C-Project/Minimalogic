@@ -72,8 +72,14 @@ int main(int argc, char **argv)
         SDL_GetMouseState(&x, &y);
 
         PadGrid(&pad_x, &pad_y);
-        gridPos.x = (x - pad_x) / CELL_SIZE;
-        gridPos.y = (y - pad_y) / CELL_SIZE;
+        if (x - pad_x > 0)
+            gridPos.x = (x - pad_x) / CELL_SIZE;
+        else
+            gridPos.x = -1;
+        if (y - pad_y > 0)
+            gridPos.y = (y - pad_y) / CELL_SIZE;
+        else
+            gridPos.y = -1;
         cursorInGrid = gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
                        gridPos.y < GRID_COL;
 
@@ -90,41 +96,43 @@ int main(int argc, char **argv)
                     drawingWire = false;
                     break;
                 }
-                if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cursorInGrid && cell(gridPos.y, gridPos.x) >= 0)
-                {
-                    if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
-                        ComponentList[cell(gridPos.y, gridPos.x)].output = !ComponentList[cell(gridPos.y, gridPos.x)].output;
-                    if (!drawingWire && !movingCompo)
+                if (cursorInGrid){
+                    if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
                     {
-                        Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
-                        initialPos = compo.start;
-                        compoMoved = cell(gridPos.y, gridPos.x);
-                        movingCompo = true;
-                        for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
-                            for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
-                                cell(i, j) = -1;
-                    }
-                }
-                if (cursorInGrid && componentCount <= 255 && !simulating)
-                {
-                    selectedComponent.pos = gridPos;
-                    int w, h;
-                    GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-                    if (!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos) && !movingCompo)
-                        InsertComponent(grid, selectedComponent, w, h);
-                    else if (!drawingWire && !movingCompo)
-                    {
-                        startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
-                        if (startAt == -1)
+                        if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
+                            ComponentList[cell(gridPos.y, gridPos.x)].output = !ComponentList[cell(gridPos.y, gridPos.x)].output;
+                        if (!drawingWire && !movingCompo)
                         {
-                            sender = cell(gridPos.y, gridPos.x);
-                            drawingWire = StartWiring((Pair){x, y});
+                            Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
+                            initialPos = compo.start;
+                            compoMoved = cell(gridPos.y, gridPos.x);
+                            movingCompo = true;
+                            for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
+                                for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
+                                    cell(i, j) = -1;
                         }
-                        else if (startAt)
+                    }
+                    if (componentCount <= 255 && !simulating)
+                    {
+                        selectedComponent.pos = gridPos;
+                        int w, h;
+                        GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
+                        if (!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos) && !movingCompo)
+                            InsertComponent(grid, selectedComponent, w, h);
+                        else if (!drawingWire && !movingCompo)
                         {
-                            receiver = cell(gridPos.y, gridPos.x);
-                            receiveIndex = startAt - 1;
-                            drawingWire = StartWiring((Pair){x, y});
+                            startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
+                            if (startAt == -1)
+                            {
+                                sender = cell(gridPos.y, gridPos.x);
+                                drawingWire = StartWiring((Pair){x, y});
+                            }
+                            else if (startAt)
+                            {
+                                receiver = cell(gridPos.y, gridPos.x);
+                                receiveIndex = startAt - 1;
+                                drawingWire = StartWiring((Pair){x, y});
+                            }
                         }
                     }
                 }
