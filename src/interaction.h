@@ -1,23 +1,23 @@
-#include "SDL2/SDL.h"
+#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
 #include "colors.h"
 #include "component.h"
 #include "settings.h"
 
 typedef struct {
-  Type type;
-  char size;
-  Pair pos;
+    Type type;
+    char size;
+    Pair pos;
 } Selection;
 
 typedef struct Wire {
-  SDL_Point start, end;
+    SDL_Point start, end;
 } Wire;
 
 typedef struct Button {
-  SDL_Rect buttonRect;
-  SDL_Rect textRect;
-  Selection selection;
-  SDL_Color color;
+    SDL_Rect buttonRect;
+    SDL_Rect textRect;
+    Selection selection;
+    SDL_Color color;
 } Button;
 
 void InitMenu();

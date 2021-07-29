@@ -295,13 +295,13 @@ SDL_Point BezierPoint(float t, SDL_Point p[4])
 // The wire looks jagged. Might need to implement anti-aliasing
 void DrawWire(SDL_Point start, SDL_Point end)
 {
-    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_Point wirePoints[MAX_WIRE_PTS];
 
     SDL_Point p2 = {start.x + (end.x - start.x) / 3, start.y};
     SDL_Point p3 = {end.x - (end.x - start.x) / 3, end.y};
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
         if (abs(start.x - end.x) > abs(start.y - end.y))
         {
@@ -546,7 +546,7 @@ void InitEverything(int *grid)
         SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
                          WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(
-        window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        window, -1, SDL_RENDERER_SOFTWARE);
     InitFont();
     if (!(window && renderer))
         exit(-2);
