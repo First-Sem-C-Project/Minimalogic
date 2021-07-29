@@ -1,5 +1,4 @@
 #include "draw.h"
-#include <stdio.h>
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 extern Component ComponentList[256];
@@ -12,19 +11,11 @@ extern Wire tmpWire;
 extern Button RunButton;
 extern Button ComponentsButton;
 extern Button Components[g_total];
-extern Button IncreaseInputs;
-extern Button DecreaseInputs;
 
-extern SDL_Rect InputsCount;
-extern SDL_Rect InputsCountText;
-
-TTF_Font *font = NULL;
-SDL_Texture *compoTexts[g_total];
-SDL_Texture *inputCountTexts[MAX_INPUT_NUM - MIN_INPUT_NUM + 1];
-SDL_Texture *runAndCompoButton[3];
-SDL_Texture *plus;
-SDL_Texture *minus;
-SDL_Color compoColors[g_total] = {
+static TTF_Font *font = NULL;
+static SDL_Texture *compoTexts[g_total];
+static SDL_Texture *runAndCompoButton[3];
+static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
     {NO_COLOR},
@@ -43,7 +34,7 @@ void InitFont()
     if (font == NULL)
     {
         SDL_Log("Failed to load the font: %s\n", TTF_GetError());
-        exit(1);
+        exit(-1);
     }
 }
 
@@ -89,39 +80,15 @@ void PreLoadTextures()
 
     textSurface = TTF_RenderText_Blended(font, "XNOR", white);
     compoTexts[g_xnor] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 2", white);
-    inputCountTexts[0] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 3", white);
-    inputCountTexts[1] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 4", white);
-    inputCountTexts[2] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 5", white);
-    inputCountTexts[3] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "+", white);
-    plus = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "-", white);
-    minus = SDL_CreateTextureFromSurface(renderer, textSurface);
-    
     SDL_FreeSurface(textSurface);
 }
 
 void DestroyTextures()
 {
     for (int i = 0; i < g_total; i++)
-    {
         SDL_DestroyTexture(compoTexts[i]);
-    }
     for (int i = 0; i < 3; i++)
-    {
         SDL_DestroyTexture(runAndCompoButton[i]);
-    }
-    for(int i = 0; i<4; i++){
-        SDL_DestroyTexture(inputCountTexts[i]);
-    }
-    SDL_DestroyTexture(minus);
-    SDL_DestroyTexture(plus);
 }
 
 void RenderGateText(SDL_Rect compo, Type type)
@@ -156,7 +123,7 @@ void RenderGateText(SDL_Rect compo, Type type)
         SDL_RenderCopy(renderer, compoTexts[type], NULL, &textRect);
 }
 
-void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
+void DrawMenu(bool menuExpanded, bool simulating)
 {
     SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g,
                            RunButton.color.b, 255);
@@ -170,19 +137,6 @@ void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
     SDL_RenderFillRect(renderer, &ComponentsButton.buttonRect);
     SDL_RenderCopy(renderer, runAndCompoButton[2], NULL,
                    &ComponentsButton.textRect);
-
-    if(selected.type >= g_and && selected.type < g_not){              
-        SDL_SetRenderDrawColor(renderer, BLACK, 255);
-        SDL_RenderFillRect(renderer, &InputsCount);
-        SDL_RenderCopy(renderer, inputCountTexts[selected.size-2], NULL, &InputsCountText);
-
-        SDL_SetRenderDrawColor(renderer, IncreaseInputs.color.r, IncreaseInputs.color.g,
-                            IncreaseInputs.color.b, 255);
-        SDL_RenderFillRect(renderer, &IncreaseInputs);
-        SDL_RenderCopy(renderer, plus, NULL, &IncreaseInputs.textRect);
-        SDL_RenderFillRect(renderer, &DecreaseInputs);
-        SDL_RenderCopy(renderer, minus, NULL, &DecreaseInputs.textRect);
-    }
 
     if (menuExpanded)
     {
@@ -254,32 +208,22 @@ void UnHighlight(Type type)
     }
 }
 
-void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection selected)
+void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating)
 {
     if (menuExpanded)
     {
         SDL_SetRenderDrawColor(renderer, BG);
-        SDL_Rect cover = {ComponentsButton.buttonRect.x,
-                          ComponentsButton.buttonRect.y +
-                              ComponentsButton.buttonRect.h +
-                              (2 * (*animationFlag) - 1) * (25 + 2),
-                          ComponentsButton.buttonRect.w,
-                          2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
+        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h + 2 * (*animationFlag) - 1) * (25 + 2), ComponentsButton.buttonRect.w, 2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
         SDL_RenderFillRect(renderer, &cover);
-        *animationFlag += 1;
+        *animationFlag ++;
     }
     else
     {
-        DrawMenu(true, simulating, selected);
+        DrawMenu(true, simulating);
         SDL_SetRenderDrawColor(renderer, BG);
-        SDL_Rect cover = {ComponentsButton.buttonRect.x,
-                          ComponentsButton.buttonRect.y +
-                              ComponentsButton.buttonRect.h +
-                              (2 * (*animationFlag)) * (25 + 2),
-                          ComponentsButton.buttonRect.w,
-                          2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
+        SDL_Rect cover = {ComponentsButton.buttonRect.x, ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h + (2 * (*animationFlag)) * (25 + 2), ComponentsButton.buttonRect.w, 2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
         SDL_RenderFillRect(renderer, &cover);
-        *animationFlag -= 1;
+        *animationFlag --;
     }
 }
 
@@ -342,8 +286,7 @@ void DrawWires(Component component, int pad_x, int pad_y)
             Component sender = ComponentList[component.inpSrc[i]];
             start.x = component.inpPos[i].x * CELL_SIZE + pad_x + TERMINAL_SIZE / 2;
             start.y = component.inpPos[i].y * CELL_SIZE + pad_y + CELL_SIZE / 2;
-            end.x =
-                sender.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE / 2;
+            end.x = sender.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE / 2;
             end.y = sender.start.y * CELL_SIZE + sender.size * CELL_SIZE / 2 + pad_y;
             DrawWire(start, end);
         }
@@ -360,18 +303,29 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
     {
         if (component.inpPos[i].x >= 0)
         {
-            pin.x = component.inpPos[i].x * CELL_SIZE + pad_x + 1;
-            pin.y = component.inpPos[i].y * CELL_SIZE + pad_y + 1 + CELL_SIZE / 2 -
+            pin.x = component.inpPos[i].x * CELL_SIZE + pad_x;
+            pin.y = component.inpPos[i].y * CELL_SIZE + pad_y + CELL_SIZE / 2 -
                     TERMINAL_SIZE / 2;
+            if (component.inputs[i])
+                SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
             SDL_RenderFillRect(renderer, &pin);
+            SDL_SetRenderDrawColor(renderer, BLACK, 255);
+            SDL_RenderDrawRect(renderer, &pin);
         }
     }
     if (component.outPos.x >= 0)
     {
-        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE;
-        pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 +
-                pad_y + 1 - TERMINAL_SIZE / 2;
+        pin.x = component.outPos.x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
+        pin.y = component.start.y * CELL_SIZE + component.size * CELL_SIZE / 2 + pad_y + 1 - TERMINAL_SIZE / 2;
+        if (component.output)
+            SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+        else
+            SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
         SDL_RenderFillRect(renderer, &pin);
+        SDL_SetRenderDrawColor(renderer, BLACK, 255);
+        SDL_RenderDrawRect(renderer, &pin);
     }
 }
 
@@ -427,15 +381,15 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
               int *grid)
 {
     SDL_Rect highlight;
-    highlight.w = CELL_SIZE - 1;
-    highlight.h = CELL_SIZE - 1;
+    highlight.w = CELL_SIZE;
+    highlight.h = CELL_SIZE;
     SDL_SetRenderDrawColor(renderer, BG);
     SDL_RenderClear(renderer);
-    DrawMenu(menuExpanded, simulating, selectedComponent);
+    DrawMenu(menuExpanded, simulating);
     HoverOver(clickedOn(x, y, menuExpanded), menuExpanded);
     HighlightSelected(selectedComponent.type);
     if (*dropDownAnimationFlag > 0 && *dropDownAnimationFlag < 6)
-        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, selectedComponent);
+        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating);
 
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);
@@ -452,22 +406,30 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     {
         if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire)
         {
-            int w, h;
-            GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-            DrawComponent(w, h, gridPos, selectedComponent.type, pad_x, pad_y, 150, false);
+            if(!simulating){
+                int w, h;
+                GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
+                DrawComponent(w, h, gridPos, selectedComponent.type, pad_x, pad_y, 150, false);
+            }
+            else {
+                highlight.x = gridPos.x * CELL_SIZE + pad_x;
+                highlight.y = gridPos.y * CELL_SIZE + pad_y;
+                SDL_SetRenderDrawColor(renderer, BLUE, 200);
+                SDL_RenderFillRect(renderer, &highlight);
+            }
         }
         else
         {
             bool done = false;
             Component toHighlight =
                 ComponentList[grid[gridPos.y * GRID_ROW + gridPos.x]];
-            SDL_SetRenderDrawColor(renderer, GREEN, 100);
+            SDL_SetRenderDrawColor(renderer, GREEN, 200);
             highlight.w = TERMINAL_SIZE;
             highlight.h = TERMINAL_SIZE;
             for (int i = 0; i < toHighlight.size; i++)
             {
-                highlight.x = toHighlight.inpPos[i].x * CELL_SIZE + pad_x + 1;
-                highlight.y = toHighlight.inpPos[i].y * CELL_SIZE + pad_y + 1 +
+                highlight.x = toHighlight.inpPos[i].x * CELL_SIZE + pad_x;
+                highlight.y = toHighlight.inpPos[i].y * CELL_SIZE + pad_y +
                               CELL_SIZE / 2 - TERMINAL_SIZE / 2;
                 if (x >= highlight.x && x <= highlight.x + TERMINAL_SIZE &&
                     y >= highlight.y && y <= highlight.y + TERMINAL_SIZE)
@@ -500,7 +462,6 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
             }
         }
     }
-
     SDL_RenderPresent(renderer);
 }
 
@@ -513,12 +474,8 @@ void WireEndPos(int x, int y)
 void InitGrid(int *grid)
 {
     for (int y = 0; y < GRID_COL; y++)
-    {
         for (int x = 0; x < GRID_ROW; x++)
-        {
             cell(y, x) = -1;
-        }
-    }
 }
 
 void InitEverything(int *grid)
