@@ -21,43 +21,21 @@ extern Button Components[g_total];
 extern Button IncreaseInputs;
 extern Button DecreaseInputs;
 
-extern Operation uDefOperations[UDEF_LIMIT];
-extern Component uDefComponents[UDEF_LIMIT];
-extern unsigned char uDefCompoCount;
-
 void UpdateComponents()
 {
     for (int i = 0; i < componentCount; i++)
     {
-        if (ComponentList[i].type != state){
+        if (ComponentList[i].type != state)
             update(&ComponentList[i]);
-        }
     }
-}
-
-void ClearGridandList(int *grid)
-{
-    InitGrid(grid);
-    componentCount = 0;
-}
-
-bool CheckIfCreatable()
-{
-    int icount = 0, ocount = 0, ccount = 0;
-    for (int i = 0; i < componentCount; i++)
-    {
-        icount += ComponentList[i].type == state || ComponentList[i].type == clock;
-        ocount += ComponentList[i].type == probe;
-        ccount += ComponentList[i].type != state && ComponentList[i].type != clock && ComponentList[i].type != probe;
-    }
-    return (icount < MAX_TERM_NUM && icount > 0 && ocount < MAX_TERM_NUM && ocount > 0 && ccount > 1 && ccount < MAX_INTERNAL_COUNT);
 }
 
 int main(int argc, char **argv)
 {
     char *path, len;
     path = argv[0];
-    for (len = 0; path[len]; len++);
+    for (len = 0; path[len]; len++)
+        ;
     for (int i = len - 1; i >= 0; i--)
     {
         if (path[i] == '\\' || path[i] == '/')
@@ -198,7 +176,6 @@ int main(int argc, char **argv)
                         }
                         if (sender != receiver && confirmWire)
                         {
-                            printf("%d[%d] ==> %d[%d]\n", sender, sendIndex * -1 - 1, receiver, receiveIndex - 1);
                             ComponentList[receiver].inpSrc[receiveIndex - 1] = (Pair){sender, sendIndex * -1 - 1};
                             ComponentList[receiver].inputs[receiveIndex - 1] = &ComponentList[sender];
                         }
@@ -245,16 +222,6 @@ int main(int argc, char **argv)
                     if (!simulating && cursorInGrid)
                         DeleteComponent(grid, gridPos);
                     break;
-                case SDL_SCANCODE_RETURN:
-                    if (!simulating)
-                    {
-                        if (CheckIfCreatable())
-                        {
-                            CreateComponent();
-                            ClearGridandList(grid);
-                            selectedComponent.type = uDefCompoCount - 1;
-                        };
-                    }
                 default:
                     break;
                 }

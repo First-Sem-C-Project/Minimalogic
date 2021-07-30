@@ -408,12 +408,7 @@ void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int 
     compo.h = h * CELL_SIZE - 1;
     compo.x = pos.x * CELL_SIZE + pad_x + 1;
     compo.y = pos.y * CELL_SIZE + pad_y + 1;
-    SDL_Color color;
-    if (type < g_total)
-        color = compoColors[type];
-    else
-        color = (SDL_Color){255, 0, 0};
-
+    SDL_Color color = compoColors[type];
     if (type == state || type == probe || type == clock)
     {
         if (isHigh)
@@ -426,8 +421,7 @@ void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int 
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, opacity);
     }
     SDL_RenderFillRect(renderer, &compo);
-    if (type < g_total)
-        RenderGateText(compo, type);
+    RenderGateText(compo, type);
 }
 
 void DrawComponents(int pad_x, int pad_y)
