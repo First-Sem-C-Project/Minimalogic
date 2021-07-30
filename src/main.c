@@ -58,7 +58,6 @@ int main(int argc, char **argv)
     bool menuExpanded = false;
     bool drawingWire = false;
     bool movingCompo = false;
-    bool confirmWire = false;
     char dropDownAnimationFlag = 0;
     bool cursorInGrid;
     char startAt = 0, endAt = 0;
@@ -122,13 +121,13 @@ int main(int argc, char **argv)
                             if (startAt < 0)
                             {
                                 sender = cell(gridPos.y, gridPos.x);
-                                sendIndex = startAt;
+                                sendIndex = startAt * -1 - 1;
                                 drawingWire = StartWiring((Pair){x, y});
                             }
                             else if (startAt > 0)
                             {
                                 receiver = cell(gridPos.y, gridPos.x);
-                                receiveIndex = startAt;
+                                receiveIndex = startAt - 1;
                                 drawingWire = StartWiring((Pair){x, y});
                             }
                         }
@@ -162,22 +161,20 @@ int main(int argc, char **argv)
                     endAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
                     if (endAt && startAt != endAt)
                     {
-                        if (endAt < 0 && startAt > 0)
+                        if (endAt < 0)
                         {
                             sender = cell(gridPos.y, gridPos.x);
-                            sendIndex = endAt;
-                            confirmWire = true;
+                            sendIndex = endAt * -1 - 1;
                         }
-                        else if (endAt > 0 && startAt < 0)
+                        else if (endAt > 0)
                         {
                             receiver = cell(gridPos.y, gridPos.x);
-                            receiveIndex = endAt;
-                            confirmWire = true;
+                            receiveIndex = endAt - 1;
                         }
-                        if (sender != receiver && confirmWire)
+                        if (sender != receiver)
                         {
-                            ComponentList[receiver].inpSrc[receiveIndex - 1] = (Pair){sender, sendIndex * -1 - 1};
-                            ComponentList[receiver].inputs[receiveIndex - 1] = &ComponentList[sender];
+                            ComponentList[receiver].inpSrc[receiveIndex] = (Pair){sender, sendIndex};
+                            ComponentList[receiver].inputs[receiveIndex] = &ComponentList[sender];
                         }
                     }
                     drawingWire = false;
