@@ -2,6 +2,9 @@
 
 #define MAX_TERM_NUM 16
 #define MIN_INPUT_NUM 2
+#define MAX_INTERNAL_COUNT 8
+#define UDEF_LIMIT 16
+
 typedef struct
 {
     int x, y;
@@ -31,7 +34,13 @@ typedef struct _component
     struct _component *inputs[MAX_TERM_NUM];
 } Component;
 
+typedef struct{
+    char internalsCount[MAX_TERM_NUM];
+    Component internals[MAX_TERM_NUM][MAX_INTERNAL_COUNT];
+}Operation;
+
 void GetWidthHeight(int *w, int *h, Type type, int size);
 Component GetComponent(Type, char, Pair);
 void SetIOPos(Component *component);
 void update(Component *);
+void CreateComponent();

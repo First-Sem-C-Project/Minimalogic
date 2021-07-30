@@ -11,8 +11,8 @@ Button DecreaseInputs = {.color = RED};
 SDL_Rect InputsCount;
 SDL_Rect InputsCountText;
 
-Component ComponentList[256];
 unsigned char componentCount;
+Component ComponentList[256];
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 

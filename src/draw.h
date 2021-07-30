@@ -4,6 +4,7 @@
 void PreLoadTextures();
 void DestroyTextures();
 void InitEverything(int *);
+void InitGrid(int *);
 void CloseEverything();
 void PadGrid(int *, int *);
 void DrawCall(bool, bool, int, int, Selection, int, int, bool, char *, Pair,
