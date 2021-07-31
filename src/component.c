@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "settings.h"
 #include "component.h"
 
 extern Component ComponentList[256];
@@ -17,8 +18,20 @@ void ToggleProbe(Component *component);
 
 static void (*operate[g_total])(Component *component) = {ToggleState, ToggleProbe, Tick, andGate, orGate, nandGate, norGate, xorGate, xnorGate, notGate};
 
+void SetInputs(Component *component)
+{
+    component->depth += 1;
+    for (int i = 0; i < component->inum; i++)
+    {
+        if (component->inpSrc[i].x != -1 && component->depth < 2)
+            update(component->inputs[i]);
+    }
+}
+
 void update(Component *component)
 {
+    if (component-> type != clock)
+        SetInputs(component);
     operate[component->type](component);
 }
 
@@ -26,18 +39,18 @@ void GetWidthHeight(int *w, int *h, Type type, int size)
 {
     if (type == state || type == clock || type == probe)
     {
-        *w = 1;
-        *h = 1;
+        *w = SCALE;
+        *h = SCALE;
     }
     else if (type == g_not)
     {
-        *w = 3;
-        *h = 1;
+        *w = 3 * SCALE;
+        *h = SCALE;
     }
     else
     {
-        *w = 4;
-        *h = size;
+        *w = 4 * SCALE;
+        *h = size * SCALE;
     }
 }
 
@@ -80,6 +93,8 @@ Component SingleInputBuiltin(Type type, Pair pos)
     Component component;
     component.size = 1;
     component.width = 1 + 2 * (type == g_not);
+    component.size *= SCALE;
+    component.width *= SCALE;
     component.start = pos;
     component.depth = 0;
     component.type = type;
@@ -111,6 +126,8 @@ Component MultiInputBuiltin(Type type, int inpNum, Pair pos)
     component.inum = inpNum;
     component.onum = 1;
     component.width = 4;
+    component.size *= SCALE;
+    component.width *= SCALE;
     component.type = type;
     component.depth = 0;
     ClearIO(&component);
@@ -126,19 +143,8 @@ Component GetComponent(Type type, char inpNum, Pair pos)
         return MultiInputBuiltin(type, inpNum, pos);
 }
 
-void SetInputs(Component *component)
-{
-    component->depth += 1;
-    for (int i = 0; i < component->inum; i++)
-    {
-        if (component->inpSrc[i].x != -1 && component->depth < 2)
-            update(component->inputs[i]);
-    }
-}
-
 void andGate(Component *component)
 {
-    SetInputs(component);
     if (component->inpSrc[0].x >= 0)
     {
         component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
@@ -163,7 +169,6 @@ void andGate(Component *component)
 
 void orGate(Component *component)
 {
-    SetInputs(component);
     if (component->inpSrc[0].x >= 0)
     {
         component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
@@ -187,7 +192,6 @@ void orGate(Component *component)
 
 void nandGate(Component *component)
 {
-    SetInputs(component);
     if (component->inpSrc[0].x >= 0)
     {
         component->outputs[0] = component->inputs[0]->outputs[0];
@@ -212,7 +216,6 @@ void nandGate(Component *component)
 
 void norGate(Component *component)
 {
-    SetInputs(component);
     if (component->inpSrc[0].x >= 0)
     {
         component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
@@ -236,7 +239,6 @@ void norGate(Component *component)
 
 void xorGate(Component *component)
 {
-    SetInputs(component);
     if (component->inpSrc[0].x >= 0)
     {
         component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
@@ -257,7 +259,6 @@ void xorGate(Component *component)
 
 void xnorGate(Component *component)
 {
-    SetInputs(component);
     if (component->inpSrc[0].x >= 0)
     {
         component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
@@ -282,7 +283,6 @@ void xnorGate(Component *component)
 
 void notGate(Component *component)
 {
-    SetInputs(component);
     if (component->inpSrc[0].x >= 0)
     {
         component->outputs[0] = !component->inputs[0]->outputs[component->inpSrc[0].y];
@@ -302,5 +302,4 @@ void Tick(Component *component)
 void ToggleState(Component *component)
 { return; }
 
-void ToggleProbe(Component *component)
-{ SetInputs(component); }
+void ToggleProbe(Component *component){};

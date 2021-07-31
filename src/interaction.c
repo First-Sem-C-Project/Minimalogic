@@ -13,6 +13,7 @@ SDL_Rect InputsCountText;
 
 Component ComponentList[256];
 unsigned char componentCount;
+extern int time;
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 
@@ -25,9 +26,9 @@ void InitMenu()
     RunButton.textRect.x =
         RunButton.buttonRect.x + 1.5 * RunButton.buttonRect.w / 4;
     RunButton.textRect.y =
-        RunButton.buttonRect.y + RunButton.buttonRect.h / 2 - CELL_SIZE / 2;
+        RunButton.buttonRect.y + RunButton.buttonRect.h / 2 - CELL_SIZE * SCALE / 2;
     RunButton.textRect.w = RunButton.buttonRect.w / 4;
-    RunButton.textRect.h = CELL_SIZE;
+    RunButton.textRect.h = CELL_SIZE * SCALE;
 
     ComponentsButton.buttonRect.x = 10;
     ComponentsButton.buttonRect.y = 50;
@@ -75,7 +76,7 @@ void InitMenu()
         Components[i].buttonRect.x = 20;
         Components[i].buttonRect.y = ComponentsButton.buttonRect.y +
                                      ComponentsButton.buttonRect.h +
-                                     i * (CELL_SIZE + 2) + 2;
+                                     i * (CELL_SIZE * SCALE + 2) + 2;
         Components[i].buttonRect.w = MENU_WIDTH - 40;
         Components[i].buttonRect.h = MENU_FONT_SIZE;
         Components[i].textRect.x =
@@ -181,6 +182,7 @@ void ToggleSimulation(bool *state)
                 ComponentList[i].outputs[j] = false;
             ComponentList[i].depth = 0;
         }
+        time = 0;
     }
     else
     {

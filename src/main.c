@@ -60,6 +60,8 @@ int main(int argc, char **argv)
     bool movingCompo = false;
     bool confirmWire = false;
     char dropDownAnimationFlag = 0;
+    Pair offset;
+    int changeX = 0, changeY = 0;
     bool cursorInGrid;
     char startAt = 0, endAt = 0;
     int sender, receiver, sendIndex, receiveIndex;
@@ -102,6 +104,7 @@ int main(int argc, char **argv)
                         {
                             Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
                             initialPos = compo.start;
+                            offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
                             compoMoved = cell(gridPos.y, gridPos.x);
                             movingCompo = true;
                             for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
@@ -185,7 +188,11 @@ int main(int argc, char **argv)
                 if (movingCompo)
                 {
                     Component compo = ComponentList[compoMoved];
-                    if (!PositionIsValid(grid, compo.width, compo.size, compo.start) || compo.start.x < 0 || compo.start.y < 0)
+                    if (compo.start.x < 0 || compo.start.y < 0){
+                        ComponentList[compoMoved].start = initialPos;
+                        SetIOPos(&ComponentList[compoMoved]);
+                    }
+                    if (!PositionIsValid(grid, compo.width, compo.size, compo.start))
                     {
                         ComponentList[compoMoved].start = initialPos;
                         SetIOPos(&ComponentList[compoMoved]);
@@ -205,7 +212,47 @@ int main(int argc, char **argv)
                 if (movingCompo)
                 {
                     Component compo = ComponentList[compoMoved];
-                    ComponentList[compoMoved].start = gridPos;
+                    Pair newPos = {gridPos.x - offset.x, gridPos.y - offset.y};
+                    if (gridPos.x - offset.x < 0)
+                        newPos.x = 0;
+                    if (gridPos.y - offset.y < 0)
+                        newPos.y = 0;
+                    if (gridPos.x - offset.x + compo.width >= GRID_ROW)
+                        newPos.x = GRID_ROW - compo.width; 
+                    if (gridPos.y - offset.y + compo.size >= GRID_COL)
+                        newPos.y = GRID_COL - compo.size; 
+
+                    compo.start = newPos;
+
+                    if (!PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                        for (int i = 1;; i ++){
+                            compo.start.x -= i;
+                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                newPos = compo.start;
+                                break;
+                            }
+                            compo.start.x += i;
+                            compo.start.y -= i;
+                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                newPos = compo.start;
+                                break;
+                            }
+                            compo.start.y += i;
+                            compo.start.x += i;
+                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                newPos = compo.start;
+                                break;
+                            }
+                            compo.start.x -= i;
+                            compo.start.y += i;
+                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                newPos = compo.start;
+                                break;
+                            }
+                            compo.start.y -= i;
+                        }
+                    }
+                    ComponentList[compoMoved].start = newPos;
                     SetIOPos(&ComponentList[compoMoved]);
                 }
                 break;
@@ -237,12 +284,14 @@ int main(int argc, char **argv)
         {
             drawingWire = false;
             UpdateComponents();
+            time += DELAY;
+            time %= (DELAY * 20);
         }
 
         if ((SDL_GetTicks() - begin) < DELAY)
             SDL_Delay(DELAY - (SDL_GetTicks() - begin));
-        time += DELAY;
-        time %= (DELAY * DELAY);
+        else
+            SDL_Delay(DELAY);
     }
     return 0;
 }

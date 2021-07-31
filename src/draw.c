@@ -36,10 +36,12 @@ static SDL_Color compoColors[g_total] = {
     {XNOR_COLOR},
     {NOT_COLOR}};
 
+static int offsetX, offsetY;
+
 void InitFont()
 {
     TTF_Init();
-    font = TTF_OpenFont("roboto.ttf", CELL_SIZE * 2);
+    font = TTF_OpenFont("roboto.ttf", 50);
     if (font == NULL)
     {
         SDL_Log("Failed to load the font: %s\n", TTF_GetError());
@@ -121,31 +123,31 @@ void DestroyTextures()
 
 void RenderGateText(SDL_Rect compo, Type type)
 {
-    SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE,
-                         0, CELL_SIZE * 2};
+    SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE * SCALE,
+                         0, CELL_SIZE * SCALE * 2};
     if (type == g_nand || type == g_xnor)
     {
-        textRect.x -= 3 * CELL_SIZE / 2;
-        textRect.w = 3 * CELL_SIZE;
+        textRect.x -= 3 * CELL_SIZE * SCALE / 2;
+        textRect.w = 3 * CELL_SIZE * SCALE;
         textRect.h = textRect.h * 3 / 4;
         textRect.y = compo.y + compo.h / 2 - textRect.h / 2;
     }
     else if (type == g_or)
     {
-        textRect.x -= CELL_SIZE;
-        textRect.w = 2 * CELL_SIZE;
+        textRect.x -= CELL_SIZE * SCALE;
+        textRect.w = 2 * CELL_SIZE * SCALE;
     }
     else if (type == g_not)
     {
-        textRect.x -= 3 * CELL_SIZE / 4;
-        textRect.w = 3 * CELL_SIZE / 2;
-        textRect.h = CELL_SIZE;
+        textRect.x -= 3 * CELL_SIZE * SCALE / 4;
+        textRect.w = 3 * CELL_SIZE * SCALE / 2;
+        textRect.h = CELL_SIZE * SCALE;
         textRect.y = compo.y;
     }
     else
     {
-        textRect.x -= 3 * CELL_SIZE / 2;
-        textRect.w = 3 * CELL_SIZE;
+        textRect.x -= 3 * CELL_SIZE * SCALE / 2;
+        textRect.w = 3 * CELL_SIZE * SCALE;
     }
     if (type >= g_and)
         SDL_RenderCopy(renderer, compoTexts[type], NULL, &textRect);
@@ -295,7 +297,6 @@ SDL_Point BezierPoint(float t, SDL_Point p[4])
 // The wire looks jagged. Might need to implement anti-aliasing
 void DrawWire(SDL_Point start, SDL_Point end)
 {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_Point wirePoints[MAX_WIRE_PTS];
 
     SDL_Point p2 = {start.x + (end.x - start.x) / 3, start.y};
@@ -334,6 +335,10 @@ void DrawWires(Component component, int pad_x, int pad_y)
     {
         if (component.inpSrc[i].x >= 0)
         {
+            if (component.inputs[i]->outputs[component.inpSrc[i].y])
+                SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
             Component sender = ComponentList[component.inpSrc[i].x];
             start.x = component.inpPos[i].x * CELL_SIZE + pad_x + TERMINAL_SIZE / 2;
             start.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.inum - CELL_SIZE * component.size / component.inum / 2 - TERMINAL_SIZE / 2 + 3;
@@ -441,17 +446,10 @@ void DrawComponents(int pad_x, int pad_y)
 void DrawGrid(int pad_x, int pad_y)
 {
     SDL_SetRenderDrawColor(renderer, BG1);
-    for (int i = 0; i < GRID_ROW + 1; i++)
-    {
-        SDL_RenderDrawLine(renderer, pad_x + i * CELL_SIZE, pad_y,
-                           pad_x + i * CELL_SIZE,
-                           GRID_HEIGHT - 2 * CELL_SIZE + pad_y);
-    }
-    for (int i = 0; i < GRID_COL + 1; i++)
-    {
-        SDL_RenderDrawLine(renderer, pad_x, i * CELL_SIZE + pad_y,
-                           pad_x + GRID_WIDTH, i * CELL_SIZE + pad_y);
-    }
+    SDL_RenderDrawLine(renderer, pad_x, pad_y, pad_x + GRID_WIDTH, pad_y);
+    SDL_RenderDrawLine(renderer, pad_x, pad_y, pad_x, pad_y + GRID_HEIGHT - 2 * SCALE);
+    SDL_RenderDrawLine(renderer, pad_x + GRID_WIDTH, pad_y + GRID_HEIGHT - 2 * SCALE, pad_x + GRID_WIDTH, pad_y);
+    SDL_RenderDrawLine(renderer, pad_x + GRID_WIDTH, pad_y + GRID_HEIGHT - 2 * SCALE, pad_x, pad_y + GRID_HEIGHT - 2 * SCALE);
 }
 
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
@@ -485,12 +483,10 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     {
         if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire && !movingCompo)
         {
-            if (!simulating)
-            {
-                int w, h;
-                GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
+            int w, h;
+            GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
+            if (!simulating && PositionIsValid(grid, w, h, gridPos))
                 DrawComponent(w, h, gridPos, selectedComponent.type, pad_x, pad_y, 150, false);
-            }
             else
             {
                 highlight.x = gridPos.x * CELL_SIZE + pad_x;
@@ -552,9 +548,8 @@ void WireEndPos(int x, int y)
 
 void InitGrid(int *grid)
 {
-    for (int y = 0; y < GRID_COL; y++)
-        for (int x = 0; x < GRID_ROW; x++)
-            cell(y, x) = -1;
+    for (int i = 0; i < GRID_COL * GRID_ROW; i++)
+        grid[i] = -1;
 }
 
 void InitEverything(int *grid)
