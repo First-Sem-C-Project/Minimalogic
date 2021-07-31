@@ -19,5 +19,5 @@
 #define XNOR_COLOR PURPLE
 #define NOT_COLOR GRAYISH_WHITE
 #define NO_COLOR 100, 100, 100
-#define HIGH_COLOR RED
-#define LOW_COLOR BLUE
+#define HIGH_COLOR 200, 0, 0
+#define LOW_COLOR 0, 0, 200
