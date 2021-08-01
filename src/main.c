@@ -223,33 +223,50 @@ int main(int argc, char **argv)
                         newPos.y = GRID_COL - compo.size; 
 
                     compo.start = newPos;
+                    bool goUp = true, goLeft = true, goDown = true, goRight = true;
 
                     if (!PositionIsValid(grid, compo.width, compo.size, compo.start)){
-                        for (int i = 1;; i ++){
-                            compo.start.x -= i;
-                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
-                                newPos = compo.start;
-                                break;
+                        for (int i = 1; goUp || goLeft || goRight || goDown; i ++){
+                            if (goLeft){
+                                compo.start.x -= i;
+                                if (compo.start.x < 0)
+                                    goLeft = false;
+                                if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                    newPos = compo.start;
+                                    break;
+                                }
+                                compo.start.x += i;
                             }
-                            compo.start.x += i;
-                            compo.start.y -= i;
-                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
-                                newPos = compo.start;
-                                break;
+                            if (goUp){
+                                compo.start.y -= i;
+                                if (compo.start.y < 0)
+                                    goUp = false;
+                                if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                    newPos = compo.start;
+                                    break;
+                                }
+                                compo.start.y += i;
                             }
-                            compo.start.y += i;
-                            compo.start.x += i;
-                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
-                                newPos = compo.start;
-                                break;
+                            if (goRight){
+                                compo.start.x += i;
+                                if (compo.start.x >= GRID_ROW)
+                                    goRight = false;
+                                if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                    newPos = compo.start;
+                                    break;
+                                }
+                                compo.start.x -= i;
                             }
-                            compo.start.x -= i;
-                            compo.start.y += i;
-                            if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
-                                newPos = compo.start;
-                                break;
+                            if (goDown){
+                                compo.start.y += i;
+                                if (compo.start.y >= GRID_COL)
+                                    goDown = false;
+                                if (PositionIsValid(grid, compo.width, compo.size, compo.start)){
+                                    newPos = compo.start;
+                                    break;
+                                }
+                                compo.start.y -= i;
                             }
-                            compo.start.y -= i;
                         }
                     }
                     ComponentList[compoMoved].start = newPos;
