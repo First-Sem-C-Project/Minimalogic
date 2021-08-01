@@ -59,6 +59,7 @@ int main(int argc, char **argv)
     bool drawingWire = false;
     bool movingCompo = false;
     bool confirmWire = false;
+    bool snapToGrid = false;
     char dropDownAnimationFlag = 0;
     Pair offset;
     int changeX = 0, changeY = 0;
@@ -83,6 +84,10 @@ int main(int argc, char **argv)
             gridPos.y = (y - pad_y) / CELL_SIZE;
         else
             gridPos.y = -1;
+        if (snapToGrid){
+            gridPos.x -= gridPos.x % (SCALE);        
+            gridPos.y -= gridPos.y % (SCALE);        
+        }
         cursorInGrid = gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
                        gridPos.y < GRID_COL;
 
@@ -114,7 +119,6 @@ int main(int argc, char **argv)
                     }
                     if (componentCount <= 255 && !simulating)
                     {
-                        selectedComponent.pos = gridPos;
                         int w, h;
                         GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
                         if (!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos) && !movingCompo)
@@ -205,6 +209,19 @@ int main(int argc, char **argv)
                     movingCompo = false;
                 }
             case SDL_MOUSEMOTION:
+                {
+                    int w, h;
+                    GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
+                    selectedComponent.pos = gridPos;
+                    if (selectedComponent.pos.x + w >= GRID_ROW)
+                        selectedComponent.pos.x = GRID_ROW - w;
+                    if (selectedComponent.pos.y + h >= GRID_COL)
+                        selectedComponent.pos.y = GRID_COL - h;
+                    if (selectedComponent.pos.x < 0)
+                        selectedComponent.pos.x = 0;
+                    if (selectedComponent.pos.y < 0)
+                        selectedComponent.pos.y = 0;
+                }
                 if (drawingWire)
                 {
                     WireEndPos(x, y);
@@ -213,6 +230,10 @@ int main(int argc, char **argv)
                 {
                     Component compo = ComponentList[compoMoved];
                     Pair newPos = {gridPos.x - offset.x, gridPos.y - offset.y};
+                    if (snapToGrid){
+                        newPos.x -= newPos.x % (SCALE);
+                        newPos.y -= newPos.y % (SCALE);
+                    }
                     if (gridPos.x - offset.x < 0)
                         newPos.x = 0;
                     if (gridPos.y - offset.y < 0)
@@ -286,8 +307,26 @@ int main(int argc, char **argv)
                     if (!simulating && cursorInGrid)
                         DeleteComponent(grid, gridPos);
                     break;
+                case SDL_SCANCODE_LCTRL:
+                    snapToGrid = true;
+                    break;
+                case SDL_SCANCODE_RCTRL:
+                    snapToGrid = true;
+                    break;
                 default:
                     break;
+                }
+                break;
+            case SDL_KEYUP:
+                switch (e.key.keysym.scancode){
+                    case SDL_SCANCODE_LCTRL:
+                        snapToGrid = false;
+                        break;
+                    case SDL_SCANCODE_RCTRL:
+                        snapToGrid = false;
+                        break;
+                    default:
+                        break;
                 }
                 break;
             default:

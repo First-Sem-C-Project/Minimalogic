@@ -361,7 +361,7 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
         if (component.inpPos[i].x >= 0)
         {
             pin.x = component.inpPos[i].x * CELL_SIZE + pad_x;
-            pin.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.inum - CELL_SIZE * component.size / component.inum / 2 - TERMINAL_SIZE / 2;
+            pin.y = component.start.y * CELL_SIZE + pad_y + (i + 0.5) * CELL_SIZE * component.size / component.inum - TERMINAL_SIZE / 2;
             if (component.inpSrc[i].x >= 0){
                 if (component.inputs[i]->outputs[component.inpSrc[i].y]){
                     high[hnum] = pin;
@@ -446,10 +446,10 @@ void DrawComponents(int pad_x, int pad_y)
 void DrawGrid(int pad_x, int pad_y)
 {
     SDL_SetRenderDrawColor(renderer, BG1);
-    SDL_RenderDrawLine(renderer, pad_x, pad_y, pad_x + GRID_WIDTH, pad_y);
-    SDL_RenderDrawLine(renderer, pad_x, pad_y, pad_x, pad_y + GRID_HEIGHT - 2 * SCALE);
-    SDL_RenderDrawLine(renderer, pad_x + GRID_WIDTH, pad_y + GRID_HEIGHT - 2 * SCALE, pad_x + GRID_WIDTH, pad_y);
-    SDL_RenderDrawLine(renderer, pad_x + GRID_WIDTH, pad_y + GRID_HEIGHT - 2 * SCALE, pad_x, pad_y + GRID_HEIGHT - 2 * SCALE);
+    for (int x = 0; x <= GRID_ROW; x+=SCALE)
+        SDL_RenderDrawLine(renderer, pad_x + x * CELL_SIZE, pad_y, pad_x + x * CELL_SIZE, pad_y + GRID_COL * CELL_SIZE);
+    for (int y = 0; y <= GRID_COL; y+=SCALE)
+        SDL_RenderDrawLine(renderer, pad_x + GRID_ROW * CELL_SIZE, pad_y + y * CELL_SIZE, pad_x, pad_y + y * CELL_SIZE);
 }
 
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
@@ -485,8 +485,8 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
         {
             int w, h;
             GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-            if (!simulating && PositionIsValid(grid, w, h, gridPos))
-                DrawComponent(w, h, gridPos, selectedComponent.type, pad_x, pad_y, 150, false);
+            if (!simulating && PositionIsValid(grid, w, h, selectedComponent.pos))
+                DrawComponent(w, h, selectedComponent.pos, selectedComponent.type, pad_x, pad_y, 150, false);
             else
             {
                 highlight.x = gridPos.x * CELL_SIZE + pad_x;
@@ -560,7 +560,7 @@ void InitEverything(int *grid)
         SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
                          WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(
-        window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+        window, -1, SDL_RENDERER_SOFTWARE);
     InitFont();
     if (!(window && renderer))
         exit(-2);
