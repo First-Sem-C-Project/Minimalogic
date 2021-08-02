@@ -4,6 +4,7 @@
 
 extern Component ComponentList[256];
 extern int time;
+extern bool AlreadyUpdated[256];
 
 void Tick(Component *component);
 void orGate(Component *component);
@@ -24,7 +25,10 @@ void SetInputs(Component *component)
     for (int i = 0; i < component->inum; i++)
     {
         if (component->inpSrc[i].x != -1 && component->depth < 2)
-            update(component->inputs[i]);
+            if (! AlreadyUpdated[component->inpSrc[i].x]){
+                update(component->inputs[i]);
+                AlreadyUpdated[component->inpSrc[i].x] = true;
+            }
     }
 }
 

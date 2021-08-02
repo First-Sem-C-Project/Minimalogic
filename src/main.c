@@ -13,6 +13,7 @@
 #define cell(y, x) grid[y * GRID_ROW + x]
 extern Component ComponentList[256];
 extern unsigned char componentCount;
+bool AlreadyUpdated[256];
 int time = 0;
 
 extern Button ComponentsButton;
@@ -25,8 +26,10 @@ void UpdateComponents()
 {
     for (int i = 0; i < componentCount; i++)
     {
-        if (ComponentList[i].type != state)
+        if (ComponentList[i].type != state && !AlreadyUpdated[i]){
+            AlreadyUpdated[i] = true;
             update(&ComponentList[i]);
+        }
     }
 }
 
@@ -343,6 +346,8 @@ int main(int argc, char **argv)
 
         if (simulating || (dropDownAnimationFlag > 0 && dropDownAnimationFlag < 6))
         {
+            for (int i = 0; i < 256; i ++)
+                AlreadyUpdated[i] = false;
             drawingWire = false;
             DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
                      simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
