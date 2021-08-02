@@ -317,13 +317,13 @@ void DrawWire(SDL_Point start, SDL_Point end)
         SDL_Point p2 = {start.x + (end.x - start.x) / 3, start.y};
         SDL_Point p3 = {end.x - (end.x - start.x) / 3, end.y};
 
-        SDL_Point previousPoint =
-            BezierPoint(0, (SDL_Point[4]){start, p2, p3, end});
         for (int i = 0; i < MAX_WIRE_PTS; i++)
         {
             float t = (float)i / MAX_WIRE_PTS;
             wirePoints[i] = BezierPoint(t, (SDL_Point[4]){start, p2, p3, end});
         }
+        wirePoints[0] = start;
+        wirePoints[MAX_WIRE_PTS - 1] = end;
         SDL_RenderDrawLines(renderer, wirePoints, MAX_WIRE_PTS);
     }
 }
