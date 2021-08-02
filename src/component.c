@@ -247,7 +247,7 @@ void xorGate(Component *component)
     {
         component->outputs[0] = false;
     }
-    for (int i = 1; i < component->size; i++)
+    for (int i = 1; i < component->inum; i++)
     {
         if (component->inpSrc[i].x >= 0)
         {
@@ -267,7 +267,7 @@ void xnorGate(Component *component)
     {
         component->outputs[0] = false;
     }
-    for (int i = 1; i < component->size; i++)
+    for (int i = 1; i < component->inum; i++)
     {
         if (component->inpSrc[i].x >= 0)
         {
