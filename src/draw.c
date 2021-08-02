@@ -463,7 +463,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     SDL_SetRenderDrawColor(renderer, BG);
     SDL_RenderClear(renderer);
     DrawMenu(menuExpanded, simulating, selectedComponent);
-    HoverOver(clickedOn(x, y, menuExpanded), menuExpanded);
+    HoverOver(clickedOn(x, y, menuExpanded, selectedComponent), menuExpanded);
     HighlightSelected(selectedComponent.type);
     if (*dropDownAnimationFlag > 0 && *dropDownAnimationFlag < 6)
         AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, selectedComponent);

@@ -21,7 +21,7 @@ typedef struct Button {
 } Button;
 
 void InitMenu();
-Button *clickedOn(int, int, bool);
+Button *clickedOn(int, int, bool, Selection);
 bool StartWiring(Pair);
 void ToggleSimulation(bool *);
 void ToggleDropDown(bool *, char *);

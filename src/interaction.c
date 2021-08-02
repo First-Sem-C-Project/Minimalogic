@@ -111,7 +111,7 @@ void InitMenu()
     }
 }
 
-Button *clickedOn(int cursorX, int cursorY, bool menuExpanded)
+Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection selected)
 {
 
     if (cursorX > RunButton.buttonRect.x &&
@@ -130,20 +130,22 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded)
         return &ComponentsButton;
     }
 
-    if (cursorX > IncreaseInputs.buttonRect.x &&
-        cursorX < IncreaseInputs.buttonRect.x + IncreaseInputs.buttonRect.w &&
-        cursorY > IncreaseInputs.buttonRect.y &&
-        cursorY < IncreaseInputs.buttonRect.y + IncreaseInputs.buttonRect.h)
-    {
-        return &IncreaseInputs;
-    }
+    if (selected.type >= g_and && selected.type < g_not){
+        if (cursorX > IncreaseInputs.buttonRect.x &&
+            cursorX < IncreaseInputs.buttonRect.x + IncreaseInputs.buttonRect.w &&
+            cursorY > IncreaseInputs.buttonRect.y &&
+            cursorY < IncreaseInputs.buttonRect.y + IncreaseInputs.buttonRect.h)
+        {
+            return &IncreaseInputs;
+        }
 
-    if (cursorX > DecreaseInputs.buttonRect.x &&
-        cursorX < DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w &&
-        cursorY > DecreaseInputs.buttonRect.y &&
-        cursorY < DecreaseInputs.buttonRect.y + DecreaseInputs.buttonRect.h)
-    {
-        return &DecreaseInputs;
+        if (cursorX > DecreaseInputs.buttonRect.x &&
+            cursorX < DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w &&
+            cursorY > DecreaseInputs.buttonRect.y &&
+            cursorY < DecreaseInputs.buttonRect.y + DecreaseInputs.buttonRect.h)
+        {
+            return &DecreaseInputs;
+        }
     }
 
     for (int i = 0; i < g_total; i++)

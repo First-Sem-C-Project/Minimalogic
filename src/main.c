@@ -145,7 +145,7 @@ int main(int argc, char **argv)
                 }
                 if (x <= MENU_WIDTH)
                 {
-                    Button *clickedButton = clickedOn(x, y, menuExpanded);
+                    Button *clickedButton = clickedOn(x, y, menuExpanded, selectedComponent);
                     if (clickedButton == &RunButton)
                         ToggleSimulation(&simulating);
                     else if (clickedButton == &ComponentsButton)
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
                 }
                 if (x >= MENU_WIDTH + GRID_WIDTH && selectedComponent.type >= g_and && selectedComponent.type < g_not)
                 {
-                    Button *clickedButton = clickedOn(x, y, menuExpanded);
+                    Button *clickedButton = clickedOn(x, y, menuExpanded, selectedComponent);
                     if (clickedButton == &IncreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
                         ChangeNumofInputs(false, &selectedComponent);
                     else if (clickedButton == &DecreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
@@ -347,15 +347,15 @@ int main(int argc, char **argv)
             DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
                      simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
             UpdateComponents();
+            time += DELAY;
+            if (time >= DELAY * 20)
+                time = 0;
         }
 
         if ((SDL_GetTicks() - begin) < DELAY)
             SDL_Delay(DELAY - (SDL_GetTicks() - begin));
         else
             SDL_Delay(DELAY);
-        time += DELAY * simulating;
-        if (time >= DELAY * 20)
-            time = 0;
     }
     return 0;
 }
