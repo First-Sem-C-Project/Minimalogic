@@ -68,12 +68,14 @@ int main(int argc, char **argv)
     int sender, receiver, sendIndex, receiveIndex;
     int compoMoved;
     Pair initialPos;
+    bool draw;
 
     SDL_Event e;
     while (1)
     {
         int begin = SDL_GetTicks();
         SDL_GetMouseState(&x, &y);
+        draw = true;
 
         PadGrid(&pad_x, &pad_y);
         if (x - pad_x > 0)
@@ -85,13 +87,13 @@ int main(int argc, char **argv)
         else
             gridPos.y = -1;
         if (snapToGrid){
-            gridPos.x -= gridPos.x % (SCALE);        
-            gridPos.y -= gridPos.y % (SCALE);        
+            gridPos.x -= gridPos.x % (SCALE / 2);
+            gridPos.y -= gridPos.y % (SCALE / 2);
         }
         cursorInGrid = gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
                        gridPos.y < GRID_COL;
 
-        while (SDL_PollEvent(&e))
+        while (SDL_WaitEventTimeout(&e, DELAY / 10))
         {
             switch (e.type)
             {
@@ -154,7 +156,7 @@ int main(int argc, char **argv)
                         selectedComponent = SelectComponent(clickedButton);
                     }
                 }
-                if (x >= MENU_WIDTH + GRID_WIDTH)
+                if (x >= MENU_WIDTH + GRID_WIDTH && selectedComponent.type >= g_and && selectedComponent.type < g_not)
                 {
                     Button *clickedButton = clickedOn(x, y, menuExpanded);
                     if (clickedButton == &IncreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
@@ -231,8 +233,8 @@ int main(int argc, char **argv)
                     Component compo = ComponentList[compoMoved];
                     Pair newPos = {gridPos.x - offset.x, gridPos.y - offset.y};
                     if (snapToGrid){
-                        newPos.x -= newPos.x % (SCALE);
-                        newPos.y -= newPos.y % (SCALE);
+                        newPos.x -= newPos.x % (SCALE / 2);
+                        newPos.y -= newPos.y % (SCALE / 2);
                     }
                     if (gridPos.x - offset.x < 0)
                         newPos.x = 0;
@@ -332,22 +334,28 @@ int main(int argc, char **argv)
             default:
                 break;
             }
+            if (draw){
+                DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
+                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
+                draw = false;
+            }
         }
-        DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
-                 simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
 
-        if (simulating)
+        if (simulating || (dropDownAnimationFlag > 0 && dropDownAnimationFlag < 6))
         {
             drawingWire = false;
+            DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
             UpdateComponents();
-            time += DELAY;
-            time %= (DELAY * 20);
         }
 
         if ((SDL_GetTicks() - begin) < DELAY)
             SDL_Delay(DELAY - (SDL_GetTicks() - begin));
         else
             SDL_Delay(DELAY);
+        time += DELAY * simulating;
+        if (time >= DELAY * 20)
+            time = 0;
     }
     return 0;
 }

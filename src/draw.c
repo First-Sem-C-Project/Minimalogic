@@ -559,6 +559,8 @@ void InitEverything(int *grid)
     window =
         SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
                          WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    /* renderer = SDL_CreateRenderer( */
+    /*     window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); */
     renderer = SDL_CreateRenderer(
         window, -1, SDL_RENDERER_SOFTWARE);
     InitFont();
