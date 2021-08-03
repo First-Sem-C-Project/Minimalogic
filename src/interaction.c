@@ -286,8 +286,10 @@ void DeleteComponent(int *grid, Pair gridPos)
     {
         for (int j = 0; j < 5; j++)
         {
-            if (ComponentList[i].inpSrc[j].x == toDelete)
+            if (ComponentList[i].inpSrc[j].x == toDelete){
                 ComponentList[i].inpSrc[j] = (Pair){-1, -1};
+                ComponentList[i].inputs[j] = NULL;
+            }
             else if (ComponentList[i].inpSrc[j].x > toDelete)
                 ComponentList[i].inpSrc[j].x--;
         }
