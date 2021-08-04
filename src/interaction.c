@@ -378,14 +378,17 @@ void DeleteComponent(int *grid, Pair gridPos)
 
     for (int i = 0; i < componentCount; i++)
     {
-        for (int j = 0; j < 5; j++)
+        Component * compo = &ComponentList[i];
+        for (int j = 0; j < compo->inum; j++)
         {
-            if (ComponentList[i].inpSrc[j].x == toDelete){
-                ComponentList[i].inpSrc[j] = (Pair){-1, -1};
-                ComponentList[i].inputs[j] = NULL;
+            if (compo->inpSrc[j].x == toDelete){
+                compo->inpSrc[j] = (Pair){-1, -1};
+                compo->inputs[j] = NULL;
             }
-            else if (ComponentList[i].inpSrc[j].x > toDelete)
-                ComponentList[i].inpSrc[j].x--;
+            else if (compo->inpSrc[j].x > toDelete){
+                compo->inpSrc[j].x--;
+                compo->inputs[j] = &ComponentList[compo->inpSrc[j].x];
+            }
         }
     }
     for (int i = toDelete; i < componentCount - 1; i++)

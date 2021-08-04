@@ -24,11 +24,13 @@ void SetInputs(Component *component)
     component->depth += 1;
     for (int i = 0; i < component->inum; i++)
     {
-        if (component->inpSrc[i].x != -1 && component->depth < 2)
+        if (component->inpSrc[i].x != -1 && component->depth < 2){
+            component->inputs[i] = &ComponentList[component->inpSrc[i].x];
             if (! AlreadyUpdated[component->inpSrc[i].x]){
                 update(component->inputs[i]);
                 AlreadyUpdated[component->inpSrc[i].x] = true;
             }
+        }
     }
 }
 
