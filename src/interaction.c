@@ -44,8 +44,8 @@ void InitMenu()
     ComponentsButton.textRect.w = ComponentsButton.buttonRect.w / 2;
     ComponentsButton.textRect.h = ComponentsButton.buttonRect.h / 2;
 
-    DecreaseInputs.buttonRect.x = MENU_WIDTH + GRID_WIDTH + 10;
-    DecreaseInputs.buttonRect.y = 10;
+    DecreaseInputs.buttonRect.x = 10;
+    DecreaseInputs.buttonRect.y = 450;
     DecreaseInputs.buttonRect.w = 20;
     DecreaseInputs.buttonRect.h = 30;
     DecreaseInputs.textRect.x = DecreaseInputs.buttonRect.x + 5;
@@ -54,7 +54,7 @@ void InitMenu()
     DecreaseInputs.textRect.h = DecreaseInputs.buttonRect.h - 10;
 
     IncreaseInputs.buttonRect.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 130;
-    IncreaseInputs.buttonRect.y = 10;
+    IncreaseInputs.buttonRect.y = 450;
     IncreaseInputs.buttonRect.w = 20;
     IncreaseInputs.buttonRect.h = 30;
     IncreaseInputs.textRect.x = IncreaseInputs.buttonRect.x + 5;
@@ -167,6 +167,17 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection selecte
         return &Save;
     }
 
+    for (int i = 0; i < g_total; i++)
+    {
+        if (cursorX > Components[i].buttonRect.x &&
+            cursorX < Components[i].buttonRect.x + Components[i].buttonRect.w &&
+            cursorY > Components[i].buttonRect.y &&
+            cursorY < Components[i].buttonRect.y + Components[i].buttonRect.h)
+        {
+            return &Components[i];
+        }
+    }
+
     if (selected.type >= g_and && selected.type < g_not){
         if (cursorX > IncreaseInputs.buttonRect.x &&
             cursorX < IncreaseInputs.buttonRect.x + IncreaseInputs.buttonRect.w &&
@@ -184,18 +195,6 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection selecte
             return &DecreaseInputs;
         }
     }
-
-    for (int i = 0; i < g_total; i++)
-    {
-        if (cursorX > Components[i].buttonRect.x &&
-            cursorX < Components[i].buttonRect.x + Components[i].buttonRect.w &&
-            cursorY > Components[i].buttonRect.y &&
-            cursorY < Components[i].buttonRect.y + Components[i].buttonRect.h)
-        {
-            return &Components[i];
-        }
-    }
-
     return NULL;
 }
 

@@ -1,5 +1,6 @@
 #define BG 46, 52, 64, 255
 #define BG1 76, 86, 106, 255
+#define BG2 59, 66, 82, 255
 
 #define RED 180, 77, 86
 #define ORANGE 208, 135, 112

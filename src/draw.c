@@ -164,6 +164,11 @@ void RenderGateText(SDL_Rect compo, Type type)
 
 void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
 {
+    SDL_SetRenderDrawColor(renderer, BG1);
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    SDL_Rect menuBg = {0, 0, MENU_WIDTH, h};
+    SDL_RenderFillRect(renderer, &menuBg);
     SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g,
                            RunButton.color.b, 255);
     SDL_RenderFillRect(renderer, &RunButton.buttonRect);
@@ -203,7 +208,7 @@ void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
                             ComponentsButton.buttonRect.y +
                                 ComponentsButton.buttonRect.h,
                             ComponentsButton.buttonRect.w, 2 + g_total * (25 + 2)};
-        SDL_SetRenderDrawColor(renderer, BG1);
+        SDL_SetRenderDrawColor(renderer, BG2);
         SDL_RenderFillRect(renderer, &wrapper);
 
         for (int i = 0; i < g_total; i++)
@@ -494,9 +499,9 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
         DrawWire(tmpWire.start, tmpWire.end);
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
-        gridPos.y < GRID_COL)
+        gridPos.y < GRID_COL && !drawingWire && !movingCompo)
     {
-        if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire && !movingCompo)
+        if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0)
         {
             int w, h;
             GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
@@ -527,9 +532,10 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
                 {
                     SDL_RenderFillRect(renderer, &highlight);
                     done = true;
+                    break;
                 }
             }
-            for (int i = 0; i < toHighlight.onum; i++)
+            for (int i = 0; i < toHighlight.onum && !done; i++)
             {
                 highlight.x = toHighlight.outPos[i].x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
                 highlight.y = toHighlight.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * toHighlight.size / toHighlight.onum - CELL_SIZE * toHighlight.size / toHighlight.onum / 2 - TERMINAL_SIZE / 2;
@@ -538,6 +544,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
                 {
                     SDL_RenderFillRect(renderer, &highlight);
                     done = true;
+                    break;
                 }
             }
             if (!done)
@@ -574,8 +581,6 @@ void InitEverything(int *grid)
     window =
         SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
                          WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    /* renderer = SDL_CreateRenderer( */
-    /*     window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); */
     renderer = SDL_CreateRenderer(
         window, -1, SDL_RENDERER_SOFTWARE);
     InitFont();

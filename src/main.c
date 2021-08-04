@@ -73,6 +73,7 @@ int main(int argc, char **argv)
     int compoMoved;
     Pair initialPos;
     bool draw;
+    int animating = 0;
 
     SDL_Event e;
     while (1)
@@ -152,25 +153,23 @@ int main(int argc, char **argv)
                     Button *clickedButton = clickedOn(x, y, menuExpanded, selectedComponent);
                     if (clickedButton == &RunButton)
                         ToggleSimulation(&simulating);
-                    else if (clickedButton == &ComponentsButton)
+                    else if (clickedButton == &ComponentsButton){
                         ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
+                        animating = 0;
+                    }
                     else if(clickedButton == &Open)
                         ChooseFile(grid, false);
                     else if(clickedButton == &Save)
                         ChooseFile(grid, true);
+                    else if (clickedButton == &IncreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
+                        ChangeNumofInputs(false, &selectedComponent);
+                    else if (clickedButton == &DecreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
+                        ChangeNumofInputs(true, &selectedComponent);
                     else if (clickedButton)
                     {
                         UnHighlight(selectedComponent.type);
                         selectedComponent = SelectComponent(clickedButton);
                     }
-                }
-                if (x >= MENU_WIDTH + GRID_WIDTH && selectedComponent.type >= g_and && selectedComponent.type < g_not)
-                {
-                    Button *clickedButton = clickedOn(x, y, menuExpanded, selectedComponent);
-                    if (clickedButton == &IncreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
-                        ChangeNumofInputs(false, &selectedComponent);
-                    else if (clickedButton == &DecreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
-                        ChangeNumofInputs(true, &selectedComponent);
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
@@ -349,7 +348,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (simulating || (dropDownAnimationFlag > 0 && dropDownAnimationFlag < 6))
+        if (simulating || animating < 8)
         {
             for (int i = 0; i < 256; i ++)
                 AlreadyUpdated[i] = false;
@@ -361,6 +360,10 @@ int main(int argc, char **argv)
             if (time >= DELAY * 20)
                 time = 0;
         }
+
+        animating += 1;
+        if (animating > 8)
+            animating = 8;
 
         if ((SDL_GetTicks() - begin) < DELAY)
             SDL_Delay(DELAY - (SDL_GetTicks() - begin));
