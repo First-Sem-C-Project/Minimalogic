@@ -7,6 +7,8 @@ Button ComponentsButton = {.color = {BLACK}};
 Button Components[g_total];
 Button IncreaseInputs = {.color = RED};
 Button DecreaseInputs = {.color = RED};
+Button Open = {.color = {BLACK, 255}};
+Button Save = {.color = {BLACK, 255}};
 
 SDL_Rect InputsCount;
 SDL_Rect InputsCountText;
@@ -14,6 +16,7 @@ SDL_Rect InputsCountText;
 Component ComponentList[256];
 unsigned char componentCount;
 extern int time;
+extern 
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 
@@ -68,6 +71,24 @@ void InitMenu()
     InputsCountText.y = InputsCount.y + InputsCount.h / 4;
     InputsCountText.w = InputsCount.w / 2;
     InputsCountText.h = InputsCount.h / 2;
+
+    Open.buttonRect.x = 0;
+    Open.buttonRect.y = 500;
+    Open.buttonRect.w = MENU_WIDTH/2 - 1;
+    Open.buttonRect.h = 30;
+    Open.textRect.x = Open.buttonRect.x + 1.5 * Open.buttonRect.w / 4;
+    Open.textRect.y = Open.buttonRect.y + Open.buttonRect.h / 4;
+    Open.textRect.w = Open.buttonRect.w / 4;
+    Open.textRect.h = Open.buttonRect.h / 2;
+    
+    Save.buttonRect.x = 0 + MENU_WIDTH/2;
+    Save.buttonRect.y = 500;
+    Save.buttonRect.w = MENU_WIDTH/2 - 1;
+    Save.buttonRect.h = 30;
+    Save.textRect.x = Save.buttonRect.x + 1.5 * Save.buttonRect.w / 4;
+    Save.textRect.y = Save.buttonRect.y + Save.buttonRect.h / 4;
+    Save.textRect.w = Save.buttonRect.w / 4;
+    Save.textRect.h = Save.buttonRect.h / 2;
 
     for (int i = 0; i < g_total; i++)
     {
@@ -128,6 +149,22 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection selecte
         cursorY < ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h)
     {
         return &ComponentsButton;
+    }
+
+    if (cursorX > Open.buttonRect.x &&
+        cursorX < Open.buttonRect.x + Open.buttonRect.w &&
+        cursorY > Open.buttonRect.y &&
+        cursorY < Open.buttonRect.y + Open.buttonRect.h)
+    {
+        return &Open;
+    }
+
+    if (cursorX > Save.buttonRect.x &&
+        cursorX < Save.buttonRect.x + Save.buttonRect.w &&
+        cursorY > Save.buttonRect.y &&
+        cursorY < Save.buttonRect.y + Save.buttonRect.h)
+    {
+        return &Save;
     }
 
     if (selected.type >= g_and && selected.type < g_not){
@@ -205,6 +242,64 @@ void ToggleDropDown(bool *state, char *animationFlag)
     {
         *state = true;
         *animationFlag = 1;
+    }
+}
+
+void ReadFromFile(int * grid, char * fileName){
+    FILE *data = fopen(fileName, "r");
+    fread(&componentCount, sizeof(unsigned char), 1, data);
+    for(int i=0; i<componentCount; i++){
+        fread(&ComponentList[i], sizeof(Component), 1, data);
+    }
+    for(int i=0; i < GRID_ROW * GRID_COL; i++){
+        fread(&grid[i], sizeof(int), 1, data);
+    }
+    fclose(data);
+}
+
+void SaveToFile(int * grid, char* fileName){
+    FILE *data = fopen(fileName, "w");
+    fwrite(&componentCount, sizeof(unsigned char), 1, data);
+    for(int i=0; i<componentCount; i++){            
+        fwrite(&ComponentList[i], sizeof(Component), 1, data);
+    }
+    for(int i=0; i < GRID_ROW * GRID_COL; i++){
+        fwrite(&grid[i], sizeof(int), 1, data);
+    }
+    fclose(data);
+}
+
+void ChooseFile(int * grid, bool saving){
+
+    char FileName[256] = "";
+
+    OPENFILENAME ofn;        
+    memset(&ofn,0,sizeof(ofn));
+    ofn.lStructSize     = sizeof(ofn);
+    ofn.hwndOwner       = NULL;
+    ofn.hInstance       = NULL;
+    ofn.lpstrFilter     = "Project Files (*.mlg)\0*.mlg";    
+    ofn.lpstrFile       = FileName;
+    ofn.nMaxFile        = MAX_PATH;
+    ofn.lpstrTitle      = "Open File";
+    ofn.Flags           = OFN_NONETWORKBUTTON |
+                            OFN_FILEMUSTEXIST |
+                            OFN_HIDEREADONLY;
+    if(!saving){
+        if (!GetOpenFileName(&ofn)){
+            return;
+        }
+        else{
+            ReadFromFile(grid, FileName);
+        }
+    } 
+    else{
+        if (!GetSaveFileName(&ofn)){
+            return;
+        }
+        else{
+            SaveToFile(grid, FileName);
+        }
     }
 }
 

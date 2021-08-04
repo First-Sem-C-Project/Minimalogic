@@ -119,7 +119,7 @@ pushd bin\GccBuild
 xcopy %SDL2MinGw_DLL% .\ /Y
 xcopy %SDL2MinGw_ttf_DLL% .\ /Y
 xcopy %FontFile% .\ /Y
-call gcc -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %GCCFlags% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,console -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+call gcc -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %GCCFlags% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,console -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lco
 echo Gcc Build Complete
 echo ----------------------------------------
 popd

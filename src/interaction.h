@@ -2,6 +2,8 @@
 #include "colors.h"
 #include "component.h"
 #include "settings.h"
+#include <windows.h>
+#include <stdio.h>
 
 typedef struct {
     Type type;
@@ -33,3 +35,7 @@ Selection SelectComponent(Button *);
 bool PositionIsValid(int *, int, int, Pair);
 char WireIsValid(int *, Pair, int, int, int, int);
 void ChangeNumofInputs(bool, Selection *);
+
+void ChooseFile(int*, bool saving);
+void ReadFromFile(int*, char*);
+void SaveToFile(int*, char*);

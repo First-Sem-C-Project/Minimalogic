@@ -35,3 +35,4 @@ void GetWidthHeight(int *w, int *h, Type type, int size);
 Component GetComponent(Type, char, Pair);
 void SetIOPos(Component *component);
 void update(Component *);
+void ClearIO(Component *);

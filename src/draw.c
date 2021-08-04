@@ -14,6 +14,8 @@ extern Button ComponentsButton;
 extern Button Components[g_total];
 extern Button IncreaseInputs;
 extern Button DecreaseInputs;
+extern Button Open;
+extern Button Save;
 
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
@@ -24,6 +26,8 @@ static SDL_Texture *inputCountTexts[MAX_TERM_NUM - MIN_INPUT_NUM + 1];
 static SDL_Texture *runAndCompoButton[3];
 static SDL_Texture *plus;
 static SDL_Texture *minus;
+static SDL_Texture *open;
+static SDL_Texture *save;
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -106,6 +110,11 @@ void PreLoadTextures()
     textSurface = TTF_RenderText_Blended(font, "-", white);
     minus = SDL_CreateTextureFromSurface(renderer, textSurface);
 
+     textSurface = TTF_RenderText_Blended(font, "Open", white);
+    open = SDL_CreateTextureFromSurface(renderer, textSurface);
+    textSurface = TTF_RenderText_Blended(font, "Save", white);
+    save = SDL_CreateTextureFromSurface(renderer, textSurface);
+
     SDL_FreeSurface(textSurface);
 }
 
@@ -168,6 +177,12 @@ void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
     SDL_RenderCopy(renderer, runAndCompoButton[2], NULL,
                    &ComponentsButton.textRect);
 
+    SDL_SetRenderDrawColor(renderer, Open.color.r, Open.color.g, Open.color.b, Open.color.a);
+    SDL_RenderFillRect(renderer, &Open.buttonRect);
+    SDL_RenderFillRect(renderer, &Save.buttonRect);
+    SDL_RenderCopy(renderer, open, NULL, &Open.textRect);
+    SDL_RenderCopy(renderer, save, NULL, &Save.textRect);
+
     if (selected.type >= g_and && selected.type < g_not)
     {
         SDL_SetRenderDrawColor(renderer, BLACK, 255);
@@ -206,7 +221,7 @@ void HoverOver(Button *button, bool menuExpanded)
 {
     if (!menuExpanded)
     {
-        if (button == &RunButton || button == &ComponentsButton)
+        if (button == &RunButton || button == &ComponentsButton || button == &Open || button == &Save)
         {
             SDL_Rect border = {button->buttonRect.x - 1, button->buttonRect.y - 1,
                                button->buttonRect.w + 2, button->buttonRect.h + 2};

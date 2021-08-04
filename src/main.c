@@ -1,4 +1,3 @@
-#include <stdio.h>
 #ifdef _WIN32
 #include <direct.h>
 #define chdir(x) _chdir(x)
@@ -21,6 +20,8 @@ extern Button RunButton;
 extern Button Components[g_total];
 extern Button IncreaseInputs;
 extern Button DecreaseInputs;
+extern Button Open;
+extern Button Save;
 
 void UpdateComponents()
 {
@@ -153,6 +154,10 @@ int main(int argc, char **argv)
                         ToggleSimulation(&simulating);
                     else if (clickedButton == &ComponentsButton)
                         ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
+                    else if(clickedButton == &Open)
+                        ChooseFile(grid, false);
+                    else if(clickedButton == &Save)
+                        ChooseFile(grid, true);
                     else if (clickedButton)
                     {
                         UnHighlight(selectedComponent.type);
