@@ -198,49 +198,14 @@ void orGate(Component *component)
 
 void nandGate(Component *component)
 {
-    if (component->inpSrc[0].x >= 0)
-    {
-        component->outputs[0] = component->inputs[0]->outputs[0];
-    }
-    else
-    {
-        component->outputs[0] = false;
-    }
-    for (int i = 1; i < component->inum; i++)
-    {
-        if (component->inpSrc[i].x >= 0)
-        {
-            component->outputs[0] = !(component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y]);
-        }
-        else
-        {
-            component->outputs[0] = true;
-            break;
-        }
-    }
+    andGate(component);
+    component->outputs[0] = !component->outputs[0];
 }
 
 void norGate(Component *component)
 {
-    if (component->inpSrc[0].x >= 0)
-    {
-        component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
-    }
-    else
-    {
-        component->outputs[0] = false;
-    }
-    for (int i = 1; i < component->inum; i++)
-    {
-        if (component->inpSrc[i].x >= 0)
-        {
-            component->outputs[0] = !(component->outputs[0] || component->inputs[i]->outputs[component->inpSrc[i].y]);
-        }
-        else
-        {
-            component->outputs[0] = !component->outputs[0];
-        }
-    }
+    orGate(component);
+    component->outputs[0] = !component->outputs[0];
 }
 
 void xorGate(Component *component)
