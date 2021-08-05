@@ -82,7 +82,7 @@ void InitMenu(int windowWidth, int windowHeight)
     CompoDeleteButton.textRect.w = CompoDeleteButton.buttonRect.w - 10;
     CompoDeleteButton.textRect.h = CompoDeleteButton.buttonRect.h - 10;
 
-    DecreaseInputs.buttonRect.w = 20;
+    DecreaseInputs.buttonRect.w = 0.15 * MENU_WIDTH - 10;
     DecreaseInputs.buttonRect.h = 30;
     DecreaseInputs.buttonRect.x = 10;
     DecreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - DecreaseInputs.buttonRect.h - 10;
@@ -91,19 +91,19 @@ void InitMenu(int windowWidth, int windowHeight)
     DecreaseInputs.textRect.w = DecreaseInputs.buttonRect.w - 10;
     DecreaseInputs.textRect.h = DecreaseInputs.buttonRect.h - 10;
 
-    IncreaseInputs.buttonRect.w = 20;
+    InputsCount.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 5;
+    InputsCount.y = DecreaseInputs.buttonRect.y;
+    InputsCount.w = 0.7 * MENU_WIDTH - 10;
+    InputsCount.h = DecreaseInputs.buttonRect.h;
+
+    IncreaseInputs.buttonRect.w = 0.15 * MENU_WIDTH - 10;
     IncreaseInputs.buttonRect.h = 30;
-    IncreaseInputs.buttonRect.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 130;
+    IncreaseInputs.buttonRect.x = InputsCount.x + InputsCount.w + 5;
     IncreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - IncreaseInputs.buttonRect.h - 10;
     IncreaseInputs.textRect.x = IncreaseInputs.buttonRect.x + 5;
     IncreaseInputs.textRect.y = IncreaseInputs.buttonRect.y + 5;
     IncreaseInputs.textRect.w = IncreaseInputs.buttonRect.w - 10;
     IncreaseInputs.textRect.h = IncreaseInputs.buttonRect.h - 10;
-
-    InputsCount.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 5;
-    InputsCount.y = DecreaseInputs.buttonRect.y;
-    InputsCount.w = 120;
-    InputsCount.h = DecreaseInputs.buttonRect.h;
 
     InputsCountText.x = InputsCount.x + InputsCount.w / 4;
     InputsCountText.y = InputsCount.y + InputsCount.h / 4;
