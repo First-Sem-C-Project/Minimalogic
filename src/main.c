@@ -16,12 +16,14 @@ bool AlreadyUpdated[256];
 int time = 0;
 
 extern Button ComponentsButton;
+extern Button CompoDeleteButton;
 extern Button RunButton;
 extern Button Components[g_total];
 extern Button IncreaseInputs;
 extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
+extern SDL_Window *window;
 
 void UpdateComponents()
 {
@@ -50,12 +52,15 @@ int main(int argc, char **argv)
     }
     chdir(path);
 
-    Selection selectedComponent = {.type = g_and, .size = 2};
+    Selection compoChoice = {.type = g_and, .size = 2};
+    Pair selected = {-1, -1};
 
-    int x, y;
     int grid[GRID_ROW * GRID_COL];
+    int x, y;
     Pair gridPos;
     int pad_x, pad_y;
+    PadGrid(&pad_x, &pad_y);
+
     InitEverything(grid);
 
     bool simulating = false;
@@ -82,7 +87,6 @@ int main(int argc, char **argv)
         SDL_GetMouseState(&x, &y);
         draw = true;
 
-        PadGrid(&pad_x, &pad_y);
         if (x - pad_x > 0)
             gridPos.x = (x - pad_x) / CELL_SIZE;
         else
@@ -102,14 +106,26 @@ int main(int argc, char **argv)
         {
             switch (e.type)
             {
-            case (SDL_QUIT):
+            case SDL_QUIT:
                 CloseEverything();
                 exit(0);
+            case SDL_WINDOWEVENT:{
+                int w, h;
+                SDL_GetWindowSize(window, &w, &h);
+                InitMenu(w, h);
+                PadGrid(&pad_x, &pad_y);
+                break;
+            }
             case SDL_MOUSEBUTTONDOWN:
+                if (e.button.button == SDL_BUTTON_RIGHT){
+                    selected = (Pair){-1, -1};
+                    break;
+                }
                 if (cursorInGrid)
                 {
                     if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
                     {
+                        selected = gridPos;
                         if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
                             ComponentList[cell(gridPos.y, gridPos.x)].outputs[0] = !ComponentList[cell(gridPos.y, gridPos.x)].outputs[0];
                         if (!drawingWire && !movingCompo)
@@ -124,12 +140,15 @@ int main(int argc, char **argv)
                                     cell(i, j) = -1;
                         }
                     }
+                    else {
+                        selected = (Pair){-1, -1};
+                    }
                     if (componentCount <= 255 && !simulating)
                     {
                         int w, h;
-                        GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-                        if (!drawingWire && PositionIsValid(grid, w, h, selectedComponent.pos) && !movingCompo)
-                            InsertComponent(grid, selectedComponent, w, h);
+                        GetWidthHeight(&w, &h, compoChoice.type, compoChoice.size);
+                        if (!drawingWire && PositionIsValid(grid, w, h, compoChoice.pos) && !movingCompo)
+                            InsertComponent(grid, compoChoice, w, h);
                         else if (!drawingWire && !movingCompo)
                         {
                             startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
@@ -150,7 +169,7 @@ int main(int argc, char **argv)
                 }
                 if (x <= MENU_WIDTH)
                 {
-                    Button *clickedButton = clickedOn(x, y, menuExpanded, selectedComponent);
+                    Button *clickedButton = clickedOn(x, y, menuExpanded, compoChoice);
                     if (clickedButton == &RunButton)
                         ToggleSimulation(&simulating);
                     else if (clickedButton == &ComponentsButton){
@@ -161,14 +180,18 @@ int main(int argc, char **argv)
                         ChooseFile(grid, false);
                     else if(clickedButton == &Save)
                         ChooseFile(grid, true);
-                    else if (clickedButton == &IncreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
-                        ChangeNumofInputs(false, &selectedComponent);
-                    else if (clickedButton == &DecreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
-                        ChangeNumofInputs(true, &selectedComponent);
+                    else if (clickedButton == &IncreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
+                        ChangeNumofInputs(false, &compoChoice);
+                    else if (clickedButton == &DecreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
+                        ChangeNumofInputs(true, &compoChoice);
+                    else if (clickedButton == &CompoDeleteButton){
+                        DeleteComponent(grid, selected);
+                        selected = (Pair){-1, -1};
+                    }
                     else if (clickedButton && menuExpanded)
                     {
-                        UnHighlight(selectedComponent.type);
-                        selectedComponent = SelectComponent(clickedButton);
+                        UnHighlight(compoChoice.type);
+                        compoChoice = SelectComponent(clickedButton);
                     }
                 }
                 break;
@@ -216,20 +239,21 @@ int main(int argc, char **argv)
                         for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
                             cell(i, j) = compoMoved;
                     movingCompo = false;
+                    selected = initialPos;
                 }
             case SDL_MOUSEMOTION:
                 {
                     int w, h;
-                    GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-                    selectedComponent.pos = gridPos;
-                    if (selectedComponent.pos.x + w >= GRID_ROW)
-                        selectedComponent.pos.x = GRID_ROW - w;
-                    if (selectedComponent.pos.y + h >= GRID_COL)
-                        selectedComponent.pos.y = GRID_COL - h;
-                    if (selectedComponent.pos.x < 0)
-                        selectedComponent.pos.x = 0;
-                    if (selectedComponent.pos.y < 0)
-                        selectedComponent.pos.y = 0;
+                    GetWidthHeight(&w, &h, compoChoice.type, compoChoice.size);
+                    compoChoice.pos = gridPos;
+                    if (compoChoice.pos.x + w >= GRID_ROW)
+                        compoChoice.pos.x = GRID_ROW - w;
+                    if (compoChoice.pos.y + h >= GRID_COL)
+                        compoChoice.pos.y = GRID_COL - h;
+                    if (compoChoice.pos.x < 0)
+                        compoChoice.pos.x = 0;
+                    if (compoChoice.pos.y < 0)
+                        compoChoice.pos.y = 0;
                 }
                 if (drawingWire)
                 {
@@ -307,14 +331,19 @@ int main(int argc, char **argv)
                 switch (e.key.keysym.scancode)
                 {
                 case SDL_SCANCODE_MINUS:
-                    ChangeNumofInputs(true, &selectedComponent);
+                    ChangeNumofInputs(true, &compoChoice);
                     break;
                 case SDL_SCANCODE_EQUALS:
-                    ChangeNumofInputs(false, &selectedComponent);
+                    ChangeNumofInputs(false, &compoChoice);
                     break;
                 case SDL_SCANCODE_DELETE:
-                    if (!simulating && cursorInGrid)
-                        DeleteComponent(grid, gridPos);
+                    if (!simulating){
+                        if (cursorInGrid)
+                            DeleteComponent(grid, gridPos);
+                        else
+                            DeleteComponent(grid, selected);
+                        selected = (Pair){-1, -1};
+                    }
                     break;
                 case SDL_SCANCODE_LCTRL:
                     snapToGrid = true;
@@ -342,8 +371,8 @@ int main(int argc, char **argv)
                 break;
             }
             if (draw){
-                DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
-                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
+                DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
+                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected);
                 draw = false;
             }
         }
@@ -353,8 +382,8 @@ int main(int argc, char **argv)
             for (int i = 0; i < 256; i ++)
                 AlreadyUpdated[i] = false;
             drawingWire = false;
-            DrawCall(menuExpanded, drawingWire, x, y, selectedComponent, pad_x, pad_y,
-                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo);
+            DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected);
             UpdateComponents();
             time += DELAY;
             if (time >= DELAY * 20)

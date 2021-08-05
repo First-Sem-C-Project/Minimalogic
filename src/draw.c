@@ -16,6 +16,7 @@ extern Button IncreaseInputs;
 extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
+extern Button CompoDeleteButton;
 
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
@@ -28,6 +29,7 @@ static SDL_Texture *plus;
 static SDL_Texture *minus;
 static SDL_Texture *open;
 static SDL_Texture *save;
+static SDL_Texture *delete;
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -110,10 +112,13 @@ void PreLoadTextures()
     textSurface = TTF_RenderText_Blended(font, "-", white);
     minus = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-     textSurface = TTF_RenderText_Blended(font, "Open", white);
+    textSurface = TTF_RenderText_Blended(font, "Open", white);
     open = SDL_CreateTextureFromSurface(renderer, textSurface);
     textSurface = TTF_RenderText_Blended(font, "Save", white);
     save = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Blended(font, "Delete Component", white);
+    delete = SDL_CreateTextureFromSurface(renderer, textSurface);
 
     SDL_FreeSurface(textSurface);
 }
@@ -162,7 +167,7 @@ void RenderGateText(SDL_Rect compo, Type type)
         SDL_RenderCopy(renderer, compoTexts[type], NULL, &textRect);
 }
 
-void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
+void DrawMenu(bool menuExpanded, bool simulating, Selection choice)
 {
     SDL_SetRenderDrawColor(renderer, BG1);
     int w, h;
@@ -185,14 +190,16 @@ void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
     SDL_SetRenderDrawColor(renderer, Open.color.r, Open.color.g, Open.color.b, Open.color.a);
     SDL_RenderFillRect(renderer, &Open.buttonRect);
     SDL_RenderFillRect(renderer, &Save.buttonRect);
+    SDL_RenderFillRect(renderer, &CompoDeleteButton.buttonRect);
     SDL_RenderCopy(renderer, open, NULL, &Open.textRect);
     SDL_RenderCopy(renderer, save, NULL, &Save.textRect);
+    SDL_RenderCopy(renderer, delete, NULL, &CompoDeleteButton.textRect);
 
-    if (selected.type >= g_and && selected.type < g_not)
+    if (choice.type >= g_and && choice.type < g_not)
     {
         SDL_SetRenderDrawColor(renderer, BLACK, 255);
         SDL_RenderFillRect(renderer, &InputsCount);
-        SDL_RenderCopy(renderer, inputCountTexts[selected.size - 2], NULL, &InputsCountText);
+        SDL_RenderCopy(renderer, inputCountTexts[choice.size - 2], NULL, &InputsCountText);
 
         SDL_SetRenderDrawColor(renderer, IncreaseInputs.color.r, IncreaseInputs.color.g,
                                IncreaseInputs.color.b, 255);
@@ -224,25 +231,21 @@ void DrawMenu(bool menuExpanded, bool simulating, Selection selected)
 
 void HoverOver(Button *button, bool menuExpanded)
 {
-    if (!menuExpanded)
-    {
-        if (button == &RunButton || button == &ComponentsButton || button == &Open || button == &Save)
-        {
-            SDL_Rect border = {button->buttonRect.x - 1, button->buttonRect.y - 1,
-                               button->buttonRect.w + 2, button->buttonRect.h + 2};
-            SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
-            SDL_RenderDrawRect(renderer, &border);
+    if (!button)
+        return;
+    bool toHover = true;
+    for (int i = 0; i < g_total; i ++){
+        if (button == &Components[i]){
+            toHover = menuExpanded;
+            break;
         }
     }
-    else
+    if (toHover)
     {
-        if (button != NULL)
-        {
-            SDL_Rect border = {button->buttonRect.x - 1, button->buttonRect.y - 1,
-                               button->buttonRect.w + 2, button->buttonRect.h + 2};
-            SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
-            SDL_RenderDrawRect(renderer, &border);
-        }
+        SDL_Rect border = {button->buttonRect.x - 1, button->buttonRect.y - 1,
+                           button->buttonRect.w + 2, button->buttonRect.h + 2};
+        SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
+        SDL_RenderDrawRect(renderer, &border);
     }
 }
 
@@ -272,7 +275,7 @@ void UnHighlight(Type type)
     }
 }
 
-void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection selected)
+void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection choice)
 {
     if (menuExpanded)
     {
@@ -288,7 +291,7 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Se
     }
     else
     {
-        DrawMenu(true, simulating, selected);
+        DrawMenu(true, simulating, choice);
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_Rect cover = {ComponentsButton.buttonRect.x,
                           ComponentsButton.buttonRect.y +
@@ -473,20 +476,20 @@ void DrawGrid(int pad_x, int pad_y)
 }
 
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
-              Selection selectedComponent, int pad_x, int pad_y,
+              Selection choiceComponent, int pad_x, int pad_y,
               bool simulating, char *dropDownAnimationFlag, Pair gridPos,
-              int *grid, bool movingCompo)
+              int *grid, bool movingCompo, Pair selected)
 {
     SDL_Rect highlight;
     highlight.w = CELL_SIZE - 1;
     highlight.h = CELL_SIZE - 1;
     SDL_SetRenderDrawColor(renderer, BG);
     SDL_RenderClear(renderer);
-    DrawMenu(menuExpanded, simulating, selectedComponent);
-    HoverOver(clickedOn(x, y, menuExpanded, selectedComponent), menuExpanded);
-    HighlightSelected(selectedComponent.type);
+    DrawMenu(menuExpanded, simulating, choiceComponent);
+    HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded);
+    HighlightSelected(choiceComponent.type);
     if (*dropDownAnimationFlag > 0 && *dropDownAnimationFlag < 6)
-        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, selectedComponent);
+        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, choiceComponent);
 
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);
@@ -504,9 +507,9 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
         if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire)
         {
             int w, h;
-            GetWidthHeight(&w, &h, selectedComponent.type, selectedComponent.size);
-            if (!simulating && PositionIsValid(grid, w, h, selectedComponent.pos))
-                DrawComponent(w, h, selectedComponent.pos, selectedComponent.type, pad_x, pad_y, 150, false);
+            GetWidthHeight(&w, &h, choiceComponent.type, choiceComponent.size);
+            if (!simulating && PositionIsValid(grid, w, h, choiceComponent.pos))
+                DrawComponent(w, h, choiceComponent.pos, choiceComponent.type, pad_x, pad_y, 150, false);
             else
             {
                 highlight.x = gridPos.x * CELL_SIZE + pad_x;
@@ -559,6 +562,13 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
         }
     }
 
+    if (selected.x >= 0 && selected.y >= 0 && !movingCompo){
+        Component selectedCompo = ComponentList[grid[selected.y * GRID_ROW + selected.x]];
+        SDL_Rect selectedRect = {.x = selectedCompo.start.x * CELL_SIZE + pad_x + 1, .y = selectedCompo.start.y * CELL_SIZE + pad_y + 1, .w = selectedCompo.width * CELL_SIZE - 1, .h = selectedCompo.size * CELL_SIZE - 1};
+        SDL_SetRenderDrawColor(renderer, GREEN, 255);
+        SDL_RenderDrawRect(renderer, &selectedRect);
+    }
+
     SDL_RenderPresent(renderer);
 }
 
@@ -591,7 +601,9 @@ void InitEverything(int *grid)
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     InitGrid(grid);
-    InitMenu();
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    InitMenu(w, h);
     PreLoadTextures();
 }
 

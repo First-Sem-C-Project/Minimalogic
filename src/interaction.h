@@ -22,7 +22,7 @@ typedef struct Button {
     SDL_Color color;
 } Button;
 
-void InitMenu();
+void InitMenu(int, int);
 Button *clickedOn(int, int, bool, Selection);
 bool StartWiring(Pair);
 void ToggleSimulation(bool *);

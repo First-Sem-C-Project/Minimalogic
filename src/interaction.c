@@ -4,6 +4,7 @@ Wire tmpWire;
 
 Button RunButton = {.color = {GREEN}};
 Button ComponentsButton = {.color = {BLACK}};
+Button CompoDeleteButton = {.color = {BLACK}};
 Button Components[g_total];
 Button IncreaseInputs = {.color = RED};
 Button DecreaseInputs = {.color = RED};
@@ -20,7 +21,7 @@ extern
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 
-void InitMenu()
+void InitMenu(int windowWidth, int windowHeight)
 {
     RunButton.buttonRect.x = 10;
     RunButton.buttonRect.y = 10;
@@ -43,20 +44,49 @@ void InitMenu()
         ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h / 4;
     ComponentsButton.textRect.w = ComponentsButton.buttonRect.w / 2;
     ComponentsButton.textRect.h = ComponentsButton.buttonRect.h / 2;
+    
+    Save.buttonRect.w = MENU_WIDTH - 20;
+    Save.buttonRect.h = 30;
+    Save.buttonRect.x = 10;
+    Save.buttonRect.y = windowHeight - Save.buttonRect.h - 10;
+    Save.textRect.x = Save.buttonRect.x + 1.5 * Save.buttonRect.w / 4;
+    Save.textRect.y = Save.buttonRect.y + Save.buttonRect.h / 4;
+    Save.textRect.w = Save.buttonRect.w / 4;
+    Save.textRect.h = Save.buttonRect.h / 2;
 
-    DecreaseInputs.buttonRect.x = 10;
-    DecreaseInputs.buttonRect.y = 450;
+    Open.buttonRect.w = MENU_WIDTH - 20;
+    Open.buttonRect.h = 30;
+    Open.buttonRect.x = 10;
+    Open.buttonRect.y = Save.buttonRect.y - Open.buttonRect.h - 10;
+    Open.textRect.x = Open.buttonRect.x + 1.5 * Open.buttonRect.w / 4;
+    Open.textRect.y = Open.buttonRect.y + Open.buttonRect.h / 4;
+    Open.textRect.w = Open.buttonRect.w / 4;
+    Open.textRect.h = Open.buttonRect.h / 2;
+
+    CompoDeleteButton.buttonRect.w = MENU_WIDTH - 20;
+    CompoDeleteButton.buttonRect.h = 30;
+    CompoDeleteButton.buttonRect.x = 10;
+    CompoDeleteButton.buttonRect.y = Open.buttonRect.y - CompoDeleteButton.buttonRect.h - 10;
+    CompoDeleteButton.textRect.x =
+        CompoDeleteButton.buttonRect.x + 5;
+    CompoDeleteButton.textRect.y =
+        CompoDeleteButton.buttonRect.y + 5;
+    CompoDeleteButton.textRect.w = CompoDeleteButton.buttonRect.w - 10;
+    CompoDeleteButton.textRect.h = CompoDeleteButton.buttonRect.h - 10;
+
     DecreaseInputs.buttonRect.w = 20;
     DecreaseInputs.buttonRect.h = 30;
+    DecreaseInputs.buttonRect.x = 10;
+    DecreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - DecreaseInputs.buttonRect.h - 10;
     DecreaseInputs.textRect.x = DecreaseInputs.buttonRect.x + 5;
     DecreaseInputs.textRect.y = DecreaseInputs.buttonRect.y + 5;
     DecreaseInputs.textRect.w = DecreaseInputs.buttonRect.w - 10;
     DecreaseInputs.textRect.h = DecreaseInputs.buttonRect.h - 10;
 
-    IncreaseInputs.buttonRect.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 130;
-    IncreaseInputs.buttonRect.y = 450;
     IncreaseInputs.buttonRect.w = 20;
     IncreaseInputs.buttonRect.h = 30;
+    IncreaseInputs.buttonRect.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 130;
+    IncreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - IncreaseInputs.buttonRect.h - 10;
     IncreaseInputs.textRect.x = IncreaseInputs.buttonRect.x + 5;
     IncreaseInputs.textRect.y = IncreaseInputs.buttonRect.y + 5;
     IncreaseInputs.textRect.w = IncreaseInputs.buttonRect.w - 10;
@@ -71,24 +101,6 @@ void InitMenu()
     InputsCountText.y = InputsCount.y + InputsCount.h / 4;
     InputsCountText.w = InputsCount.w / 2;
     InputsCountText.h = InputsCount.h / 2;
-
-    Open.buttonRect.x = 0;
-    Open.buttonRect.y = 500;
-    Open.buttonRect.w = MENU_WIDTH/2 - 1;
-    Open.buttonRect.h = 30;
-    Open.textRect.x = Open.buttonRect.x + 1.5 * Open.buttonRect.w / 4;
-    Open.textRect.y = Open.buttonRect.y + Open.buttonRect.h / 4;
-    Open.textRect.w = Open.buttonRect.w / 4;
-    Open.textRect.h = Open.buttonRect.h / 2;
-    
-    Save.buttonRect.x = 0 + MENU_WIDTH/2;
-    Save.buttonRect.y = 500;
-    Save.buttonRect.w = MENU_WIDTH/2 - 1;
-    Save.buttonRect.h = 30;
-    Save.textRect.x = Save.buttonRect.x + 1.5 * Save.buttonRect.w / 4;
-    Save.textRect.y = Save.buttonRect.y + Save.buttonRect.h / 4;
-    Save.textRect.w = Save.buttonRect.w / 4;
-    Save.textRect.h = Save.buttonRect.h / 2;
 
     for (int i = 0; i < g_total; i++)
     {
@@ -132,7 +144,7 @@ void InitMenu()
     }
 }
 
-Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection selected)
+Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
 {
 
     if (cursorX > RunButton.buttonRect.x &&
@@ -149,6 +161,14 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection selecte
         cursorY < ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h)
     {
         return &ComponentsButton;
+    }
+
+    if (cursorX > CompoDeleteButton.buttonRect.x &&
+        cursorX < CompoDeleteButton.buttonRect.x + CompoDeleteButton.buttonRect.w &&
+        cursorY > CompoDeleteButton.buttonRect.y &&
+        cursorY < CompoDeleteButton.buttonRect.y + CompoDeleteButton.buttonRect.h)
+    {
+        return &CompoDeleteButton;
     }
 
     if (cursorX > Open.buttonRect.x &&
@@ -178,7 +198,7 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection selecte
         }
     }
 
-    if (selected.type >= g_and && selected.type < g_not){
+    if (choice.type >= g_and && choice.type < g_not){
         if (cursorX > IncreaseInputs.buttonRect.x &&
             cursorX < IncreaseInputs.buttonRect.x + IncreaseInputs.buttonRect.w &&
             cursorY > IncreaseInputs.buttonRect.y &&
@@ -350,13 +370,13 @@ char WireIsValid(int *grid, Pair gridPos, int x, int y, int pad_x, int pad_y)
     return 0;
 }
 
-void InsertComponent(int *grid, Selection selected, int width, int height)
+void InsertComponent(int *grid, Selection choice, int width, int height)
 {
     ComponentList[componentCount] =
-        GetComponent(selected.type, selected.size, selected.pos);
-    for (int y = selected.pos.y; y < selected.pos.y + height; y++)
+        GetComponent(choice.type, choice.size, choice.pos);
+    for (int y = choice.pos.y; y < choice.pos.y + height; y++)
     {
-        for (int x = selected.pos.x; x < selected.pos.x + width; x++)
+        for (int x = choice.pos.x; x < choice.pos.x + width; x++)
         {
             cell(y, x) = componentCount;
         }
@@ -366,9 +386,9 @@ void InsertComponent(int *grid, Selection selected, int width, int height)
 
 void DeleteComponent(int *grid, Pair gridPos)
 {
-    int toDelete = cell(gridPos.y, gridPos.x);
-    if (cell(gridPos.y, gridPos.x) == -1)
+    if (cell(gridPos.y, gridPos.x) == -1 || gridPos.x < 0 || gridPos.y < 0)
         return;
+    int toDelete = cell(gridPos.y, gridPos.x);
 
     for (int i = 0; i < GRID_COL; i++)
     {
@@ -405,20 +425,20 @@ void DeleteComponent(int *grid, Pair gridPos)
 
 Selection SelectComponent(Button *button) { return button->selection; }
 
-void ChangeNumofInputs(bool dec, Selection *selected)
+void ChangeNumofInputs(bool dec, Selection *choice)
 {
     if (dec)
     {
-        if (selected->size > MIN_INPUT_NUM)
-            selected->size--;
-        if (Components[selected->type].selection.size > MIN_INPUT_NUM)
-            Components[selected->type].selection.size--;
+        if (choice->size > MIN_INPUT_NUM)
+            choice->size--;
+        if (Components[choice->type].selection.size > MIN_INPUT_NUM)
+            Components[choice->type].selection.size--;
     }
     else
     {
-        if (selected->size < MAX_BUILTIN_INPUTS)
-            selected->size++;
-        if (Components[selected->type].selection.size < MAX_BUILTIN_INPUTS)
-            Components[selected->type].selection.size++;
+        if (choice->size < MAX_BUILTIN_INPUTS)
+            choice->size++;
+        if (Components[choice->type].selection.size < MAX_BUILTIN_INPUTS)
+            Components[choice->type].selection.size++;
     }
 }
