@@ -172,8 +172,10 @@ int main(int argc, char **argv)
                 if (x <= MENU_WIDTH)
                 {
                     Button *clickedButton = clickedOn(x, y, menuExpanded, compoChoice);
-                    if (clickedButton == &RunButton)
+                    if (clickedButton == &RunButton){
                         ToggleSimulation(&simulating);
+                        selected = (Pair){-1, -1};
+                    }
                     else if (clickedButton == &ComponentsButton){
                         ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
                         animating = 0;
@@ -397,6 +399,8 @@ int main(int argc, char **argv)
             if (time >= DELAY * 20)
                 time = 0;
         }
+        if (simulating)
+            selected = (Pair){-1, -1};
 
         animating += 1;
         if (animating > 8)

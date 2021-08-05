@@ -81,7 +81,7 @@ pushd bin\MSVCBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
 xcopy %FontFile% .\ /Y
-call cl -I%SDL2_Include% %CLFlags% -nologo -Zi -EHsc %SourceFiles% -Fe%OutputName% /link /LIBPATH:%SDL2_Library% SDL2.lib SDL2main.lib Shell32.lib Comdlg32.lib /LIBPATH:%SDL2_ttf_Library% SDL2_ttf.lib /subsystem:console
+call cl -I%SDL2_Include% %CLFlags% -nologo -Zi -EHsc %SourceFiles% -Fe%OutputName% /link /LIBPATH:%SDL2_Library% SDL2.lib SDL2main.lib Shell32.lib Comdlg32.lib /LIBPATH:%SDL2_ttf_Library% SDL2_ttf.lib /subsystem:windows
 popd
 echo MSVC Build Complete
 echo ----------------------------------------
@@ -100,7 +100,7 @@ pushd bin\ClangBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
 xcopy %FontFile% .\ /Y
-call clang -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %CLANGFlags% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -lComdlg32 -Xlinker -subsystem:console
+call clang -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %CLANGFlags% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -lComdlg32 -Xlinker -subsystem:windows
 echo Clang Build Complete
 echo ----------------------------------------
 popd
@@ -119,7 +119,7 @@ pushd bin\GccBuild
 xcopy %SDL2MinGw_DLL% .\ /Y
 xcopy %SDL2MinGw_ttf_DLL% .\ /Y
 xcopy %FontFile% .\ /Y
-call gcc -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %GCCFlags% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,console -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lComdlg32
+call gcc -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %GCCFlags% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,windows -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lComdlg32
 echo Gcc Build Complete
 echo ----------------------------------------
 popd
