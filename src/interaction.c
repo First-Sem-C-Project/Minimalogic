@@ -257,6 +257,11 @@ void ReadFromFile(int * grid, char * fileName){
 }
 
 void SaveToFile(int * grid, char* fileName){
+    int len = 0;
+    char extension[4] = ".mlg";
+    for (;fileName[len]; len++);
+    for (int i = 0; i < 4; i ++)
+        fileName[len + i] = extension[i];
     FILE *data = fopen(fileName, "w");
     fwrite(&componentCount, sizeof(unsigned char), 1, data);
     for(int i=0; i<componentCount; i++){            
