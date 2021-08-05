@@ -10,6 +10,7 @@ Button IncreaseInputs = {.color = RED};
 Button DecreaseInputs = {.color = RED};
 Button Open = {.color = {BLACK, 255}};
 Button Save = {.color = {BLACK, 255}};
+Button Snap = {.color = {BLACK, 255}};
 
 SDL_Rect InputsCount;
 SDL_Rect InputsCountText;
@@ -63,14 +64,21 @@ void InitMenu(int windowWidth, int windowHeight)
     Open.textRect.w = Open.buttonRect.w / 4;
     Open.textRect.h = Open.buttonRect.h / 2;
 
+    Snap.buttonRect.w = MENU_WIDTH - 20;
+    Snap.buttonRect.h = 30;
+    Snap.buttonRect.x = 10;
+    Snap.buttonRect.y = Open.buttonRect.y - Snap.buttonRect.h - 10;
+    Snap.textRect.x = Snap.buttonRect.x + 5;
+    Snap.textRect.y = Snap.buttonRect.y + 5;
+    Snap.textRect.w = Snap.buttonRect.w - 10;
+    Snap.textRect.h = Snap.buttonRect.h - 10;
+
     CompoDeleteButton.buttonRect.w = MENU_WIDTH - 20;
     CompoDeleteButton.buttonRect.h = 30;
     CompoDeleteButton.buttonRect.x = 10;
-    CompoDeleteButton.buttonRect.y = Open.buttonRect.y - CompoDeleteButton.buttonRect.h - 10;
-    CompoDeleteButton.textRect.x =
-        CompoDeleteButton.buttonRect.x + 5;
-    CompoDeleteButton.textRect.y =
-        CompoDeleteButton.buttonRect.y + 5;
+    CompoDeleteButton.buttonRect.y = Snap.buttonRect.y - CompoDeleteButton.buttonRect.h - 10;
+    CompoDeleteButton.textRect.x = CompoDeleteButton.buttonRect.x + 5;
+    CompoDeleteButton.textRect.y = CompoDeleteButton.buttonRect.y + 5;
     CompoDeleteButton.textRect.w = CompoDeleteButton.buttonRect.w - 10;
     CompoDeleteButton.textRect.h = CompoDeleteButton.buttonRect.h - 10;
 
@@ -146,7 +154,6 @@ void InitMenu(int windowWidth, int windowHeight)
 
 Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
 {
-
     if (cursorX > RunButton.buttonRect.x &&
         cursorX < RunButton.buttonRect.x + RunButton.buttonRect.w &&
         cursorY > RunButton.buttonRect.y &&
@@ -154,39 +161,41 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
     {
         return &RunButton;
     }
-
-    if (cursorX > ComponentsButton.buttonRect.x &&
+    else if (cursorX > ComponentsButton.buttonRect.x &&
         cursorX < ComponentsButton.buttonRect.x + ComponentsButton.buttonRect.w &&
         cursorY > ComponentsButton.buttonRect.y &&
         cursorY < ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h)
     {
         return &ComponentsButton;
     }
-
-    if (cursorX > CompoDeleteButton.buttonRect.x &&
+    else if (cursorX > CompoDeleteButton.buttonRect.x &&
         cursorX < CompoDeleteButton.buttonRect.x + CompoDeleteButton.buttonRect.w &&
         cursorY > CompoDeleteButton.buttonRect.y &&
         cursorY < CompoDeleteButton.buttonRect.y + CompoDeleteButton.buttonRect.h)
     {
         return &CompoDeleteButton;
     }
-
-    if (cursorX > Open.buttonRect.x &&
+    else if (cursorX > Snap.buttonRect.x &&
+        cursorX < Snap.buttonRect.x + Snap.buttonRect.w &&
+        cursorY > Snap.buttonRect.y &&
+        cursorY < Snap.buttonRect.y + Snap.buttonRect.h)
+    {
+        return &Snap;
+    }
+    else if (cursorX > Open.buttonRect.x &&
         cursorX < Open.buttonRect.x + Open.buttonRect.w &&
         cursorY > Open.buttonRect.y &&
         cursorY < Open.buttonRect.y + Open.buttonRect.h)
     {
         return &Open;
     }
-
-    if (cursorX > Save.buttonRect.x &&
+    else if (cursorX > Save.buttonRect.x &&
         cursorX < Save.buttonRect.x + Save.buttonRect.w &&
         cursorY > Save.buttonRect.y &&
         cursorY < Save.buttonRect.y + Save.buttonRect.h)
     {
         return &Save;
     }
-
     for (int i = 0; i < g_total; i++)
     {
         if (cursorX > Components[i].buttonRect.x &&
@@ -225,6 +234,10 @@ bool StartWiring(Pair pos)
     tmpWire.end = tmpWire.start;
 
     return true;
+}
+
+void ToggleSnap(bool * snap){
+    *snap = !*snap;
 }
 
 void ToggleSimulation(bool *state)

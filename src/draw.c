@@ -16,6 +16,7 @@ extern Button IncreaseInputs;
 extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
+extern Button Snap;
 extern Button CompoDeleteButton;
 
 extern SDL_Rect InputsCount;
@@ -30,6 +31,8 @@ static SDL_Texture *minus;
 static SDL_Texture *open;
 static SDL_Texture *save;
 static SDL_Texture *delete;
+static SDL_Texture *snapOn;
+static SDL_Texture *snapOff;
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -120,6 +123,12 @@ void PreLoadTextures()
     textSurface = TTF_RenderText_Blended(font, "Delete Component", white);
     delete = SDL_CreateTextureFromSurface(renderer, textSurface);
 
+    textSurface = TTF_RenderText_Blended(font, "Snap to Grid: On", white);
+    snapOn = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    textSurface = TTF_RenderText_Blended(font, "Snap to Grid: Off", white);
+    snapOff = SDL_CreateTextureFromSurface(renderer, textSurface);
+
     SDL_FreeSurface(textSurface);
 }
 
@@ -167,7 +176,7 @@ void RenderGateText(SDL_Rect compo, Type type)
         SDL_RenderCopy(renderer, compoTexts[type], NULL, &textRect);
 }
 
-void DrawMenu(bool menuExpanded, bool simulating, Selection choice)
+void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
 {
     SDL_SetRenderDrawColor(renderer, BG1);
     int w, h;
@@ -191,9 +200,14 @@ void DrawMenu(bool menuExpanded, bool simulating, Selection choice)
     SDL_RenderFillRect(renderer, &Open.buttonRect);
     SDL_RenderFillRect(renderer, &Save.buttonRect);
     SDL_RenderFillRect(renderer, &CompoDeleteButton.buttonRect);
+    SDL_RenderFillRect(renderer, &Snap.buttonRect);
     SDL_RenderCopy(renderer, open, NULL, &Open.textRect);
     SDL_RenderCopy(renderer, save, NULL, &Save.textRect);
     SDL_RenderCopy(renderer, delete, NULL, &CompoDeleteButton.textRect);
+    if (snap)
+        SDL_RenderCopy(renderer, snapOn, NULL, &Snap.textRect);
+    else
+        SDL_RenderCopy(renderer, snapOff, NULL, &Snap.textRect);
 
     if (choice.type >= g_and && choice.type < g_not)
     {
@@ -275,7 +289,7 @@ void UnHighlight(Type type)
     }
 }
 
-void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection choice)
+void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection choice, bool snap)
 {
     if (menuExpanded)
     {
@@ -291,7 +305,7 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Se
     }
     else
     {
-        DrawMenu(true, simulating, choice);
+        DrawMenu(true, simulating, snap, choice);
         SDL_SetRenderDrawColor(renderer, BG);
         SDL_Rect cover = {ComponentsButton.buttonRect.x,
                           ComponentsButton.buttonRect.y +
@@ -478,18 +492,18 @@ void DrawGrid(int pad_x, int pad_y)
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
               Selection choiceComponent, int pad_x, int pad_y,
               bool simulating, char *dropDownAnimationFlag, Pair gridPos,
-              int *grid, bool movingCompo, Pair selected)
+              int *grid, bool movingCompo, Pair selected, bool snap)
 {
     SDL_Rect highlight;
     highlight.w = CELL_SIZE - 1;
     highlight.h = CELL_SIZE - 1;
     SDL_SetRenderDrawColor(renderer, BG);
     SDL_RenderClear(renderer);
-    DrawMenu(menuExpanded, simulating, choiceComponent);
+    DrawMenu(menuExpanded, simulating, snap, choiceComponent);
     HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded);
     HighlightSelected(choiceComponent.type);
     if (*dropDownAnimationFlag > 0 && *dropDownAnimationFlag < 6)
-        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, choiceComponent);
+        AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, choiceComponent, snap);
 
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);

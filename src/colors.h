@@ -9,7 +9,7 @@
 #define PURPLE 180, 142, 173
 #define BLUE 94, 129, 172 
 #define WHITE 255, 255, 255
-#define GRAYISH_WHITE 216, 222, 233
+#define GRAYISH_WHITE 100, 103, 109
 #define BLACK 0, 0, 0
 
 #define AND_COLOR RED

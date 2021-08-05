@@ -23,6 +23,7 @@ extern Button IncreaseInputs;
 extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
+extern Button Snap;
 extern SDL_Window *window;
 
 void UpdateComponents()
@@ -69,6 +70,7 @@ int main(int argc, char **argv)
     bool movingCompo = false;
     bool confirmWire = false;
     bool snapToGrid = false;
+    bool snapToggeled = false;
     char dropDownAnimationFlag = 0;
     Pair offset;
     int changeX = 0, changeY = 0;
@@ -95,7 +97,7 @@ int main(int argc, char **argv)
             gridPos.y = (y - pad_y) / CELL_SIZE;
         else
             gridPos.y = -1;
-        if (snapToGrid){
+        if (snapToGrid && gridPos.x >= 0 && gridPos.y >= 0){
             gridPos.x -= gridPos.x % (SCALE / 2);
             gridPos.y -= gridPos.y % (SCALE / 2);
         }
@@ -184,6 +186,10 @@ int main(int argc, char **argv)
                         ChangeNumofInputs(false, &compoChoice);
                     else if (clickedButton == &DecreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
                         ChangeNumofInputs(true, &compoChoice);
+                    else if (clickedButton == &Snap){
+                        ToggleSnap(&snapToGrid);
+                        snapToggeled = !snapToggeled;
+                    }
                     else if (clickedButton == &CompoDeleteButton){
                         DeleteComponent(grid, selected);
                         selected = (Pair){-1, -1};
@@ -267,10 +273,6 @@ int main(int argc, char **argv)
                         newPos.x -= newPos.x % (SCALE / 2);
                         newPos.y -= newPos.y % (SCALE / 2);
                     }
-                    if (gridPos.x - offset.x < 0)
-                        newPos.x = 0;
-                    if (gridPos.y - offset.y < 0)
-                        newPos.y = 0;
                     if (gridPos.x - offset.x + compo.width >= GRID_ROW)
                         newPos.x = GRID_ROW - compo.width; 
                     if (gridPos.y - offset.y + compo.size >= GRID_COL)
@@ -346,25 +348,29 @@ int main(int argc, char **argv)
                     }
                     break;
                 case SDL_SCANCODE_LCTRL:
-                    snapToGrid = true;
+                    if (!snapToggeled)
+                        snapToGrid = true;
                     break;
                 case SDL_SCANCODE_RCTRL:
-                    snapToGrid = true;
+                    if (!snapToggeled)
+                        snapToGrid = true;
                     break;
                 default:
                     break;
                 }
                 break;
             case SDL_KEYUP:
-                switch (e.key.keysym.scancode){
-                    case SDL_SCANCODE_LCTRL:
-                        snapToGrid = false;
-                        break;
-                    case SDL_SCANCODE_RCTRL:
-                        snapToGrid = false;
-                        break;
-                    default:
-                        break;
+                if (!snapToggeled){
+                    switch (e.key.keysym.scancode){
+                        case SDL_SCANCODE_LCTRL:
+                            snapToGrid = false;
+                            break;
+                        case SDL_SCANCODE_RCTRL:
+                            snapToGrid = false;
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 break;
             default:
@@ -372,7 +378,7 @@ int main(int argc, char **argv)
             }
             if (draw){
                 DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected);
+                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid);
                 draw = false;
             }
         }
@@ -383,7 +389,7 @@ int main(int argc, char **argv)
                 AlreadyUpdated[i] = false;
             drawingWire = false;
             DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected);
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid);
             UpdateComponents();
             time += DELAY;
             if (time >= DELAY * 20)
