@@ -230,26 +230,8 @@ void xorGate(Component *component)
 
 void xnorGate(Component *component)
 {
-    if (component->inpSrc[0].x >= 0)
-    {
-        component->outputs[0] = component->inputs[0]->outputs[component->inpSrc[0].y];
-    }
-    else
-    {
-        component->outputs[0] = false;
-    }
-    for (int i = 1; i < component->inum; i++)
-    {
-        if (component->inpSrc[i].x >= 0)
-        {
-            component->outputs[0] = (!component->outputs[0] && !component->inputs[i]->outputs[component->inpSrc[i].y]) ||
-                                (component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y]);
-        }
-        else
-        {
-            component->outputs[0] = !component->outputs[0];
-        }
-    }
+    xorGate(component);
+    component->outputs[0] = !component->outputs[0];
 }
 
 void notGate(Component *component)
