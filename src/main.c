@@ -165,7 +165,7 @@ int main(int argc, char **argv)
                         ChangeNumofInputs(false, &selectedComponent);
                     else if (clickedButton == &DecreaseInputs && selectedComponent.type >= g_and && selectedComponent.type < g_not && !simulating)
                         ChangeNumofInputs(true, &selectedComponent);
-                    else if (clickedButton)
+                    else if (clickedButton && menuExpanded)
                     {
                         UnHighlight(selectedComponent.type);
                         selectedComponent = SelectComponent(clickedButton);
