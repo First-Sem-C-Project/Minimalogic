@@ -269,14 +269,16 @@ int main(int argc, char **argv)
                 {
                     Component compo = ComponentList[compoMoved];
                     Pair newPos = {gridPos.x - offset.x, gridPos.y - offset.y};
-                    if (snapToGrid){
-                        newPos.x -= newPos.x % (SCALE / 2);
-                        newPos.y -= newPos.y % (SCALE / 2);
-                    }
                     if (gridPos.x - offset.x + compo.width >= GRID_ROW)
                         newPos.x = GRID_ROW - compo.width; 
                     if (gridPos.y - offset.y + compo.size >= GRID_COL)
                         newPos.y = GRID_COL - compo.size; 
+                    if (snapToGrid){
+                        newPos.x -= newPos.x % (SCALE / 2);
+                        newPos.y -= newPos.y % (SCALE / 2);
+                    }
+                    newPos.x = newPos.x < 0 ? 0 : newPos.x;
+                    newPos.y = newPos.y < 0 ? 0 : newPos.y;
 
                     compo.start = newPos;
                     bool goUp = true, goLeft = true, goDown = true, goRight = true;
