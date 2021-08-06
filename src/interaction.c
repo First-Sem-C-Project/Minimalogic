@@ -290,11 +290,6 @@ void ReadFromFile(int * grid, char * fileName){
 }
 
 void SaveToFile(int * grid, char* fileName){
-    int len = 0;
-    char extension[4] = ".mlg";
-    for (;fileName[len]; len++);
-    for (int i = 0; i < 4; i ++)
-        fileName[len + i] = extension[i];
     FILE *data = fopen(fileName, "w");
     fwrite(&componentCount, sizeof(unsigned char), 1, data);
     for(int i=0; i<componentCount; i++){            
@@ -318,7 +313,8 @@ void ChooseFile(int * grid, bool saving){
     ofn.lpstrFilter     = "Project Files (*.mlg)\0*.mlg";    
     ofn.lpstrFile       = FileName;
     ofn.nMaxFile        = MAX_PATH;
-    ofn.lpstrTitle      = "Open File";
+    ofn.lpstrTitle      = saving ? "Save File" : "Open File";
+    ofn.lpstrDefExt     = "mlg";
     ofn.Flags           = OFN_NONETWORKBUTTON |
                             OFN_FILEMUSTEXIST |
                             OFN_HIDEREADONLY;
