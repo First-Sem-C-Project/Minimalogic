@@ -326,13 +326,17 @@ void ToggleDropDown(bool *state, char *animationFlag)
 
 void ReadFromFile(int * grid, char * fileName){
     FILE *data = fopen(fileName, "r");
+
     fread(&componentCount, sizeof(unsigned char), 1, data);
-    for(int i=0; i<componentCount; i++){
-        fread(&ComponentList[i], sizeof(Component), 1, data);
+    fread(ComponentList, sizeof(Component), componentCount, data);
+    fread(grid, sizeof(int), GRID_COL * GRID_ROW, data);
+    
+    for(int i = 0; i < componentCount; i++){
+        for(int j = 0; j < ComponentList[i].inum; j++){
+            ComponentList[i].inputs[j] = &ComponentList[ComponentList[i].inpSrc[j].x];
+        }
     }
-    for(int i=0; i < GRID_ROW * GRID_COL; i++){
-        fread(&grid[i], sizeof(int), 1, data);
-    }
+
     fclose(data);
 }
 
