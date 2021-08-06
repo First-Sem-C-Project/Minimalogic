@@ -25,18 +25,11 @@ extern Button CompoDeleteButton;
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
 
+static SDL_Texture *characters[256];
+static int characterWidth[256];
+
 static TTF_Font *font = NULL;
 static SDL_Texture *compoTexts[g_total];
-static SDL_Texture *inputCountTexts[MAX_TERM_NUM - MIN_INPUT_NUM + 1];
-static SDL_Texture *runAndCompoButton[3];
-static SDL_Texture *plus;
-static SDL_Texture *minus;
-static SDL_Texture *open;
-static SDL_Texture *save;
-static SDL_Texture *delete;
-static SDL_Texture *snapOn;
-static SDL_Texture *snapOff;
-static SDL_Texture *clear;
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -54,11 +47,45 @@ static int offsetX, offsetY;
 void InitFont()
 {
     TTF_Init();
-    font = TTF_OpenFont("roboto.ttf", 50);
+    font = TTF_OpenFont("roboto.ttf", 20);
     if (font == NULL)
     {
         SDL_Log("Failed to load the font: %s\n", TTF_GetError());
         exit(-1);
+    }
+}
+
+void CharacterMap()
+{
+    SDL_Surface *characterSurface;
+    SDL_Color white = {WHITE, 200};
+
+    for (int i=0; i<256; i++){
+        char str[2] = {(char)i, '\0'};
+        characterSurface = TTF_RenderText_Blended(font, str, white);
+        characters[i] = SDL_CreateTextureFromSurface(renderer, characterSurface);
+        characterWidth[i] = characterSurface ? characterSurface->w : 0;
+    }
+}
+
+void DisplayText(char * message, SDL_Rect dest)
+{
+    char * tmp = message;
+    int totalWidth = 0;
+    for(; *tmp; tmp++){
+        totalWidth += characterWidth[*tmp];
+    }
+    SDL_Rect charDest = {.y = dest.y, .h = dest.h};
+    
+    if(totalWidth > dest.w)
+        charDest.x = dest.x;
+    else
+        charDest.x = dest.x + (dest.w - totalWidth)/2;
+
+    for(int i=0; *message; message++, i++){
+        charDest.w = characterWidth[*message];
+        SDL_RenderCopy(renderer, characters[*message], NULL, &charDest);
+        charDest.x += characterWidth[*message];
     }
 }
 
@@ -67,22 +94,6 @@ void PreLoadTextures()
     SDL_Surface *textSurface = NULL;
     SDL_Color white = {WHITE, 200};
     SDL_Color black = {BLACK, 200};
-
-    textSurface = TTF_RenderText_Blended(font, "RUN", black);
-    runAndCompoButton[0] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "STOP", black);
-    runAndCompoButton[1] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Components", white);
-    runAndCompoButton[2] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "STATE", white);
-    compoTexts[state] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "PROBE", white);
-    compoTexts[probe] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "CLOCK", white);
-    compoTexts[clock] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
     textSurface = TTF_RenderText_Blended(font, "AND", white);
     compoTexts[g_and] = SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -105,37 +116,6 @@ void PreLoadTextures()
     textSurface = TTF_RenderText_Blended(font, "XNOR", white);
     compoTexts[g_xnor] = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 2", white);
-    inputCountTexts[0] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 3", white);
-    inputCountTexts[1] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 4", white);
-    inputCountTexts[2] = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Inputs: 5", white);
-    inputCountTexts[3] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "+", white);
-    plus = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "-", white);
-    minus = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "Open", white);
-    open = SDL_CreateTextureFromSurface(renderer, textSurface);
-    textSurface = TTF_RenderText_Blended(font, "Save", white);
-    save = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "Delete Component", white);
-    delete = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "Snap to Grid: On", white);
-    snapOn = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "Snap to Grid: Off", white);
-    snapOff = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "Clear Grid", white);
-    clear = SDL_CreateTextureFromSurface(renderer, textSurface);
-
     SDL_FreeSurface(textSurface);
 }
 
@@ -143,12 +123,9 @@ void DestroyTextures()
 {
     for (int i = 0; i < g_total; i++)
         SDL_DestroyTexture(compoTexts[i]);
-    for (int i = 0; i < 3; i++)
-        SDL_DestroyTexture(runAndCompoButton[i]);
-    for (int i = 0; i < 4; i++)
-        SDL_DestroyTexture(inputCountTexts[i]);
-    SDL_DestroyTexture(minus);
-    SDL_DestroyTexture(plus);
+    
+    for(int i = 0; i < 256; i++)
+        SDL_DestroyTexture(characters[i]);
 }
 
 void RenderGateText(SDL_Rect compo, Type type)
@@ -193,15 +170,16 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g,
                            RunButton.color.b, 255);
     SDL_RenderFillRect(renderer, &RunButton.buttonRect);
-    SDL_RenderCopy(renderer, runAndCompoButton[simulating], NULL,
-                   &RunButton.textRect);
+    if(simulating)
+        DisplayText("STOP", RunButton.buttonRect);
+    else
+        DisplayText("RUN", RunButton.buttonRect);
 
     SDL_SetRenderDrawColor(renderer, ComponentsButton.color.r,
                            ComponentsButton.color.g, ComponentsButton.color.b,
                            255);
     SDL_RenderFillRect(renderer, &ComponentsButton.buttonRect);
-    SDL_RenderCopy(renderer, runAndCompoButton[2], NULL,
-                   &ComponentsButton.textRect);
+    DisplayText("Components", ComponentsButton.buttonRect);
 
     SDL_SetRenderDrawColor(renderer, Open.color.r, Open.color.g, Open.color.b, Open.color.a);
     SDL_RenderFillRect(renderer, &Open.buttonRect);
@@ -209,27 +187,30 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     SDL_RenderFillRect(renderer, &CompoDeleteButton.buttonRect);
     SDL_RenderFillRect(renderer, &Snap.buttonRect);
     SDL_RenderFillRect(renderer, &Clear.buttonRect);
-    SDL_RenderCopy(renderer, open, NULL, &Open.textRect);
-    SDL_RenderCopy(renderer, save, NULL, &Save.textRect);
-    SDL_RenderCopy(renderer, clear, NULL, &Clear.textRect);
-    SDL_RenderCopy(renderer, delete, NULL, &CompoDeleteButton.textRect);
+    DisplayText("Open", Open.buttonRect);
+    DisplayText("Save", Save.buttonRect);
+    DisplayText("Delete Component", CompoDeleteButton.buttonRect);
+    DisplayText("Clear Grid", Clear.buttonRect);
     if (snap)
-        SDL_RenderCopy(renderer, snapOn, NULL, &Snap.textRect);
+        DisplayText("Snap to Grid: On", Snap.buttonRect);
     else
-        SDL_RenderCopy(renderer, snapOff, NULL, &Snap.textRect);
+        DisplayText("Snap to Grid: Off", Snap.buttonRect);
 
     if (choice.type >= g_and && choice.type < g_not)
     {
         SDL_SetRenderDrawColor(renderer, BLACK, 255);
         SDL_RenderFillRect(renderer, &InputsCount);
-        SDL_RenderCopy(renderer, inputCountTexts[choice.size - 2], NULL, &InputsCountText);
+        char tmptxt[10] = "Inputs: ";
+        tmptxt[8] = (char)(choice.size - 2 + 50);
+        DisplayText(tmptxt, InputsCount);
+        //SDL_RenderCopy(renderer, inputCountTexts[choice.size - 2], NULL, &InputsCountText);
 
         SDL_SetRenderDrawColor(renderer, IncreaseInputs.color.r, IncreaseInputs.color.g,
                                IncreaseInputs.color.b, 255);
         SDL_RenderFillRect(renderer, &IncreaseInputs.buttonRect);
-        SDL_RenderCopy(renderer, plus, NULL, &IncreaseInputs.textRect);
+        DisplayText("+", IncreaseInputs.buttonRect);
         SDL_RenderFillRect(renderer, &DecreaseInputs.buttonRect);
-        SDL_RenderCopy(renderer, minus, NULL, &DecreaseInputs.textRect);
+        DisplayText("-", DecreaseInputs.buttonRect);
     }
 
     if (menuExpanded)
@@ -246,8 +227,38 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
             SDL_SetRenderDrawColor(renderer, Components[i].color.r,
                                    Components[i].color.g, Components[i].color.b, 255);
             SDL_RenderFillRect(renderer, &Components[i].buttonRect);
-            SDL_RenderCopy(renderer, compoTexts[Components[i].selection.type], NULL,
-                           &Components[i].textRect);
+            switch(i){
+                case state:
+                    DisplayText("STATE", Components[i].buttonRect);
+                    break;
+                case probe:
+                    DisplayText("PROBE", Components[i].buttonRect);
+                    break;
+                case clock:
+                    DisplayText("CLOCK", Components[i].buttonRect);
+                    break;
+                case g_and:
+                    DisplayText("AND", Components[i].buttonRect);
+                    break;
+                case g_or:
+                    DisplayText("OR", Components[i].buttonRect);
+                    break;
+                case g_nand:
+                    DisplayText("NAND", Components[i].buttonRect);
+                    break;
+                case g_nor:
+                    DisplayText("NOR", Components[i].buttonRect);
+                    break;
+                case g_xor:
+                    DisplayText("XOR", Components[i].buttonRect);
+                    break;
+                case g_xnor:
+                    DisplayText("XNOR", Components[i].buttonRect);
+                    break;
+                case g_not:
+                    DisplayText("NOT", Components[i].buttonRect);
+                    break;
+            }
         }
     }
 }
@@ -257,14 +268,18 @@ void DrawConfirmationScreen(){
     SDL_GetWindowSize(window, &w, &h);
     SDL_Rect darken = {.x = 0, .y = 0, .w = w, .h = h};
     SDL_Rect box = {.x = w / 2 - 200, .y = h / 2 - 100, .w = 400, .h = 200};
+    SDL_Rect message = {.x = box.x + 10, box.y + box.h/4, box.w - 20, 30};
     SDL_SetRenderDrawColor(renderer, BLACK, 100);
     SDL_RenderFillRect(renderer, &darken);
     SDL_SetRenderDrawColor(renderer, BG2);
     SDL_RenderFillRect(renderer, &box);
+    DisplayText("Clear Grid?", message);
     SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
     SDL_RenderFillRect(renderer, &clearYes.buttonRect);
+    DisplayText("Yes", clearYes.buttonRect);
     SDL_SetRenderDrawColor(renderer, clearNo.color.r, clearNo.color.g, clearNo.color.b, 255);
     SDL_RenderFillRect(renderer, &clearNo.buttonRect);
+    DisplayText("No", clearNo.buttonRect);
 }
 
 void HoverOver(Button *button, bool menuExpanded, bool showConfirmScreen)
@@ -648,6 +663,7 @@ void InitEverything(int *grid)
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
     InitMenu(w, h);
+    CharacterMap();
     PreLoadTextures();
 }
 

@@ -17,7 +17,6 @@ typedef struct Wire {
 
 typedef struct Button {
     SDL_Rect buttonRect;
-    SDL_Rect textRect;
     Selection selection;
     SDL_Color color;
 } Button;

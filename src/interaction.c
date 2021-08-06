@@ -31,62 +31,34 @@ void InitMenu(int windowWidth, int windowHeight)
     RunButton.buttonRect.y = 10;
     RunButton.buttonRect.w = MENU_WIDTH - 20;
     RunButton.buttonRect.h = 30;
-    RunButton.textRect.x =
-        RunButton.buttonRect.x + 1.5 * RunButton.buttonRect.w / 4;
-    RunButton.textRect.y =
-        RunButton.buttonRect.y + RunButton.buttonRect.h / 2 - CELL_SIZE * SCALE / 2;
-    RunButton.textRect.w = RunButton.buttonRect.w / 4;
-    RunButton.textRect.h = CELL_SIZE * SCALE;
 
     ComponentsButton.buttonRect.x = 10;
     ComponentsButton.buttonRect.y = 50;
     ComponentsButton.buttonRect.w = MENU_WIDTH - 20;
     ComponentsButton.buttonRect.h = 30;
-    ComponentsButton.textRect.x =
-        ComponentsButton.buttonRect.x + ComponentsButton.buttonRect.w / 4;
-    ComponentsButton.textRect.y =
-        ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h / 4;
-    ComponentsButton.textRect.w = ComponentsButton.buttonRect.w / 2;
-    ComponentsButton.textRect.h = ComponentsButton.buttonRect.h / 2;
     
     Save.buttonRect.w = MENU_WIDTH - 20;
     Save.buttonRect.h = 30;
     Save.buttonRect.x = 10;
     Save.buttonRect.y = windowHeight - Save.buttonRect.h - 10;
-    Save.textRect.w = (Save.buttonRect.h - 10) * 2;
-    Save.textRect.h = Save.buttonRect.h - 10;
-    Save.textRect.x = Save.buttonRect.x + Save.buttonRect.w / 2 - Save.textRect.w / 2;
-    Save.textRect.y = Save.buttonRect.y + 5;
 
     Open.buttonRect.w = MENU_WIDTH - 20;
     Open.buttonRect.h = 30;
     Open.buttonRect.x = 10;
     Open.buttonRect.y = Save.buttonRect.y - Open.buttonRect.h - 10;
-    Open.textRect.w = (Open.buttonRect.h - 10) * 2;
-    Open.textRect.h = Open.buttonRect.h - 10;
-    Open.textRect.x = Open.buttonRect.x + Open.buttonRect.w / 2 - Open.textRect.w / 2;
-    Open.textRect.y = Open.buttonRect.y + 5;
 
     Clear.buttonRect.w = MENU_WIDTH - 20;
     Clear.buttonRect.h = 30;
     Clear.buttonRect.x = 10;
     Clear.buttonRect.y = Open.buttonRect.y - Clear.buttonRect.h - 10;
-    Clear.textRect.w = (Clear.buttonRect.h - 10) * 5;
-    Clear.textRect.h = Clear.buttonRect.h - 10;
-    Clear.textRect.x = Clear.buttonRect.x + Clear.buttonRect.w / 2 - Clear.textRect.w / 2;
-    Clear.textRect.y = Clear.buttonRect.y + 5;
 
     clearYes.buttonRect.w = 150;
     clearYes.buttonRect.h = 30;
-    clearYes.textRect.w = Clear.buttonRect.h - 10;
-    clearYes.textRect.h = Clear.buttonRect.h - 10;
     clearYes.buttonRect.x = windowWidth / 2 - 200 + 25;
     clearYes.buttonRect.y = windowHeight / 2 - 100 + 200 - clearYes.buttonRect.h - 25;
 
     clearNo.buttonRect.w = 150;
     clearNo.buttonRect.h = 30;
-    clearNo.textRect.w = Clear.buttonRect.h - 10;
-    clearNo.textRect.h = Clear.buttonRect.h - 10;
     clearNo.buttonRect.x = windowWidth / 2 - 200 + 400 - 25 - clearNo.buttonRect.w;
     clearNo.buttonRect.y = windowHeight / 2 - 100 + 200 - clearNo.buttonRect.h - 25;
 
@@ -94,28 +66,16 @@ void InitMenu(int windowWidth, int windowHeight)
     Snap.buttonRect.h = 30;
     Snap.buttonRect.x = 10;
     Snap.buttonRect.y = Clear.buttonRect.y - Snap.buttonRect.h - 10;
-    Snap.textRect.x = Snap.buttonRect.x + 5;
-    Snap.textRect.y = Snap.buttonRect.y + 5;
-    Snap.textRect.w = Snap.buttonRect.w - 10;
-    Snap.textRect.h = Snap.buttonRect.h - 10;
 
     CompoDeleteButton.buttonRect.w = MENU_WIDTH - 20;
     CompoDeleteButton.buttonRect.h = 30;
     CompoDeleteButton.buttonRect.x = 10;
     CompoDeleteButton.buttonRect.y = Snap.buttonRect.y - CompoDeleteButton.buttonRect.h - 10;
-    CompoDeleteButton.textRect.x = CompoDeleteButton.buttonRect.x + 5;
-    CompoDeleteButton.textRect.y = CompoDeleteButton.buttonRect.y + 5;
-    CompoDeleteButton.textRect.w = CompoDeleteButton.buttonRect.w - 10;
-    CompoDeleteButton.textRect.h = CompoDeleteButton.buttonRect.h - 10;
 
     DecreaseInputs.buttonRect.w = 0.15 * MENU_WIDTH - 10;
     DecreaseInputs.buttonRect.h = 30;
     DecreaseInputs.buttonRect.x = 10;
     DecreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - DecreaseInputs.buttonRect.h - 10;
-    DecreaseInputs.textRect.x = DecreaseInputs.buttonRect.x + 5;
-    DecreaseInputs.textRect.y = DecreaseInputs.buttonRect.y + 5;
-    DecreaseInputs.textRect.w = DecreaseInputs.buttonRect.w - 10;
-    DecreaseInputs.textRect.h = DecreaseInputs.buttonRect.h - 10;
 
     InputsCount.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 5;
     InputsCount.y = DecreaseInputs.buttonRect.y;
@@ -126,15 +86,6 @@ void InitMenu(int windowWidth, int windowHeight)
     IncreaseInputs.buttonRect.h = 30;
     IncreaseInputs.buttonRect.x = InputsCount.x + InputsCount.w + 5;
     IncreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - IncreaseInputs.buttonRect.h - 10;
-    IncreaseInputs.textRect.x = IncreaseInputs.buttonRect.x + 5;
-    IncreaseInputs.textRect.y = IncreaseInputs.buttonRect.y + 5;
-    IncreaseInputs.textRect.w = IncreaseInputs.buttonRect.w - 10;
-    IncreaseInputs.textRect.h = IncreaseInputs.buttonRect.h - 10;
-
-    InputsCountText.x = InputsCount.x + InputsCount.w / 4;
-    InputsCountText.y = InputsCount.y + InputsCount.h / 4;
-    InputsCountText.w = InputsCount.w / 2;
-    InputsCountText.h = InputsCount.h / 2;
 
     for (int i = 0; i < g_total; i++)
     {
@@ -146,35 +97,6 @@ void InitMenu(int windowWidth, int windowHeight)
                                      i * (CELL_SIZE * SCALE + 2) + 2;
         Components[i].buttonRect.w = MENU_WIDTH - 40;
         Components[i].buttonRect.h = MENU_FONT_SIZE;
-        Components[i].textRect.x =
-            Components[i].buttonRect.x + Components[i].buttonRect.w / 2;
-        Components[i].textRect.y = Components[i].buttonRect.y;
-        Components[i].textRect.w = 0;
-        Components[i].textRect.h = MENU_FONT_SIZE;
-        Components[i].textRect.h = 3 * Components[i].textRect.h / 4;
-        Components[i].textRect.y = Components[i].buttonRect.y +
-                                   Components[i].buttonRect.h / 2 -
-                                   Components[i].textRect.h / 2;
-        if (i == state || i == probe || i == clock)
-        {
-            Components[i].textRect.x -= 5 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 5 * Components[i].textRect.h;
-        }
-        else if (i == g_nand || i == g_xnor)
-        {
-            Components[i].textRect.x -= 4 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 4 * Components[i].textRect.h;
-        }
-        else if (i == g_or)
-        {
-            Components[i].textRect.x -= 2 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 2 * Components[i].textRect.h;
-        }
-        else
-        {
-            Components[i].textRect.x -= 3 * Components[i].textRect.h / 2;
-            Components[i].textRect.w = 3 * Components[i].textRect.h;
-        }
     }
 }
 
