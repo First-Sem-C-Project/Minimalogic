@@ -24,6 +24,9 @@ extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
 extern Button Snap;
+extern Button Clear;
+extern Button clearYes;
+extern Button clearNo;
 extern SDL_Window *window;
 
 void UpdateComponents()
@@ -81,6 +84,7 @@ int main(int argc, char **argv)
     Pair initialPos;
     bool draw;
     int animating = 0;
+    bool showConfirmScreen = false;
 
     SDL_Event e;
     while (1)
@@ -119,88 +123,100 @@ int main(int argc, char **argv)
                 break;
             }
             case SDL_MOUSEBUTTONDOWN:
-                if (e.button.button == SDL_BUTTON_RIGHT){
-                    selected = (Pair){-1, -1};
-                    break;
-                }
-                if (cursorInGrid)
-                {
-                    if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
-                    {
-                        selected = gridPos;
-                        if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
-                            ComponentList[cell(gridPos.y, gridPos.x)].outputs[0] = !ComponentList[cell(gridPos.y, gridPos.x)].outputs[0];
-                        if (!drawingWire && !movingCompo)
-                        {
-                            Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
-                            initialPos = compo.start;
-                            offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
-                            compoMoved = cell(gridPos.y, gridPos.x);
-                            movingCompo = true;
-                            for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
-                                for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
-                                    cell(i, j) = -1;
-                        }
-                    }
-                    else {
+                if (!showConfirmScreen){
+                    if (e.button.button == SDL_BUTTON_RIGHT){
                         selected = (Pair){-1, -1};
+                        break;
                     }
-                    if (componentCount <= 255 && !simulating)
+                    if (cursorInGrid)
                     {
-                        int w, h;
-                        GetWidthHeight(&w, &h, compoChoice.type, compoChoice.size);
-                        if (!drawingWire && PositionIsValid(grid, w, h, compoChoice.pos) && !movingCompo)
-                            InsertComponent(grid, compoChoice, w, h);
-                        else if (!drawingWire && !movingCompo)
+                        if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
                         {
-                            startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
-                            if (startAt < 0)
+                            selected = gridPos;
+                            if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
+                                ComponentList[cell(gridPos.y, gridPos.x)].outputs[0] = !ComponentList[cell(gridPos.y, gridPos.x)].outputs[0];
+                            if (!drawingWire && !movingCompo)
                             {
-                                sender = cell(gridPos.y, gridPos.x);
-                                sendIndex = startAt;
-                                drawingWire = StartWiring((Pair){x, y});
+                                Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
+                                initialPos = compo.start;
+                                offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
+                                compoMoved = cell(gridPos.y, gridPos.x);
+                                movingCompo = true;
+                                for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
+                                    for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
+                                        cell(i, j) = -1;
                             }
-                            else if (startAt > 0)
+                        }
+                        else {
+                            selected = (Pair){-1, -1};
+                        }
+                        if (componentCount <= 255 && !simulating)
+                        {
+                            int w, h;
+                            GetWidthHeight(&w, &h, compoChoice.type, compoChoice.size);
+                            if (!drawingWire && PositionIsValid(grid, w, h, compoChoice.pos) && !movingCompo)
+                                InsertComponent(grid, compoChoice, w, h);
+                            else if (!drawingWire && !movingCompo)
                             {
-                                receiver = cell(gridPos.y, gridPos.x);
-                                receiveIndex = startAt;
-                                drawingWire = StartWiring((Pair){x, y});
+                                startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
+                                if (startAt < 0)
+                                {
+                                    sender = cell(gridPos.y, gridPos.x);
+                                    sendIndex = startAt;
+                                    drawingWire = StartWiring((Pair){x, y});
+                                }
+                                else if (startAt > 0)
+                                {
+                                    receiver = cell(gridPos.y, gridPos.x);
+                                    receiveIndex = startAt;
+                                    drawingWire = StartWiring((Pair){x, y});
+                                }
                             }
                         }
                     }
+                    if (x <= MENU_WIDTH)
+                    {
+                        Button *clickedButton = clickedOn(x, y, menuExpanded, compoChoice);
+                        if (clickedButton == &RunButton){
+                            ToggleSimulation(&simulating);
+                            selected = (Pair){-1, -1};
+                        }
+                        else if (clickedButton == &ComponentsButton){
+                            ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
+                            animating = 0;
+                        }
+                        else if(clickedButton == &Open && !simulating)
+                            ChooseFile(grid, false);
+                        else if(clickedButton == &Save)
+                            ChooseFile(grid, true);
+                        else if(clickedButton == &Clear && !simulating)
+                            showConfirmScreen = true;
+                        else if(clickedButton == &IncreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
+                            ChangeNumofInputs(false, &compoChoice);
+                        else if(clickedButton == &DecreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
+                            ChangeNumofInputs(true, &compoChoice);
+                        else if(clickedButton == &Snap){
+                            ToggleSnap(&snapToGrid);
+                            snapToggeled = !snapToggeled;
+                        }
+                        else if (clickedButton == &CompoDeleteButton){
+                            DeleteComponent(grid, selected);
+                            selected = (Pair){-1, -1};
+                        }
+                        else if (clickedButton && menuExpanded)
+                        {
+                            UnHighlight(compoChoice.type);
+                            compoChoice = SelectComponent(clickedButton);
+                        }
+                    }
                 }
-                if (x <= MENU_WIDTH)
-                {
+                else{
                     Button *clickedButton = clickedOn(x, y, menuExpanded, compoChoice);
-                    if (clickedButton == &RunButton){
-                        ToggleSimulation(&simulating);
-                        selected = (Pair){-1, -1};
+                    if (clickedButton == &clearYes){
+                        componentCount = 0;
+                        InitGrid(grid);
                     }
-                    else if (clickedButton == &ComponentsButton){
-                        ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
-                        animating = 0;
-                    }
-                    else if(clickedButton == &Open)
-                        ChooseFile(grid, false);
-                    else if(clickedButton == &Save)
-                        ChooseFile(grid, true);
-                    else if (clickedButton == &IncreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
-                        ChangeNumofInputs(false, &compoChoice);
-                    else if (clickedButton == &DecreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
-                        ChangeNumofInputs(true, &compoChoice);
-                    else if (clickedButton == &Snap){
-                        ToggleSnap(&snapToGrid);
-                        snapToggeled = !snapToggeled;
-                    }
-                    else if (clickedButton == &CompoDeleteButton){
-                        DeleteComponent(grid, selected);
-                        selected = (Pair){-1, -1};
-                    }
-                    else if (clickedButton && menuExpanded)
-                    {
-                        UnHighlight(compoChoice.type);
-                        compoChoice = SelectComponent(clickedButton);
-                    }
+                    showConfirmScreen = false;
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
@@ -382,7 +398,7 @@ int main(int argc, char **argv)
             }
             if (draw){
                 DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid);
+                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, showConfirmScreen);
                 draw = false;
             }
         }
@@ -393,7 +409,7 @@ int main(int argc, char **argv)
                 AlreadyUpdated[i] = false;
             drawingWire = false;
             DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid);
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, showConfirmScreen);
             UpdateComponents();
             time += DELAY;
             if (time >= DELAY * 20)

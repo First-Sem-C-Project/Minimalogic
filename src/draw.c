@@ -17,6 +17,9 @@ extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
 extern Button Snap;
+extern Button Clear;
+extern Button clearYes;
+extern Button clearNo;
 extern Button CompoDeleteButton;
 
 extern SDL_Rect InputsCount;
@@ -33,6 +36,7 @@ static SDL_Texture *save;
 static SDL_Texture *delete;
 static SDL_Texture *snapOn;
 static SDL_Texture *snapOff;
+static SDL_Texture *clear;
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -129,6 +133,9 @@ void PreLoadTextures()
     textSurface = TTF_RenderText_Blended(font, "Snap to Grid: Off", white);
     snapOff = SDL_CreateTextureFromSurface(renderer, textSurface);
 
+    textSurface = TTF_RenderText_Blended(font, "Clear Grid", white);
+    clear = SDL_CreateTextureFromSurface(renderer, textSurface);
+
     SDL_FreeSurface(textSurface);
 }
 
@@ -201,8 +208,10 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     SDL_RenderFillRect(renderer, &Save.buttonRect);
     SDL_RenderFillRect(renderer, &CompoDeleteButton.buttonRect);
     SDL_RenderFillRect(renderer, &Snap.buttonRect);
+    SDL_RenderFillRect(renderer, &Clear.buttonRect);
     SDL_RenderCopy(renderer, open, NULL, &Open.textRect);
     SDL_RenderCopy(renderer, save, NULL, &Save.textRect);
+    SDL_RenderCopy(renderer, clear, NULL, &Clear.textRect);
     SDL_RenderCopy(renderer, delete, NULL, &CompoDeleteButton.textRect);
     if (snap)
         SDL_RenderCopy(renderer, snapOn, NULL, &Snap.textRect);
@@ -243,16 +252,34 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     }
 }
 
-void HoverOver(Button *button, bool menuExpanded)
+void DrawConfirmationScreen(){
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    SDL_Rect darken = {.x = 0, .y = 0, .w = w, .h = h};
+    SDL_Rect box = {.x = w / 2 - 200, .y = h / 2 - 100, .w = 400, .h = 200};
+    SDL_SetRenderDrawColor(renderer, BLACK, 100);
+    SDL_RenderFillRect(renderer, &darken);
+    SDL_SetRenderDrawColor(renderer, BG2);
+    SDL_RenderFillRect(renderer, &box);
+    SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
+    SDL_RenderFillRect(renderer, &clearYes.buttonRect);
+    SDL_SetRenderDrawColor(renderer, clearNo.color.r, clearNo.color.g, clearNo.color.b, 255);
+    SDL_RenderFillRect(renderer, &clearNo.buttonRect);
+}
+
+void HoverOver(Button *button, bool menuExpanded, bool showConfirmScreen)
 {
     if (!button)
         return;
-    bool toHover = true;
+    bool toHover = !showConfirmScreen;
     for (int i = 0; i < g_total; i ++){
         if (button == &Components[i]){
             toHover = menuExpanded;
             break;
         }
+    }
+    if (button == &clearYes || button == &clearNo){
+        toHover = showConfirmScreen;
     }
     if (toHover)
     {
@@ -492,7 +519,7 @@ void DrawGrid(int pad_x, int pad_y)
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
               Selection choiceComponent, int pad_x, int pad_y,
               bool simulating, char *dropDownAnimationFlag, Pair gridPos,
-              int *grid, bool movingCompo, Pair selected, bool snap)
+              int *grid, bool movingCompo, Pair selected, bool snap, bool showConfirmScreen)
 {
     SDL_Rect highlight;
     highlight.w = CELL_SIZE - 1;
@@ -500,7 +527,6 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     SDL_SetRenderDrawColor(renderer, BG);
     SDL_RenderClear(renderer);
     DrawMenu(menuExpanded, simulating, snap, choiceComponent);
-    HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded);
     HighlightSelected(choiceComponent.type);
     if (*dropDownAnimationFlag > 0 && *dropDownAnimationFlag < 6)
         AnimateDropDown(dropDownAnimationFlag, menuExpanded, simulating, choiceComponent, snap);
@@ -512,11 +538,23 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
         DrawWires(ComponentList[i], pad_x, pad_y);
     }
 
-    if (drawingWire)
+    if (selected.x >= 0 && selected.y >= 0 && !movingCompo){
+        Component selectedCompo = ComponentList[grid[selected.y * GRID_ROW + selected.x]];
+        SDL_Rect selectedRect = {.x = selectedCompo.start.x * CELL_SIZE + pad_x + 1, .y = selectedCompo.start.y * CELL_SIZE + pad_y + 1, .w = selectedCompo.width * CELL_SIZE - 1, .h = selectedCompo.size * CELL_SIZE - 1};
+        SDL_SetRenderDrawColor(renderer, GREEN, 255);
+        SDL_RenderDrawRect(renderer, &selectedRect);
+    }
+
+    if (showConfirmScreen){
+        DrawConfirmationScreen();
+    }
+    HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded, showConfirmScreen);
+
+    if (drawingWire && !showConfirmScreen)
         DrawWire(tmpWire.start, tmpWire.end);
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
-        gridPos.y < GRID_COL && !movingCompo)
+        gridPos.y < GRID_COL && !movingCompo && !showConfirmScreen)
     {
         if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire)
         {
@@ -575,14 +613,6 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
             }
         }
     }
-
-    if (selected.x >= 0 && selected.y >= 0 && !movingCompo){
-        Component selectedCompo = ComponentList[grid[selected.y * GRID_ROW + selected.x]];
-        SDL_Rect selectedRect = {.x = selectedCompo.start.x * CELL_SIZE + pad_x + 1, .y = selectedCompo.start.y * CELL_SIZE + pad_y + 1, .w = selectedCompo.width * CELL_SIZE - 1, .h = selectedCompo.size * CELL_SIZE - 1};
-        SDL_SetRenderDrawColor(renderer, GREEN, 255);
-        SDL_RenderDrawRect(renderer, &selectedRect);
-    }
-
     SDL_RenderPresent(renderer);
 }
 

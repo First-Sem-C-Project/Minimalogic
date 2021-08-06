@@ -11,6 +11,9 @@ Button DecreaseInputs = {.color = RED};
 Button Open = {.color = {BLACK, 255}};
 Button Save = {.color = {BLACK, 255}};
 Button Snap = {.color = {BLACK, 255}};
+Button Clear = {.color = {BLACK, 255}};
+Button clearYes = {.color = {GREEN, 255}};
+Button clearNo = {.color = {RED, 255}};
 
 SDL_Rect InputsCount;
 SDL_Rect InputsCountText;
@@ -18,7 +21,7 @@ SDL_Rect InputsCountText;
 Component ComponentList[256];
 unsigned char componentCount;
 extern int time;
-extern 
+extern SDL_Window * window;
 
 #define cell(y, x) grid[y * GRID_ROW + x]
 
@@ -50,24 +53,47 @@ void InitMenu(int windowWidth, int windowHeight)
     Save.buttonRect.h = 30;
     Save.buttonRect.x = 10;
     Save.buttonRect.y = windowHeight - Save.buttonRect.h - 10;
-    Save.textRect.x = Save.buttonRect.x + 1.5 * Save.buttonRect.w / 4;
-    Save.textRect.y = Save.buttonRect.y + Save.buttonRect.h / 4;
-    Save.textRect.w = Save.buttonRect.w / 4;
-    Save.textRect.h = Save.buttonRect.h / 2;
+    Save.textRect.w = (Save.buttonRect.h - 10) * 2;
+    Save.textRect.h = Save.buttonRect.h - 10;
+    Save.textRect.x = Save.buttonRect.x + Save.buttonRect.w / 2 - Save.textRect.w / 2;
+    Save.textRect.y = Save.buttonRect.y + 5;
 
     Open.buttonRect.w = MENU_WIDTH - 20;
     Open.buttonRect.h = 30;
     Open.buttonRect.x = 10;
     Open.buttonRect.y = Save.buttonRect.y - Open.buttonRect.h - 10;
-    Open.textRect.x = Open.buttonRect.x + 1.5 * Open.buttonRect.w / 4;
-    Open.textRect.y = Open.buttonRect.y + Open.buttonRect.h / 4;
-    Open.textRect.w = Open.buttonRect.w / 4;
-    Open.textRect.h = Open.buttonRect.h / 2;
+    Open.textRect.w = (Open.buttonRect.h - 10) * 2;
+    Open.textRect.h = Open.buttonRect.h - 10;
+    Open.textRect.x = Open.buttonRect.x + Open.buttonRect.w / 2 - Open.textRect.w / 2;
+    Open.textRect.y = Open.buttonRect.y + 5;
+
+    Clear.buttonRect.w = MENU_WIDTH - 20;
+    Clear.buttonRect.h = 30;
+    Clear.buttonRect.x = 10;
+    Clear.buttonRect.y = Open.buttonRect.y - Clear.buttonRect.h - 10;
+    Clear.textRect.w = (Clear.buttonRect.h - 10) * 5;
+    Clear.textRect.h = Clear.buttonRect.h - 10;
+    Clear.textRect.x = Clear.buttonRect.x + Clear.buttonRect.w / 2 - Clear.textRect.w / 2;
+    Clear.textRect.y = Clear.buttonRect.y + 5;
+
+    clearYes.buttonRect.w = 150;
+    clearYes.buttonRect.h = 30;
+    clearYes.textRect.w = Clear.buttonRect.h - 10;
+    clearYes.textRect.h = Clear.buttonRect.h - 10;
+    clearYes.buttonRect.x = windowWidth / 2 - 200 + 25;
+    clearYes.buttonRect.y = windowHeight / 2 - 100 + 200 - clearYes.buttonRect.h - 25;
+
+    clearNo.buttonRect.w = 150;
+    clearNo.buttonRect.h = 30;
+    clearNo.textRect.w = Clear.buttonRect.h - 10;
+    clearNo.textRect.h = Clear.buttonRect.h - 10;
+    clearNo.buttonRect.x = windowWidth / 2 - 200 + 400 - 25 - clearNo.buttonRect.w;
+    clearNo.buttonRect.y = windowHeight / 2 - 100 + 200 - clearNo.buttonRect.h - 25;
 
     Snap.buttonRect.w = MENU_WIDTH - 20;
     Snap.buttonRect.h = 30;
     Snap.buttonRect.x = 10;
-    Snap.buttonRect.y = Open.buttonRect.y - Snap.buttonRect.h - 10;
+    Snap.buttonRect.y = Clear.buttonRect.y - Snap.buttonRect.h - 10;
     Snap.textRect.x = Snap.buttonRect.x + 5;
     Snap.textRect.y = Snap.buttonRect.y + 5;
     Snap.textRect.w = Snap.buttonRect.w - 10;
@@ -181,6 +207,27 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
         cursorY < Snap.buttonRect.y + Snap.buttonRect.h)
     {
         return &Snap;
+    }
+    else if (cursorX > Clear.buttonRect.x &&
+        cursorX < Clear.buttonRect.x + Clear.buttonRect.w &&
+        cursorY > Clear.buttonRect.y &&
+        cursorY < Clear.buttonRect.y + Clear.buttonRect.h)
+    {
+        return &Clear;
+    }
+    else if (cursorX > clearYes.buttonRect.x &&
+        cursorX < clearYes.buttonRect.x + clearYes.buttonRect.w &&
+        cursorY > clearYes.buttonRect.y &&
+        cursorY < clearYes.buttonRect.y + clearYes.buttonRect.h)
+    {
+        return &clearYes;
+    }
+    else if (cursorX > clearNo.buttonRect.x &&
+        cursorX < clearNo.buttonRect.x + clearNo.buttonRect.w &&
+        cursorY > clearNo.buttonRect.y &&
+        cursorY < clearNo.buttonRect.y + clearNo.buttonRect.h)
+    {
+        return &clearNo;
     }
     else if (cursorX > Open.buttonRect.x &&
         cursorX < Open.buttonRect.x + Open.buttonRect.w &&
