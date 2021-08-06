@@ -410,13 +410,14 @@ int main(int argc, char **argv)
             drawingWire = false;
             DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
                      simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, showConfirmScreen);
+        }
+        if (simulating){
             UpdateComponents();
             time += DELAY;
             if (time >= DELAY * 20)
                 time = 0;
-        }
-        if (simulating)
             selected = (Pair){-1, -1};
+        }
 
         animating += 1;
         if (animating > 8)
