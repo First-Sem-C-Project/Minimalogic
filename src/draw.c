@@ -602,7 +602,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
                     break;
                 }
             }
-            if (!done)
+            if (!done && !drawingWire)
             {
                 SDL_SetRenderDrawColor(renderer, BLUE, 100);
                 highlight.w = toHighlight.width * CELL_SIZE - 1;
