@@ -293,7 +293,7 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Se
 {
     if (menuExpanded)
     {
-        SDL_SetRenderDrawColor(renderer, BG);
+        SDL_SetRenderDrawColor(renderer, BG1);
         SDL_Rect cover = {ComponentsButton.buttonRect.x,
                           ComponentsButton.buttonRect.y +
                               ComponentsButton.buttonRect.h +
@@ -306,13 +306,13 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Se
     else
     {
         DrawMenu(true, simulating, snap, choice);
-        SDL_SetRenderDrawColor(renderer, BG);
+        SDL_SetRenderDrawColor(renderer, BG1);
         SDL_Rect cover = {ComponentsButton.buttonRect.x,
                           ComponentsButton.buttonRect.y +
                               ComponentsButton.buttonRect.h +
                               (2 * (*animationFlag)) * (25 + 2),
                           ComponentsButton.buttonRect.w,
-                          2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
+                          2 + (g_total - 2 * (*animationFlag)) * (25 + 2)};
         SDL_RenderFillRect(renderer, &cover);
         *animationFlag -= 1;
     }
