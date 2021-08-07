@@ -34,25 +34,29 @@ static char *compoTexts[g_total] =
     "STATE",
     "PROBE",
     "CLOCK",
+    "NOT",
+    "OCT DECODER",
+    "BCD DECODER",
     "AND",
     "OR",
     "NAND",
     "NOR",
     "XOR",
-    "XNOR",
-    "NOT"
+    "XNOR"
 };
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
     {NO_COLOR},
+    {NOT_COLOR},
+    {LED_COLOR},
+    {LED_COLOR},
     {AND_COLOR},
     {OR_COLOR},
     {NAND_COLOR},
     {NOR_COLOR},
     {XOR_COLOR},
-    {XNOR_COLOR},
-    {NOT_COLOR}};
+    {XNOR_COLOR}};
 
 static int offsetX, offsetY;
 
@@ -139,7 +143,7 @@ void RenderGateText(SDL_Rect compo, Type type)
         textRect.y += 4 * SCALE / 10;
         textRect.h = textRect.h * 4 / 5;
     }
-    if (type >= g_and)
+    if (type >= g_and || type == g_not)
         DisplayText(compoTexts[type], textRect);
 }
 
@@ -179,7 +183,7 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     else
         DisplayText("Snap to Grid: Off", Snap.buttonRect);
 
-    if (choice.type >= g_and && choice.type < g_not)
+    if (choice.type >= g_and)
     {
         SDL_SetRenderDrawColor(renderer, BLACK, 255);
         SDL_RenderFillRect(renderer, &InputsCount);
@@ -444,7 +448,7 @@ void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int 
     compo.x = pos.x * CELL_SIZE + pad_x + 1;
     compo.y = pos.y * CELL_SIZE + pad_y + 1;
     SDL_Color color = compoColors[type];
-    if (type == state || type == probe || type == clock)
+    if (type < g_not)
     {
         if (isHigh)
             SDL_SetRenderDrawColor(renderer, HIGH_COLOR, opacity);
@@ -461,6 +465,7 @@ void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int 
 
 void DrawComponents(int pad_x, int pad_y)
 {
+    char * nums[16] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
     for (int i = 0; i < componentCount; i++)
     {
         if (ComponentList[i].type != probe)
@@ -469,6 +474,19 @@ void DrawComponents(int pad_x, int pad_y)
             DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, ComponentList[i].inputs[0]->outputs[ComponentList[i].inpSrc[0].y]);
         else
             DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, false);
+        if (ComponentList[i].type == d_oct || ComponentList[i].type == d_bcd){
+            for (int j = 0; j < ComponentList[i].onum; j ++){
+                if (ComponentList[i].outputs[j]){
+                    SDL_Rect display;
+                    display.w = ComponentList[i].width / 2 * CELL_SIZE - 1;
+                    display.h = ComponentList[i].size  / 2 * CELL_SIZE - 1;
+                    display.x = ComponentList[i].start.x * CELL_SIZE + pad_x + ComponentList[i].width / 4 * CELL_SIZE;
+                    display.y = ComponentList[i].start.y * CELL_SIZE + pad_y + ComponentList[i].size / 4 * CELL_SIZE;
+                    SDL_RenderCopy(renderer, characters[*nums[j]], NULL, &display);
+                    break;
+                }
+            }
+        }
         DrawIOPins(ComponentList[i], pad_x, pad_y);
     }
 }

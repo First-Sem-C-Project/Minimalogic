@@ -16,8 +16,10 @@ void xnorGate(Component *component);
 void nandGate(Component *component);
 void ToggleState(Component *component);
 void ToggleProbe(Component *component);
+void Decode(Component *component);
+int BinToHex(bool [4]);
 
-static void (*operate[g_total])(Component *component) = {ToggleState, ToggleProbe, Tick, andGate, orGate, nandGate, norGate, xorGate, xnorGate, notGate};
+static void (*operate[g_total])(Component *component) = {ToggleState, ToggleProbe, Tick, notGate, Decode, Decode, andGate, orGate, nandGate, norGate, xorGate, xnorGate};
 
 void SetInputs(Component *component)
 {
@@ -43,7 +45,7 @@ void update(Component *component)
 
 void GetWidthHeight(int *w, int *h, Type type, int size)
 {
-    if (type == state || type == clock || type == probe)
+    if (type < g_not)
     {
         *w = SCALE;
         *h = SCALE;
@@ -53,10 +55,14 @@ void GetWidthHeight(int *w, int *h, Type type, int size)
         *w = 3 * SCALE;
         *h = SCALE;
     }
-    else
+    else if (type >= g_and)
     {
         *w = 4 * SCALE;
         *h = size * SCALE;
+    }
+    else{
+        *w = 5 * SCALE;
+        *h = 8 * SCALE;
     }
 }
 
@@ -94,7 +100,7 @@ void ClearIO(Component *component)
     }
 }
 
-Component SingleInputBuiltin(Type type, Pair pos)
+Component SingleInputComponent(Type type, Pair pos)
 {
     Component component;
     component.size = 1;
@@ -124,7 +130,7 @@ Component SingleInputBuiltin(Type type, Pair pos)
     return component;
 }
 
-Component MultiInputBuiltin(Type type, int inpNum, Pair pos)
+Component MultiInputComponent(Type type, int inpNum, Pair pos)
 {
     Component component;
     component.start = pos;
@@ -141,12 +147,41 @@ Component MultiInputBuiltin(Type type, int inpNum, Pair pos)
     return component;
 }
 
+Component MultiOutComponent(Type type, Pair pos){
+    Component component;
+    component.width = 5;
+    component.start = pos;
+
+    switch (type){
+        case d_oct:
+            component.inum = 3;
+            component.onum = 8;
+            break;
+        case d_bcd:
+            component.inum = 4;
+            component.onum = 16;
+            break;
+        default: break;
+    }
+
+    component.size = 8;
+    component.size *= SCALE;
+    component.width *= SCALE;
+    component.type = type;
+    component.depth = 0;
+    ClearIO(&component);
+    SetIOPos(&component);
+    return component;
+}
+
 Component GetComponent(Type type, char inpNum, Pair pos)
 {
-    if (type == state || type == clock || type == g_not || type == probe)
-        return SingleInputBuiltin(type, pos);
+    if (type <= g_not)
+        return SingleInputComponent(type, pos);
+    else if (type < g_and)
+        return MultiOutComponent(type, pos);
     else
-        return MultiInputBuiltin(type, inpNum, pos);
+        return MultiInputComponent(type, inpNum, pos);
 }
 
 void andGate(Component *component)
@@ -252,7 +287,25 @@ void Tick(Component *component)
         component->outputs[0] = !component->outputs[0];
 }
 
-void ToggleState(Component *component)
-{ return; }
+void ToggleState(Component *component){}
 
 void ToggleProbe(Component *component){};
+
+void Decode(Component *component){
+    bool toDecode[4];
+    char stop = component->type == d_oct ? 3 : 4;
+    toDecode[0] = false;
+    for (int i = 0; i < stop; i ++){
+        if (component->inpSrc[i].x >= 0)
+            toDecode[i + (component->type == d_oct)] = component->inputs[i]->outputs[component->inpSrc[i].y];
+        else
+            toDecode[i + (component->type == d_oct)] = false;
+    }
+    for (int i = 0; i < component->onum; i ++)
+        component->outputs[i] = false;
+    component->outputs[BinToHex(toDecode)] = true;
+};
+
+int BinToHex(bool binary[4]){
+    return binary[0] * 8 + binary[1] * 4 + binary[2] * 2 + binary[3];
+}
