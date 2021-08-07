@@ -1,11 +1,5 @@
-#ifdef _WIN32
 #include <direct.h>
 #define chdir(x) _chdir(x)
-#endif
-
-#ifdef __linux__
-#include <unistd.h>
-#endif
 
 #include "draw.h"
 
