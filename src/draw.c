@@ -29,7 +29,19 @@ static SDL_Texture *characters[256];
 static int characterWidth[256];
 
 static TTF_Font *font = NULL;
-static SDL_Texture *compoTexts[g_total];
+static char *compoTexts[g_total] =
+{
+    "STATE",
+    "PROBE",
+    "CLOCK",
+    "AND",
+    "OR",
+    "NAND",
+    "NOR",
+    "XOR",
+    "XNOR",
+    "NOT"
+};
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -61,10 +73,10 @@ void CharacterMap()
     SDL_Color white = {WHITE, 200};
 
     for (int i=0; i<256; i++){
-        char str[2] = {(char)i, '\0'};
-        characterSurface = TTF_RenderText_Blended(font, str, white);
+        characterSurface = TTF_RenderText_Blended(font, (char*)&i, white);
         characters[i] = SDL_CreateTextureFromSurface(renderer, characterSurface);
         characterWidth[i] = characterSurface ? characterSurface->w : 0;
+        SDL_FreeSurface(characterSurface);
     }
 }
 
@@ -89,41 +101,8 @@ void DisplayText(char * message, SDL_Rect dest)
     }
 }
 
-void PreLoadTextures()
-{
-    SDL_Surface *textSurface = NULL;
-    SDL_Color white = {WHITE, 200};
-    SDL_Color black = {BLACK, 200};
-
-    textSurface = TTF_RenderText_Blended(font, "AND", white);
-    compoTexts[g_and] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "OR", white);
-    compoTexts[g_or] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "NOT", white);
-    compoTexts[g_not] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "NAND", white);
-    compoTexts[g_nand] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "NOR", white);
-    compoTexts[g_nor] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "XOR", white);
-    compoTexts[g_xor] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    textSurface = TTF_RenderText_Blended(font, "XNOR", white);
-    compoTexts[g_xnor] = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    SDL_FreeSurface(textSurface);
-}
-
 void DestroyTextures()
-{
-    for (int i = 0; i < g_total; i++)
-        SDL_DestroyTexture(compoTexts[i]);
-    
+{    
     for(int i = 0; i < 256; i++)
         SDL_DestroyTexture(characters[i]);
 }
@@ -142,7 +121,9 @@ void RenderGateText(SDL_Rect compo, Type type)
     else if (type == g_or)
     {
         textRect.x -= CELL_SIZE * SCALE;
+        textRect.y += 6 * SCALE / 10;
         textRect.w = 2 * CELL_SIZE * SCALE;
+        textRect.h = textRect.h * 3 / 4;
     }
     else if (type == g_not)
     {
@@ -155,9 +136,11 @@ void RenderGateText(SDL_Rect compo, Type type)
     {
         textRect.x -= 3 * CELL_SIZE * SCALE / 2;
         textRect.w = 3 * CELL_SIZE * SCALE;
+        textRect.y += 4 * SCALE / 10;
+        textRect.h = textRect.h * 4 / 5;
     }
     if (type >= g_and)
-        SDL_RenderCopy(renderer, compoTexts[type], NULL, &textRect);
+        DisplayText(compoTexts[type], textRect);
 }
 
 void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
@@ -203,7 +186,6 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
         char tmptxt[10] = "Inputs: ";
         tmptxt[8] = (char)(choice.size - 2 + 50);
         DisplayText(tmptxt, InputsCount);
-        //SDL_RenderCopy(renderer, inputCountTexts[choice.size - 2], NULL, &InputsCountText);
 
         SDL_SetRenderDrawColor(renderer, IncreaseInputs.color.r, IncreaseInputs.color.g,
                                IncreaseInputs.color.b, 255);
@@ -227,38 +209,7 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
             SDL_SetRenderDrawColor(renderer, Components[i].color.r,
                                    Components[i].color.g, Components[i].color.b, 255);
             SDL_RenderFillRect(renderer, &Components[i].buttonRect);
-            switch(i){
-                case state:
-                    DisplayText("STATE", Components[i].buttonRect);
-                    break;
-                case probe:
-                    DisplayText("PROBE", Components[i].buttonRect);
-                    break;
-                case clock:
-                    DisplayText("CLOCK", Components[i].buttonRect);
-                    break;
-                case g_and:
-                    DisplayText("AND", Components[i].buttonRect);
-                    break;
-                case g_or:
-                    DisplayText("OR", Components[i].buttonRect);
-                    break;
-                case g_nand:
-                    DisplayText("NAND", Components[i].buttonRect);
-                    break;
-                case g_nor:
-                    DisplayText("NOR", Components[i].buttonRect);
-                    break;
-                case g_xor:
-                    DisplayText("XOR", Components[i].buttonRect);
-                    break;
-                case g_xnor:
-                    DisplayText("XNOR", Components[i].buttonRect);
-                    break;
-                case g_not:
-                    DisplayText("NOT", Components[i].buttonRect);
-                    break;
-            }
+            DisplayText(compoTexts[i], Components[i].buttonRect);
         }
     }
 }
@@ -664,7 +615,6 @@ void InitEverything(int *grid)
     SDL_GetWindowSize(window, &w, &h);
     InitMenu(w, h);
     CharacterMap();
-    PreLoadTextures();
 }
 
 void CloseEverything()
