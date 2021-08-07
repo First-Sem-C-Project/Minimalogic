@@ -247,7 +247,7 @@ void ToggleDropDown(bool *state, char *animationFlag)
 }
 
 void ReadFromFile(int * grid, char * fileName){
-    FILE *data = fopen(fileName, "r");
+    FILE *data = fopen(fileName, "rb");
 
     fread(&componentCount, sizeof(unsigned char), 1, data);
     fread(ComponentList, sizeof(Component), componentCount, data);
@@ -263,7 +263,7 @@ void ReadFromFile(int * grid, char * fileName){
 }
 
 void SaveToFile(int * grid, char* fileName){
-    FILE *data = fopen(fileName, "w");
+    FILE *data = fopen(fileName, "wb");
     fwrite(&componentCount, sizeof(unsigned char), 1, data);
     for(int i=0; i<componentCount; i++){            
         fwrite(&ComponentList[i], sizeof(Component), 1, data);
