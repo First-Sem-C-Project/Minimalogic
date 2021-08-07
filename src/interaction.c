@@ -176,7 +176,7 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
         }
     }
 
-    if (choice.type >= g_and && choice.type < g_not){
+    if (choice.type >= g_and){
         if (cursorX > IncreaseInputs.buttonRect.x &&
             cursorX < IncreaseInputs.buttonRect.x + IncreaseInputs.buttonRect.w &&
             cursorY > IncreaseInputs.buttonRect.y &&

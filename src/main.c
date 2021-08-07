@@ -191,9 +191,9 @@ int main(int argc, char **argv)
                             ChooseFile(grid, true);
                         else if(clickedButton == &Clear && !simulating)
                             showConfirmScreen = true;
-                        else if(clickedButton == &IncreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
+                        else if(clickedButton == &IncreaseInputs && compoChoice.type >= g_and && !simulating)
                             ChangeNumofInputs(false, &compoChoice);
-                        else if(clickedButton == &DecreaseInputs && compoChoice.type >= g_and && compoChoice.type < g_not && !simulating)
+                        else if(clickedButton == &DecreaseInputs && compoChoice.type >= g_and && !simulating)
                             ChangeNumofInputs(true, &compoChoice);
                         else if(clickedButton == &Snap){
                             ToggleSnap(&snapToGrid);
