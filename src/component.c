@@ -34,6 +34,7 @@ void SetInputs(Component *component)
             }
         }
     }
+    component->depth = 0;
 }
 
 void update(Component *component)

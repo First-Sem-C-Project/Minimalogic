@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     }
     chdir(path);
 
-    Selection compoChoice = {.type = d_oct, .size = 2};
+    Selection compoChoice = {.type = -1, .size = -1};
     Pair selected = {-1, -1};
 
     int grid[GRID_ROW * GRID_COL];
