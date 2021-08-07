@@ -28,7 +28,10 @@ extern SDL_Rect InputsCountText;
 static SDL_Texture *characters[256];
 static int characterWidth[256];
 
+static SDL_Texture *displayChars[16];
+
 static TTF_Font *font = NULL;
+static TTF_Font *displayFont = NULL;
 static char *compoTexts[g_total] =
 {
     "STATE",
@@ -64,6 +67,7 @@ void InitFont()
 {
     TTF_Init();
     font = TTF_OpenFont("roboto.ttf", 20);
+    displayFont = TTF_OpenFont("Segment7Standard.ttf", 100);
     if (font == NULL)
     {
         SDL_Log("Failed to load the font: %s\n", TTF_GetError());
@@ -73,15 +77,21 @@ void InitFont()
 
 void CharacterMap()
 {
+    char * nums[16] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
     SDL_Surface *characterSurface;
     SDL_Color white = {WHITE, 200};
+    SDL_Color black = {BLACK, 255};
 
     for (int i=0; i<256; i++){
         characterSurface = TTF_RenderText_Blended(font, (char*)&i, white);
         characters[i] = SDL_CreateTextureFromSurface(renderer, characterSurface);
         characterWidth[i] = characterSurface ? characterSurface->w : 0;
-        SDL_FreeSurface(characterSurface);
     }
+    for (int i=0; i<16; i++){
+        characterSurface = TTF_RenderText_Blended(displayFont, nums[i], black);
+        displayChars[i] = SDL_CreateTextureFromSurface(renderer, characterSurface);
+    }
+    SDL_FreeSurface(characterSurface);
 }
 
 void DisplayText(char * message, SDL_Rect dest)
@@ -109,6 +119,8 @@ void DestroyTextures()
 {    
     for(int i = 0; i < 256; i++)
         SDL_DestroyTexture(characters[i]);
+    for(int i = 0; i < 16; i++)
+        SDL_DestroyTexture(displayChars[i]);
 }
 
 void RenderGateText(SDL_Rect compo, Type type)
@@ -465,7 +477,6 @@ void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int 
 
 void DrawComponents(int pad_x, int pad_y)
 {
-    char * nums[16] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
     for (int i = 0; i < componentCount; i++)
     {
         if (ComponentList[i].type != probe)
@@ -478,11 +489,11 @@ void DrawComponents(int pad_x, int pad_y)
             for (int j = 0; j < ComponentList[i].onum; j ++){
                 if (ComponentList[i].outputs[j]){
                     SDL_Rect display;
-                    display.w = ComponentList[i].width / 2 * CELL_SIZE - 1;
-                    display.h = ComponentList[i].size  / 2 * CELL_SIZE - 1;
+                    display.w = ComponentList[i].width / 2 * CELL_SIZE ;
+                    display.h = ComponentList[i].size  / 2 * CELL_SIZE ;
                     display.x = ComponentList[i].start.x * CELL_SIZE + pad_x + ComponentList[i].width / 4 * CELL_SIZE;
-                    display.y = ComponentList[i].start.y * CELL_SIZE + pad_y + ComponentList[i].size / 4 * CELL_SIZE;
-                    SDL_RenderCopy(renderer, characters[*nums[j]], NULL, &display);
+                    display.y = ComponentList[i].start.y * CELL_SIZE + pad_y + ComponentList[i].size  / 4 * CELL_SIZE;
+                    SDL_RenderCopy(renderer, displayChars[j], NULL, &display);
                     break;
                 }
             }
@@ -641,6 +652,7 @@ void CloseEverything()
     SDL_DestroyWindow(window);
     DestroyTextures();
     TTF_CloseFont(font);
+    TTF_CloseFont(displayFont);
     TTF_Quit();
     SDL_Quit();
 }
