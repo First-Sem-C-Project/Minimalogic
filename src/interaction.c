@@ -209,24 +209,26 @@ void ToggleSnap(bool * snap){
     *snap = !*snap;
 }
 
-void ToggleSimulation(bool *state)
+void ToggleSimulation(bool *running)
 {
-    if (*state)
+    if (*running)
     {
-        *state = false;
+        *running = false;
         SDL_Color green = {GREEN};
         RunButton.color = green;
         for (int i = 0; i < componentCount; i++)
         {
+            ComponentList[i].depth = 0;
+            if (ComponentList[i].type == state)
+                continue;
             for (int j = 0; j < ComponentList[i].onum; j ++)
                 ComponentList[i].outputs[j] = false;
-            ComponentList[i].depth = 0;
         }
         time = 0;
     }
     else
     {
-        *state = true;
+        *running = true;
         SDL_Color red = {RED};
         RunButton.color = red;
     }
