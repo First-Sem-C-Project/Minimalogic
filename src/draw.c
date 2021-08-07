@@ -98,20 +98,23 @@ void DisplayText(char * message, SDL_Rect dest)
 {
     char * tmp = message;
     int totalWidth = 0;
+    float factor = 1;
     for(; *tmp; tmp++){
         totalWidth += characterWidth[*tmp];
     }
     SDL_Rect charDest = {.y = dest.y, .h = dest.h};
     
-    if(totalWidth > dest.w)
+    if(totalWidth > dest.w){
         charDest.x = dest.x;
+        factor = dest.w / (float)totalWidth;
+    }
     else
         charDest.x = dest.x + (dest.w - totalWidth)/2;
 
     for(int i=0; *message; message++, i++){
-        charDest.w = characterWidth[*message];
+        charDest.w = characterWidth[*message] * factor;
         SDL_RenderCopy(renderer, characters[*message], NULL, &charDest);
-        charDest.x += characterWidth[*message];
+        charDest.x += characterWidth[*message] * factor;
     }
 }
 
