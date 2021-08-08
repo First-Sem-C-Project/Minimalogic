@@ -233,7 +233,7 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     }
 }
 
-void DrawConfirmationScreen(){
+void DrawConfirmationScreen(ConfirmationFlags flag){
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
     SDL_Rect darken = {.x = 0, .y = 0, .w = w, .h = h};
@@ -243,7 +243,12 @@ void DrawConfirmationScreen(){
     SDL_RenderFillRect(renderer, &darken);
     SDL_SetRenderDrawColor(renderer, BG2);
     SDL_RenderFillRect(renderer, &box);
-    DisplayText("Clear Grid?", message);
+    if(flag == clearGrid)
+        DisplayText("Clear Grid?", message);
+    else if(flag == saveNewFile)
+        DisplayText("Do you want to save your work?", message);
+    else if(flag == saveChanges)
+        DisplayText("Save changes to the file?", message);
     SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
     SDL_RenderFillRect(renderer, &clearYes.buttonRect);
     DisplayText("Yes", clearYes.buttonRect);
@@ -252,7 +257,7 @@ void DrawConfirmationScreen(){
     DisplayText("No", clearNo.buttonRect);
 }
 
-void HoverOver(Button *button, bool menuExpanded, bool showConfirmScreen)
+void HoverOver(Button *button, bool menuExpanded, ConfirmationFlags showConfirmScreen)
 {
     if (!button)
         return;
@@ -517,7 +522,7 @@ void DrawGrid(int pad_x, int pad_y)
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
               Selection choiceComponent, int pad_x, int pad_y,
               bool simulating, char *dropDownAnimationFlag, Pair gridPos,
-              int *grid, bool movingCompo, Pair selected, bool snap, bool showConfirmScreen)
+              int *grid, bool movingCompo, Pair selected, bool snap, ConfirmationFlags confirmationScreenFlag)
 {
     SDL_Rect highlight;
     highlight.w = CELL_SIZE - 1;
@@ -543,16 +548,16 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
         SDL_RenderDrawRect(renderer, &selectedRect);
     }
 
-    if (showConfirmScreen){
-        DrawConfirmationScreen();
+    if (confirmationScreenFlag != none){
+        DrawConfirmationScreen(confirmationScreenFlag);
     }
-    HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded, showConfirmScreen);
+    HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded, confirmationScreenFlag);
 
-    if (drawingWire && !showConfirmScreen)
+    if (drawingWire && !confirmationScreenFlag)
         DrawWire(tmpWire.start, tmpWire.end);
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
-        gridPos.y < GRID_COL && !movingCompo && !showConfirmScreen)
+        gridPos.y < GRID_COL && !movingCompo && !confirmationScreenFlag)
     {
         if (grid[gridPos.y * GRID_ROW + gridPos.x] < 0 && !drawingWire)
         {

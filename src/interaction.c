@@ -23,6 +23,9 @@ unsigned char componentCount;
 extern int time;
 extern SDL_Window * window;
 
+extern bool fileExists;
+extern char currentFile[256];
+
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 void InitMenu(int windowWidth, int windowHeight)
@@ -299,6 +302,8 @@ void ChooseFile(int * grid, bool saving){
         }
         else{
             ReadFromFile(grid, FileName);
+            fileExists = true;
+            strcpy(currentFile, FileName);
         }
     } 
     else{

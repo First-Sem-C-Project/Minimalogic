@@ -23,6 +23,9 @@ extern Button clearYes;
 extern Button clearNo;
 extern SDL_Window *window;
 
+bool fileExists = false;
+char currentFile[256];
+
 void UpdateComponents()
 {
     for (int i = 0; i < componentCount; i++)
@@ -78,7 +81,8 @@ int main(int argc, char **argv)
     Pair initialPos;
     bool draw;
     int animating = 0;
-    bool showConfirmScreen = false;
+    ConfirmationFlags confirmationScreenFlag = none;
+    bool updated = false;
 
     SDL_Event e;
     while (1)
@@ -107,8 +111,14 @@ int main(int argc, char **argv)
             switch (e.type)
             {
             case SDL_QUIT:
-                CloseEverything();
-                exit(0);
+                if(fileExists && updated)
+                    confirmationScreenFlag = saveChanges;
+                else if(updated)
+                    confirmationScreenFlag = saveNewFile;
+                else{
+                    CloseEverything();
+                    exit(0);
+                }
             case SDL_WINDOWEVENT:{
                 int w, h;
                 SDL_GetWindowSize(window, &w, &h);
@@ -117,7 +127,7 @@ int main(int argc, char **argv)
                 break;
             }
             case SDL_MOUSEBUTTONDOWN:
-                if (!showConfirmScreen){
+                if (!confirmationScreenFlag){
                     if (e.button.button == SDL_BUTTON_RIGHT){
                         selected = (Pair){-1, -1};
                         break;
@@ -136,6 +146,7 @@ int main(int argc, char **argv)
                                 offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
                                 compoMoved = cell(gridPos.y, gridPos.x);
                                 movingCompo = true;
+                                updated = true;
                                 for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
                                     for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
                                         cell(i, j) = -1;
@@ -166,6 +177,7 @@ int main(int argc, char **argv)
                                     drawingWire = StartWiring((Pair){x, y});
                                 }
                             }
+                            updated = true;
                         }
                     }
                     if (x <= MENU_WIDTH)
@@ -184,7 +196,7 @@ int main(int argc, char **argv)
                         else if(clickedButton == &Save)
                             ChooseFile(grid, true);
                         else if(clickedButton == &Clear && !simulating)
-                            showConfirmScreen = true;
+                            confirmationScreenFlag = clearGrid;
                         else if(clickedButton == &IncreaseInputs && compoChoice.type >= g_and && !simulating)
                             ChangeNumofInputs(false, &compoChoice);
                         else if(clickedButton == &DecreaseInputs && compoChoice.type >= g_and && !simulating)
@@ -196,6 +208,7 @@ int main(int argc, char **argv)
                         else if (clickedButton == &CompoDeleteButton){
                             DeleteComponent(grid, selected);
                             selected = (Pair){-1, -1};
+                            updated = true;
                         }
                         else if (clickedButton && menuExpanded)
                         {
@@ -207,10 +220,33 @@ int main(int argc, char **argv)
                 else{
                     Button *clickedButton = clickedOn(x, y, menuExpanded, compoChoice);
                     if (clickedButton == &clearYes){
-                        componentCount = 0;
-                        InitGrid(grid);
+                        switch (confirmationScreenFlag){
+                            case clearGrid:
+                                componentCount = 0;
+                                InitGrid(grid);
+                                updated = true;
+                                break;
+                            case saveChanges:
+                                SaveToFile(grid, currentFile);
+                                CloseEverything();
+                                exit(1);
+                                break;
+                            case saveNewFile:
+                                ChooseFile(grid, true);
+                                CloseEverything();
+                                exit(1);
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                    showConfirmScreen = false;
+                    else if(clickedButton == &clearNo){
+                        if(confirmationScreenFlag == saveChanges || confirmationScreenFlag == saveNewFile){
+                            CloseEverything();
+                            exit(1);
+                        }
+                    }
+                    confirmationScreenFlag = none;
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
@@ -392,7 +428,7 @@ int main(int argc, char **argv)
             }
             if (draw){
                 DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, showConfirmScreen);
+                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
                 draw = false;
             }
         }
@@ -403,7 +439,7 @@ int main(int argc, char **argv)
                 AlreadyUpdated[i] = false;
             drawingWire = false;
             DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, showConfirmScreen);
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
         }
         if (simulating){
             UpdateComponents();
