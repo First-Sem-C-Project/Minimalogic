@@ -16,6 +16,7 @@ extern Button IncreaseInputs;
 extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
+extern Button SaveAs;
 extern Button Snap;
 extern Button Clear;
 extern Button clearYes;
@@ -186,11 +187,13 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     SDL_SetRenderDrawColor(renderer, Open.color.r, Open.color.g, Open.color.b, Open.color.a);
     SDL_RenderFillRect(renderer, &Open.buttonRect);
     SDL_RenderFillRect(renderer, &Save.buttonRect);
+    SDL_RenderFillRect(renderer, &SaveAs.buttonRect);
     SDL_RenderFillRect(renderer, &CompoDeleteButton.buttonRect);
     SDL_RenderFillRect(renderer, &Snap.buttonRect);
     SDL_RenderFillRect(renderer, &Clear.buttonRect);
     DisplayText("Open", Open.buttonRect);
     DisplayText("Save", Save.buttonRect);
+    DisplayText("Save As", SaveAs.buttonRect);
     DisplayText("Delete Component", CompoDeleteButton.buttonRect);
     DisplayText("Clear Grid", Clear.buttonRect);
     if (snap)

@@ -11,6 +11,7 @@ Button IncreaseInputs = {.color = RED};
 Button DecreaseInputs = {.color = RED};
 Button Open = {.color = {BLACK, 255}};
 Button Save = {.color = {BLACK, 255}};
+Button SaveAs = {.color = {BLACK, 255}};
 Button Snap = {.color = {BLACK, 255}};
 Button Clear = {.color = {BLACK, 255}};
 Button clearYes = {.color = {GREEN, 255}};
@@ -40,11 +41,16 @@ void InitMenu(int windowWidth, int windowHeight)
     ComponentsButton.buttonRect.y = 50;
     ComponentsButton.buttonRect.w = MENU_WIDTH - 20;
     ComponentsButton.buttonRect.h = 30;
+
+    SaveAs.buttonRect.w = MENU_WIDTH - 20;
+    SaveAs.buttonRect.h = 30;
+    SaveAs.buttonRect.x = 10;
+    SaveAs.buttonRect.y = windowHeight - SaveAs.buttonRect.h - 10;
     
     Save.buttonRect.w = MENU_WIDTH - 20;
     Save.buttonRect.h = 30;
     Save.buttonRect.x = 10;
-    Save.buttonRect.y = windowHeight - Save.buttonRect.h - 10;
+    Save.buttonRect.y = SaveAs.buttonRect.y - Save.buttonRect.h - 10;
 
     Open.buttonRect.w = MENU_WIDTH - 20;
     Open.buttonRect.h = 30;
@@ -168,6 +174,13 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
         cursorY < Save.buttonRect.y + Save.buttonRect.h)
     {
         return &Save;
+    }
+    else if (cursorX > SaveAs.buttonRect.x &&
+        cursorX < SaveAs.buttonRect.x + SaveAs.buttonRect.w &&
+        cursorY > SaveAs.buttonRect.y &&
+        cursorY < SaveAs.buttonRect.y + SaveAs.buttonRect.h)
+    {
+        return &SaveAs;
     }
     for (int i = 0; i < g_total; i++)
     {

@@ -15,6 +15,7 @@ extern Button IncreaseInputs;
 extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
+extern Button SaveAs;
 extern Button Snap;
 extern Button Clear;
 extern Button clearYes;
@@ -195,8 +196,17 @@ int main(int argc, char **argv)
                             else
                                 ChooseFile(grid, false);
                         }
-                        else if(clickedButton == &Save)
+                        else if(clickedButton == &SaveAs){
                             ChooseFile(grid, true);
+                            updated = false;
+                        }
+                        else if(clickedButton == &Save){
+                            if(fileExists)
+                                SaveToFile(grid, currentFile);
+                            else
+                                ChooseFile(grid, true);
+                            updated = false;
+                        }
                         else if(clickedButton == &Clear && !simulating)
                             confirmationScreenFlag = clearGrid;
                         else if(clickedButton == &IncreaseInputs && compoChoice.type >= g_and && !simulating)
