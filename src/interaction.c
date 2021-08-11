@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_DEPRECATE
 #include "interaction.h"
 
 Wire tmpWire;
@@ -303,7 +304,7 @@ void ChooseFile(int * grid, bool saving){
         else{
             ReadFromFile(grid, FileName);
             fileExists = true;
-            strcpy(currentFile, FileName);
+            SDL_strlcpy(currentFile, FileName, 256);
         }
     } 
     else{

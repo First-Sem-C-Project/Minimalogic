@@ -1,6 +1,4 @@
 #include <direct.h>
-#define chdir(x) _chdir(x)
-
 #include "draw.h"
 
 #define cell(y, x) grid[y * GRID_ROW + x]
@@ -41,9 +39,7 @@ int main(int argc, char **argv)
 {
     char *path, len;
     path = argv[0];
-    for (len = 0; path[len]; len++)
-        ;
-    for (int i = len - 1; i >= 0; i--)
+    for (int i = SDL_strlen(path) - 1; i >= 0; i--)
     {
         if (path[i] == '\\' || path[i] == '/')
         {
@@ -51,7 +47,7 @@ int main(int argc, char **argv)
             break;
         }
     }
-    chdir(path);
+    _chdir(path);
 
     Selection compoChoice = {.type = 0, .size = 0};
     Pair selected = {-1, -1};
