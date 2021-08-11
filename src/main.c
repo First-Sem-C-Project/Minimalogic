@@ -108,9 +108,9 @@ int main(int argc, char **argv)
             {
             case SDL_QUIT:
                 if(fileExists && updated)
-                    confirmationScreenFlag = saveChanges;
+                    confirmationScreenFlag = q_saveChanges;
                 else if(updated)
-                    confirmationScreenFlag = saveNewFile;
+                    confirmationScreenFlag = q_saveNewFile;
                 else{
                     CloseEverything();
                     exit(0);
@@ -187,8 +187,14 @@ int main(int argc, char **argv)
                             ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
                             animating = 0;
                         }
-                        else if(clickedButton == &Open && !simulating)
-                            ChooseFile(grid, false);
+                        else if(clickedButton == &Open && !simulating){
+                            if(fileExists && updated)
+                                confirmationScreenFlag = o_saveChanges;
+                            else if(updated)
+                                confirmationScreenFlag = o_saveNewFile;
+                            else
+                                ChooseFile(grid, false);
+                        }
                         else if(clickedButton == &Save)
                             ChooseFile(grid, true);
                         else if(clickedButton == &Clear && !simulating)
@@ -222,27 +228,38 @@ int main(int argc, char **argv)
                                 InitGrid(grid);
                                 updated = true;
                                 break;
-                            case saveChanges:
+                            case q_saveChanges:
                                 SaveToFile(grid, currentFile);
                                 CloseEverything();
                                 exit(1);
                                 break;
-                            case saveNewFile:
+                            case q_saveNewFile:
                                 ChooseFile(grid, true);
                                 CloseEverything();
                                 exit(1);
+                                break;
+                            case o_saveChanges:
+                                SaveToFile(grid, currentFile);
+                                ChooseFile(grid, false);
+                                break;
+                            case o_saveNewFile:
+                                ChooseFile(grid, true);
+                                ChooseFile(grid, false);
                                 break;
                             default:
                                 break;
                         }
                     }
                     else if(clickedButton == &clearNo){
-                        if(confirmationScreenFlag == saveChanges || confirmationScreenFlag == saveNewFile){
+                        if(confirmationScreenFlag == q_saveChanges || confirmationScreenFlag == q_saveNewFile){
                             CloseEverything();
                             exit(1);
                         }
+                        else if(confirmationScreenFlag == o_saveChanges || confirmationScreenFlag == o_saveNewFile)
+                            ChooseFile(grid, false);
                     }
                     confirmationScreenFlag = none;
+                    updated = false;
                 }
                 break;
             case SDL_MOUSEBUTTONUP:

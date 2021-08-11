@@ -245,9 +245,9 @@ void DrawConfirmationScreen(ConfirmationFlags flag){
     SDL_RenderFillRect(renderer, &box);
     if(flag == clearGrid)
         DisplayText("Clear Grid?", message);
-    else if(flag == saveNewFile)
+    else if(flag == q_saveNewFile || flag == o_saveNewFile)
         DisplayText("Do you want to save your work?", message);
-    else if(flag == saveChanges)
+    else if(flag == q_saveChanges || flag == o_saveChanges)
         DisplayText("Save changes to the file?", message);
     SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
     SDL_RenderFillRect(renderer, &clearYes.buttonRect);
