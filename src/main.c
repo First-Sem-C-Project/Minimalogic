@@ -7,6 +7,12 @@ extern unsigned char componentCount;
 bool AlreadyUpdated[256];
 int time = 0;
 
+typedef struct{
+    Component CpLst[256];
+    unsigned char cpCount;
+    int grid[GRID_COL * GRID_ROW];
+}State;
+
 extern Button ComponentsButton;
 extern Button CompoDeleteButton;
 extern Button RunButton;
@@ -24,6 +30,51 @@ extern SDL_Window *window;
 
 bool fileExists = false;
 char currentFile[256];
+int currentUndoLevel = 0, totalUndoLevel = 0;
+State undos[256];
+
+void ResetUndoStack(){
+    for (int i = currentUndoLevel + 1; i < totalUndoLevel; i ++)
+        undos[i - currentUndoLevel - 1] = undos[i];
+    totalUndoLevel -= currentUndoLevel - 1;
+    currentUndoLevel = 0;
+}
+
+void AddToUndoStack(int *grid){
+    if (totalUndoLevel >= 256)
+        return;
+    if (currentUndoLevel > 0)
+        ResetUndoStack();
+    for (int i = totalUndoLevel + 1; i > 0; i --)
+        undos[i] = undos[i - 1];
+    memcpy(undos[0].CpLst, ComponentList, sizeof(ComponentList));
+    memcpy(undos[0].grid, grid, sizeof(int) * GRID_COL * GRID_ROW);
+    undos[0].cpCount = componentCount;
+    totalUndoLevel++;
+}
+
+void ClearUndoStack(){
+    totalUndoLevel = 0;
+    currentUndoLevel = 0;
+}
+
+void Undo(int *grid){
+    if (currentUndoLevel >= totalUndoLevel)
+        return;
+    currentUndoLevel ++;
+    memcpy(ComponentList, undos[currentUndoLevel].CpLst, sizeof(ComponentList));
+    memcpy(grid, undos[currentUndoLevel].grid, sizeof(int) * GRID_COL * GRID_ROW);
+    componentCount = undos[currentUndoLevel].cpCount;
+}
+
+void Redo(int *grid){
+    if (currentUndoLevel == 0)
+        return;
+    currentUndoLevel --;
+    memcpy(ComponentList, undos[currentUndoLevel].CpLst, sizeof(ComponentList));
+    memcpy(grid, undos[currentUndoLevel].grid, sizeof(int) * GRID_COL * GRID_ROW);
+    componentCount = undos[currentUndoLevel].cpCount;
+}
 
 void UpdateComponents()
 {
@@ -61,26 +112,14 @@ int main(int argc, char **argv)
 
     InitEverything(grid);
 
-    bool simulating = false;
-    bool menuExpanded = false;
-    bool drawingWire = false;
-    bool movingCompo = false;
-    bool confirmWire = false;
-    bool snapToGrid = false;
-    bool snapToggeled = false;
-    char dropDownAnimationFlag = 0;
-    Pair offset;
-    int changeX = 0, changeY = 0;
-    bool cursorInGrid;
-    char startAt = 0, endAt = 0;
-    int sender, receiver, sendIndex, receiveIndex;
-    int compoMoved;
-    Pair initialPos;
-    bool draw;
-    int animating = 0;
+    int changeX = 0, changeY = 0, sender, receiver, sendIndex, receiveIndex, compoMoved;
+    bool simulating = false, menuExpanded = false, drawingWire = false, movingCompo = false, confirmWire = false;
+    bool snapToGrid = false, snapToggeled = false, cursorInGrid, draw, updated = false;
+    char dropDownAnimationFlag = 0, startAt = 0, endAt = 0, animating = 0;
+    Pair offset, initialPos;
     ConfirmationFlags confirmationScreenFlag = none;
-    bool updated = false;
 
+    AddToUndoStack(grid);
     SDL_Event e;
     while (1)
     {
@@ -143,7 +182,6 @@ int main(int argc, char **argv)
                                 offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
                                 compoMoved = cell(gridPos.y, gridPos.x);
                                 movingCompo = true;
-                                updated = true;
                                 for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
                                     for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
                                         cell(i, j) = -1;
@@ -156,8 +194,11 @@ int main(int argc, char **argv)
                         {
                             int w, h;
                             GetWidthHeight(&w, &h, compoChoice.type, compoChoice.size);
-                            if (!drawingWire && PositionIsValid(grid, w, h, compoChoice.pos) && !movingCompo)
+                            if (!drawingWire && PositionIsValid(grid, w, h, compoChoice.pos) && !movingCompo){
                                 InsertComponent(grid, compoChoice, w, h);
+                                AddToUndoStack(grid);
+                                updated = true;
+                            }
                             else if (!drawingWire && !movingCompo)
                             {
                                 startAt = WireIsValid(grid, gridPos, x, y, pad_x, pad_y);
@@ -174,7 +215,6 @@ int main(int argc, char **argv)
                                     drawingWire = StartWiring((Pair){x, y});
                                 }
                             }
-                            updated = true;
                         }
                     }
                     if (x <= MENU_WIDTH)
@@ -195,6 +235,7 @@ int main(int argc, char **argv)
                                 confirmationScreenFlag = o_saveNewFile;
                             else
                                 ChooseFile(grid, false);
+                            updated = false;
                         }
                         else if(clickedButton == &SaveAs){
                             ChooseFile(grid, true);
@@ -221,6 +262,7 @@ int main(int argc, char **argv)
                             DeleteComponent(grid, selected);
                             selected = (Pair){-1, -1};
                             updated = true;
+                            AddToUndoStack(grid);
                         }
                         else if (clickedButton && menuExpanded)
                         {
@@ -237,6 +279,7 @@ int main(int argc, char **argv)
                                 componentCount = 0;
                                 InitGrid(grid);
                                 updated = true;
+                                AddToUndoStack(grid);
                                 break;
                             case q_saveChanges:
                                 SaveToFile(grid, currentFile);
@@ -294,6 +337,8 @@ int main(int argc, char **argv)
                         {
                             ComponentList[receiver].inpSrc[receiveIndex - 1] = (Pair){sender, sendIndex * -1 - 1};
                             ComponentList[receiver].inputs[receiveIndex - 1] = &ComponentList[sender];
+                            AddToUndoStack(grid);
+                            updated = true;
                         }
                     }
                     drawingWire = false;
@@ -301,6 +346,7 @@ int main(int argc, char **argv)
                 if (movingCompo)
                 {
                     Component compo = ComponentList[compoMoved];
+                    bool moved = (initialPos.x != compo.start.x && initialPos.y != compo.start.y);
                     if (compo.start.x < 0 || compo.start.y < 0){
                         ComponentList[compoMoved].start = initialPos;
                         SetIOPos(&ComponentList[compoMoved]);
@@ -317,6 +363,10 @@ int main(int argc, char **argv)
                             cell(i, j) = compoMoved;
                     movingCompo = false;
                     selected = initialPos;
+                    if (moved){
+                        AddToUndoStack(grid);
+                        updated = true;
+                    }
                 }
             case SDL_MOUSEMOTION:
                 {
@@ -417,6 +467,8 @@ int main(int argc, char **argv)
                             DeleteComponent(grid, gridPos);
                         else
                             DeleteComponent(grid, selected);
+                        AddToUndoStack(grid);
+                        updated = true;
                         selected = (Pair){-1, -1};
                     }
                     break;
@@ -427,6 +479,12 @@ int main(int argc, char **argv)
                 case SDL_SCANCODE_RCTRL:
                     if (!snapToggeled)
                         snapToGrid = true;
+                    break;
+                case SDL_SCANCODE_Z:
+                    Undo(grid);
+                    break;
+                case SDL_SCANCODE_R:
+                    Redo(grid);
                     break;
                 default:
                     break;
