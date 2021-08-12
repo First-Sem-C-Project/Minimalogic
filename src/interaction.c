@@ -326,8 +326,26 @@ void ChooseFile(int * grid, bool saving){
         }
         else{
             SaveToFile(grid, FileName);
+            fileExists = true;
+            SDL_strlcpy(currentFile, FileName, 256);
         }
     }
+
+    char size = 0;
+    char count = 0;
+    char name[50] = "";
+    while(FileName[size] != '\0'){
+        if (FileName[size] == '\\')
+            count = 0;
+        name[count] = FileName[size+1];
+        count++;
+        size++;
+    }
+
+    char title[70] = "MinimaLogic";
+    SDL_strlcat(title, "-", 70);
+    SDL_strlcat(title, name, 70);
+    SDL_SetWindowTitle(window, title);
 }
 
 bool PositionIsValid(int *grid, int w, int h, Pair pos)
