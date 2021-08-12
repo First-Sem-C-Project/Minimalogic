@@ -4,6 +4,7 @@
 #include "settings.h"
 #include <windows.h>
 #include <stdio.h>
+#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL_syswm.h"
 
 typedef struct {
     Type type;

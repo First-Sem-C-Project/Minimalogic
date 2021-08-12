@@ -297,10 +297,14 @@ void ChooseFile(int * grid, bool saving){
 
     char FileName[256] = "";
 
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+
     OPENFILENAME ofn;        
     memset(&ofn,0,sizeof(ofn));
     ofn.lStructSize     = sizeof(ofn);
-    ofn.hwndOwner       = NULL;
+    ofn.hwndOwner       = wmInfo.info.win.window;
     ofn.hInstance       = NULL;
     ofn.lpstrFilter     = "Project Files (*.mlg)\0*.mlg";    
     ofn.lpstrFile       = FileName;
