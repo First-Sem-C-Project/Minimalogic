@@ -78,7 +78,7 @@ void Redo(int *grid){
 
 void UpdateComponents()
 {
-    for (int i = 0; i < componentCount; i++)
+    for (int i = componentCount - 1; i >= 0; i--)
     {
         if (ComponentList[i].type != state && !AlreadyUpdated[i]){
             AlreadyUpdated[i] = true;
