@@ -314,7 +314,7 @@ int main(int argc, char **argv)
 
     int changeX = 0, changeY = 0, sender, receiver, sendIndex, receiveIndex, compoMoved;
     bool simulating = false, menuExpanded = false, drawingWire = false, movingCompo = false, confirmWire = false;
-    bool snapToGrid = false, snapToggeled = false, cursorInGrid, draw, updated = false;
+    bool snapToGrid = false, snapToggeled = false, cursorInGrid, draw, updated = false, ctrlHeld = false;
     char dropDownAnimationFlag = 0, startAt = 0, endAt = 0, animating = 0;
     Pair offset, initialPos;
     ConfirmationFlags confirmationScreenFlag = none;
@@ -728,15 +728,21 @@ int main(int argc, char **argv)
                     if (!snapToggeled)
                         snapToGrid = true;
                     break;
+                case SDL_SCANCODE_LCTRL:
+                    ctrlHeld = !simulating;
+                    break;
+                case SDL_SCANCODE_RCTRL:
+                    ctrlHeld = !simulating;
+                    break;
                 case SDL_SCANCODE_Z:
-                    if (currentUndoLevel < totalUndoLevel)
+                    if (ctrlHeld && currentUndoLevel < totalUndoLevel)
                     {
                         Undo(grid, currentUndoLevel, totalUndoLevel, undos);
                         currentUndoLevel++;
                     }
                     break;
                 case SDL_SCANCODE_R:
-                    if (currentUndoLevel > 0)
+                    if (ctrlHeld && currentUndoLevel > 0)
                     {
                         currentUndoLevel--;
                         Redo(grid, currentUndoLevel, totalUndoLevel, undos);
@@ -747,19 +753,22 @@ int main(int argc, char **argv)
                 }
                 break;
             case SDL_KEYUP:
-                if (!snapToggeled)
+                switch (e.key.keysym.scancode)
                 {
-                    switch (e.key.keysym.scancode)
-                    {
-                    case SDL_SCANCODE_LSHIFT:
-                        snapToGrid = false;
-                        break;
-                    case SDL_SCANCODE_RSHIFT:
-                        snapToGrid = false;
-                        break;
-                    default:
-                        break;
-                    }
+                case SDL_SCANCODE_LSHIFT:
+                    snapToGrid = snapToggeled;
+                    break;
+                case SDL_SCANCODE_RSHIFT:
+                    snapToGrid = snapToggeled;
+                    break;
+                case SDL_SCANCODE_LCTRL:
+                    ctrlHeld = false;
+                    break;
+                case SDL_SCANCODE_RCTRL:
+                    ctrlHeld = false;
+                    break;
+                default:
+                    break;
                 }
                 break;
             default:
