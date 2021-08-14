@@ -210,7 +210,7 @@ void DrawConfirmationScreen(ConfirmationFlags flag)
     SDL_SetRenderDrawColor(renderer, BG2);
     SDL_RenderFillRect(renderer, &box);
     if (flag == clearGrid)
-        DisplayText("Clear Grid?", message);
+        DisplayText("Clear Grid? This action cannot be undone.", message);
     else if (flag == q_saveNewFile || flag == o_saveNewFile || flag == n_saveNewFile)
         DisplayText("Do you want to save your work?", message);
     else if (flag == q_saveChanges || flag == o_saveChanges || flag == n_saveChanges)

@@ -385,6 +385,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                 confirmationScreenFlag = o_saveNewFile;
                             else
                                 ChooseFile(grid, false);
+                            ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
                             updated = false;
                         }
                         else if (clickedButton == &SaveAs)
@@ -407,9 +408,9 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                             else if (updated && componentCount > 0)
                                 confirmationScreenFlag = n_saveNewFile;
                             else
-                            {
                                 NewProject(grid, &updated);
-                            }
+                            ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
+                            updated = false;
                         }
                         else if (clickedButton == &Clear && !simulating)
                             confirmationScreenFlag = clearGrid;
@@ -701,6 +702,27 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                     {
                         currentUndoLevel--;
                         Redo(grid, currentUndoLevel, totalUndoLevel);
+                    }
+                    break;
+                case SDL_SCANCODE_S:
+                    if (ctrlHeld){
+                        if (fileExists)
+                            SaveToFile(grid, currentFile);
+                        else
+                            ChooseFile(grid, true);
+                        updated = false;
+                    }
+                    break;
+                case SDL_SCANCODE_O:
+                    if (ctrlHeld && !simulating){
+                        if (fileExists && updated)
+                            confirmationScreenFlag = o_saveChanges;
+                        else if (updated && componentCount > 0)
+                            confirmationScreenFlag = o_saveNewFile;
+                        else
+                            ChooseFile(grid, false);
+                        ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
+                        updated = false;
                     }
                     break;
                 default:
