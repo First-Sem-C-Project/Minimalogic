@@ -664,11 +664,13 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                         {
                             AddDeletedToUndo(&currentUndoLevel, &totalUndoLevel, cell(gridPos.y, gridPos.x));
                             DeleteComponent(grid, gridPos);
+                            updated = true;
                         }
                         else if (selected.x >= 0)
                         {
                             AddDeletedToUndo(&currentUndoLevel, &totalUndoLevel, cell(selected.y, selected.x));
                             DeleteComponent(grid, selected);
+                            updated = true;
                         }
                         selected = (Pair){-1, -1};
                     }
