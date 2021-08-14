@@ -38,7 +38,7 @@ static char *compoTexts[g_total] = {
     "CLOCK",
     "NOT",
     "OCT DECODER",
-    "BCD DECODER",
+    "4 TO 16 DECODER",
     "AND",
     "OR",
     "NAND",
@@ -473,7 +473,7 @@ void DrawComponents(int pad_x, int pad_y)
             DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, ComponentList[i].inputs[0]->outputs[ComponentList[i].inpSrc[0].y]);
         else
             DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, false);
-        if (ComponentList[i].type == d_oct || ComponentList[i].type == d_bcd)
+        if (ComponentList[i].type == d_oct || ComponentList[i].type == d_4x16)
         {
             for (int j = 0; j < ComponentList[i].onum; j++)
             {
@@ -605,12 +605,6 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
         }
     }
     SDL_RenderPresent(renderer);
-}
-
-void WireEndPos(int x, int y)
-{
-    tmpWire.end.x = x;
-    tmpWire.end.y = y;
 }
 
 void PadGrid(int *pad_x, int *pad_y)

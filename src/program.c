@@ -47,7 +47,7 @@ void InitFont()
     TTF_Init();
     font = TTF_OpenFont("roboto.ttf", 20);
     displayFont = TTF_OpenFont("Segment7Standard.ttf", 100);
-    if (font == NULL)
+    if (font == NULL || displayFont == NULL)
     {
         SDL_Log("Failed to load the font: %s\n", TTF_GetError());
         exit(-3);
@@ -705,7 +705,8 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                     }
                     break;
                 case SDL_SCANCODE_S:
-                    if (ctrlHeld){
+                    if (ctrlHeld)
+                    {
                         if (fileExists)
                             SaveToFile(grid, currentFile);
                         else
@@ -714,7 +715,8 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                     }
                     break;
                 case SDL_SCANCODE_O:
-                    if (ctrlHeld && !simulating){
+                    if (ctrlHeld && !simulating)
+                    {
                         if (fileExists && updated)
                             confirmationScreenFlag = o_saveChanges;
                         else if (updated && componentCount > 0)

@@ -150,6 +150,12 @@ bool StartWiring(Pair pos)
     return true;
 }
 
+void WireEndPos(int x, int y)
+{
+    tmpWire.end.x = x;
+    tmpWire.end.y = y;
+}
+
 void ToggleSnap(bool *snap)
 {
     *snap = !*snap;

@@ -165,7 +165,7 @@ Component MultiOutComponent(Type type, Pair pos)
         component.inum = 3;
         component.onum = 8;
         break;
-    case d_bcd:
+    case d_4x16:
         component.inum = 4;
         component.onum = 16;
         break;

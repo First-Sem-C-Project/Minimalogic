@@ -15,7 +15,7 @@ typedef enum
     clock,
     g_not,
     d_oct,
-    d_bcd,
+    d_4x16,
     g_and,
     g_or,
     g_nand,

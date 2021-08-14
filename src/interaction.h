@@ -46,6 +46,7 @@ typedef struct
 
 void InitGrid(int *);
 bool StartWiring(Pair);
+void WireEndPos(int, int);
 void ToggleSnap(bool *);
 void ToggleSimulation(bool *);
 void ToggleDropDown(bool *, char *);
