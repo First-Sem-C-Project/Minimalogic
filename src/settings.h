@@ -2,7 +2,7 @@
 #define WINDOW_HEIGHT 500
 
 #define GRID_WIDTH  1100
-#define GRID_HEIGHT 700
+#define GRID_HEIGHT 750
 #define MENU_WIDTH 200
 
 #define SCALE 12

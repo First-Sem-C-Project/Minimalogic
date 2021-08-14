@@ -1,7 +1,7 @@
 #include "SDL2/SDL_ttf.h"
 #include "interaction.h"
 
-typedef enum {none, clearGrid, q_saveNewFile, q_saveChanges, o_saveNewFile, o_saveChanges} ConfirmationFlags;
+typedef enum {none, clearGrid, q_saveNewFile, q_saveChanges, o_saveNewFile, o_saveChanges, n_saveNewFile, n_saveChanges} ConfirmationFlags;
 
 void DestroyTextures();
 void InitEverything(int *);

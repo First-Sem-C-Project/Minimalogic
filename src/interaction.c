@@ -16,6 +16,7 @@ Button Snap = {.color = {BLACK, 255}};
 Button Clear = {.color = {BLACK, 255}};
 Button clearYes = {.color = {GREEN, 255}};
 Button clearNo = {.color = {RED, 255}};
+Button New = {.color = {BLACK, 255}};
 
 SDL_Rect InputsCount;
 SDL_Rect InputsCountText;
@@ -42,10 +43,15 @@ void InitMenu(int windowWidth, int windowHeight)
     ComponentsButton.buttonRect.w = MENU_WIDTH - 20;
     ComponentsButton.buttonRect.h = 30;
 
+    New.buttonRect.w = MENU_WIDTH - 20;
+    New.buttonRect.h = 30;
+    New.buttonRect.x = 10;
+    New.buttonRect.y = windowHeight - New.buttonRect.h - 10;    
+
     SaveAs.buttonRect.w = MENU_WIDTH - 20;
     SaveAs.buttonRect.h = 30;
     SaveAs.buttonRect.x = 10;
-    SaveAs.buttonRect.y = windowHeight - SaveAs.buttonRect.h - 10;
+    SaveAs.buttonRect.y = New.buttonRect.y - SaveAs.buttonRect.h - 10;
     
     Save.buttonRect.w = MENU_WIDTH - 20;
     Save.buttonRect.h = 30;
@@ -181,6 +187,13 @@ Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
         cursorY < SaveAs.buttonRect.y + SaveAs.buttonRect.h)
     {
         return &SaveAs;
+    }
+    else if (cursorX > New.buttonRect.x &&
+        cursorX < New.buttonRect.x + New.buttonRect.w &&
+        cursorY > New.buttonRect.y &&
+        cursorY < New.buttonRect.y + New.buttonRect.h)
+    {
+        return &New;
     }
     for (int i = 0; i < g_total; i++)
     {

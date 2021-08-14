@@ -58,6 +58,7 @@ extern Button DecreaseInputs;
 extern Button Open;
 extern Button Save;
 extern Button SaveAs;
+extern Button New;
 extern Button Snap;
 extern Button Clear;
 extern Button clearYes;
@@ -264,6 +265,15 @@ void UpdateComponents()
     }
 }
 
+void NewProject(int * grid, bool * updated)
+{
+    componentCount = 0;
+    InitGrid(grid);
+    SDL_SetWindowTitle(window, "MinimaLogic");
+    *updated = false;
+    fileExists = false;    
+}
+
 void AddDeletedToUndo(int *currentUndoLevel, int *totalUndoLevel, int index)
 {
     ShiftUndoQueue(currentUndoLevel, totalUndoLevel, undos);
@@ -463,6 +473,17 @@ int main(int argc, char **argv)
                                 ChooseFile(grid, true);
                             updated = false;
                         }
+                        else if(clickedButton == &New)
+                        {
+                            if(fileExists && updated)
+                                confirmationScreenFlag = n_saveChanges;
+                            else if(updated && componentCount>0)
+                                confirmationScreenFlag = n_saveNewFile;
+                            else
+                            {
+                               NewProject(grid, &updated); 
+                            }
+                        }
                         else if (clickedButton == &Clear && !simulating)
                             confirmationScreenFlag = clearGrid;
                         else if (clickedButton == &IncreaseInputs && compoChoice.type >= g_and && !simulating)
@@ -518,6 +539,14 @@ int main(int argc, char **argv)
                             ChooseFile(grid, true);
                             ChooseFile(grid, false);
                             break;
+                        case n_saveChanges:
+                            SaveToFile(grid, currentFile);
+                            NewProject(grid, &updated);
+                            break;
+                        case n_saveNewFile:
+                            ChooseFile(grid, true);                         
+                            NewProject(grid, &updated);
+                            break;
                         default:
                             break;
                         }
@@ -531,6 +560,8 @@ int main(int argc, char **argv)
                         }
                         else if (confirmationScreenFlag == o_saveChanges || confirmationScreenFlag == o_saveNewFile)
                             ChooseFile(grid, false);
+                        else if (confirmationScreenFlag == n_saveChanges || confirmationScreenFlag == n_saveNewFile)
+                            NewProject(grid, &updated);
                     }
                     confirmationScreenFlag = none;
                     updated = false;

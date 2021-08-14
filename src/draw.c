@@ -22,6 +22,7 @@ extern Button Clear;
 extern Button clearYes;
 extern Button clearNo;
 extern Button CompoDeleteButton;
+extern Button New;
 
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
@@ -191,11 +192,13 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     SDL_RenderFillRect(renderer, &CompoDeleteButton.buttonRect);
     SDL_RenderFillRect(renderer, &Snap.buttonRect);
     SDL_RenderFillRect(renderer, &Clear.buttonRect);
+    SDL_RenderFillRect(renderer, &New.buttonRect);
     DisplayText("Open", Open.buttonRect);
     DisplayText("Save", Save.buttonRect);
     DisplayText("Save As", SaveAs.buttonRect);
     DisplayText("Delete Component", CompoDeleteButton.buttonRect);
     DisplayText("Clear Grid", Clear.buttonRect);
+    DisplayText("New", New.buttonRect);
     if (snap)
         DisplayText("Snap to Grid: On", Snap.buttonRect);
     else
@@ -248,9 +251,9 @@ void DrawConfirmationScreen(ConfirmationFlags flag){
     SDL_RenderFillRect(renderer, &box);
     if(flag == clearGrid)
         DisplayText("Clear Grid?", message);
-    else if(flag == q_saveNewFile || flag == o_saveNewFile)
+    else if(flag == q_saveNewFile || flag == o_saveNewFile || flag == n_saveNewFile)
         DisplayText("Do you want to save your work?", message);
-    else if(flag == q_saveChanges || flag == o_saveChanges)
+    else if(flag == q_saveChanges || flag == o_saveChanges || flag == n_saveChanges)
         DisplayText("Save changes to the file?", message);
     SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
     SDL_RenderFillRect(renderer, &clearYes.buttonRect);
