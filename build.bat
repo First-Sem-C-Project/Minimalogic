@@ -22,7 +22,15 @@ echo -------------------------------------
 :DoneConfig
 
 if not exist "Libraries" mkdir Libraries
+where cl >nul 2>nul
+IF %ERRORLEVEL% NEQ 0 goto CheckForClang
+goto DownloadSDL
+:CheckForClang
+where clang >nul 2>nul
+IF %ERRORLEVEL% NEQ 0 goto SkipDownloadSDL
+:DownloadSDL
 if exist "Libraries/SDL2/SDL2-2.0.14" if exist "Libraries/SDL2/SDL2_ttf-2.0.15" goto SkipDownloadSDL
+echo Downloading SDL
 
 pushd Libraries
 mkdir SDL2
@@ -38,7 +46,11 @@ popd
 
 :SkipDownloadSDL
 
+where gcc >nul 2>nul
+IF %ERRORLEVEL% NEQ 0 goto SkipDownloadSDLMinGw
+
 if exist "Libraries/SDL2MinGw/SDL2-2.0.14/" if exist "Libraries/SDL2MinGw/SDL2_ttf-2.0.15/" goto SkipDownloadSDLMinGw
+echo Downloading SDLMinGw
 
 pushd Libraries
 mkdir SDL2MinGw
