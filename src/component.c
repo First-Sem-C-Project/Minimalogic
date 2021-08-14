@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include "settings.h"
 #include "component.h"
+#define SCALE 12
 
 extern Component ComponentList[256];
 extern int time;
@@ -17,7 +16,7 @@ void nandGate(Component *component);
 void ToggleState(Component *component);
 void ToggleProbe(Component *component);
 void Decode(Component *component);
-int BinToHex(bool [4]);
+int BinToDec(bool[4]);
 
 static void (*operate[g_total])(Component *component) = {ToggleState, ToggleProbe, Tick, notGate, Decode, Decode, andGate, orGate, nandGate, norGate, xorGate, xnorGate};
 
@@ -26,9 +25,11 @@ void SetInputs(Component *component)
     component->depth += 1;
     for (int i = 0; i < component->inum; i++)
     {
-        if (component->inpSrc[i].x != -1 && component->depth < 2){
+        if (component->inpSrc[i].x != -1 && component->depth < 2)
+        {
             component->inputs[i] = &ComponentList[component->inpSrc[i].x];
-            if (! AlreadyUpdated[component->inpSrc[i].x]){
+            if (!AlreadyUpdated[component->inpSrc[i].x])
+            {
                 update(component->inputs[i]);
                 AlreadyUpdated[component->inpSrc[i].x] = true;
             }
@@ -39,7 +40,7 @@ void SetInputs(Component *component)
 
 void update(Component *component)
 {
-    if (component-> type != clock)
+    if (component->type != clock)
         SetInputs(component);
     operate[component->type](component);
 }
@@ -61,7 +62,8 @@ void GetWidthHeight(int *w, int *h, Type type, int size)
         *w = 4 * SCALE;
         *h = size * SCALE;
     }
-    else{
+    else
+    {
         *w = 5 * SCALE;
         *h = 8 * SCALE;
     }
@@ -69,7 +71,7 @@ void GetWidthHeight(int *w, int *h, Type type, int size)
 
 void SetIOPos(Component *component)
 {
-    for (int i = component->inum; i < MAX_TERM_NUM; i++)
+    for (int i = component->inum; i < MAX_INPUTS; i++)
     {
         component->inpPos[i].y = -1;
         component->inpPos[i].x = -1;
@@ -95,8 +97,11 @@ void ClearIO(Component *component)
 {
     for (int i = 0; i < MAX_TERM_NUM; i++)
     {
-        component->inpSrc[i] = (Pair){-1, -1};
-        component->inputs[i] = false;
+        if (i < MAX_INPUTS)
+        {
+            component->inpSrc[i] = (Pair){-1, -1};
+            component->inputs[i] = false;
+        }
         component->outputs[i] = false;
     }
 }
@@ -148,21 +153,24 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos)
     return component;
 }
 
-Component MultiOutComponent(Type type, Pair pos){
+Component MultiOutComponent(Type type, Pair pos)
+{
     Component component;
     component.width = 5;
     component.start = pos;
 
-    switch (type){
-        case d_oct:
-            component.inum = 3;
-            component.onum = 8;
-            break;
-        case d_bcd:
-            component.inum = 4;
-            component.onum = 16;
-            break;
-        default: break;
+    switch (type)
+    {
+    case d_oct:
+        component.inum = 3;
+        component.onum = 8;
+        break;
+    case d_bcd:
+        component.inum = 4;
+        component.onum = 16;
+        break;
+    default:
+        break;
     }
 
     component.size = 8;
@@ -259,7 +267,7 @@ void xorGate(Component *component)
         if (component->inpSrc[i].x >= 0)
         {
             component->outputs[0] = (component->outputs[0] && !component->inputs[i]->outputs[component->inpSrc[i].y]) ||
-                                (!component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y]);
+                                    (!component->outputs[0] && component->inputs[i]->outputs[component->inpSrc[i].y]);
         }
     }
 }
@@ -288,25 +296,28 @@ void Tick(Component *component)
         component->outputs[0] = !component->outputs[0];
 }
 
-void ToggleState(Component *component){}
+void ToggleState(Component *component) {}
 
 void ToggleProbe(Component *component){};
 
-void Decode(Component *component){
+void Decode(Component *component)
+{
     bool toDecode[4];
     char stop = component->type == d_oct ? 3 : 4;
     toDecode[0] = false;
-    for (int i = 0; i < stop; i ++){
+    for (int i = 0; i < stop; i++)
+    {
         if (component->inpSrc[i].x >= 0)
             toDecode[i + (component->type == d_oct)] = component->inputs[i]->outputs[component->inpSrc[i].y];
         else
             toDecode[i + (component->type == d_oct)] = false;
     }
-    for (int i = 0; i < component->onum; i ++)
+    for (int i = 0; i < component->onum; i++)
         component->outputs[i] = false;
-    component->outputs[BinToHex(toDecode)] = true;
+    component->outputs[BinToDec(toDecode)] = true;
 };
 
-int BinToHex(bool binary[4]){
+int BinToDec(bool binary[4])
+{
     return binary[0] * 8 + binary[1] * 4 + binary[2] * 2 + binary[3];
 }

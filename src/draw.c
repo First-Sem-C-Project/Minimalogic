@@ -3,12 +3,11 @@
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 extern Component ComponentList[256];
-SDL_Window *window = NULL;
-SDL_Renderer *renderer = NULL;
 extern unsigned char componentCount;
 
 extern Wire tmpWire;
-
+extern SDL_Window *window;
+extern SDL_Renderer *renderer;
 extern Button RunButton;
 extern Button ComponentsButton;
 extern Button Components[g_total];
@@ -24,18 +23,16 @@ extern Button clearNo;
 extern Button CompoDeleteButton;
 extern Button New;
 
+extern int characterWidth[256];
+extern SDL_Texture *characters[256];
+extern SDL_Texture *displayChars[16];
+extern TTF_Font *font;
+extern TTF_Font *displayFont;
+
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
 
-static SDL_Texture *characters[256];
-static int characterWidth[256];
-
-static SDL_Texture *displayChars[16];
-
-static TTF_Font *font = NULL;
-static TTF_Font *displayFont = NULL;
-static char *compoTexts[g_total] =
-{
+static char *compoTexts[g_total] = {
     "STATE",
     "PROBE",
     "CLOCK",
@@ -47,8 +44,8 @@ static char *compoTexts[g_total] =
     "NAND",
     "NOR",
     "XOR",
-    "XNOR"
-};
+    "XNOR"};
+
 static SDL_Color compoColors[g_total] = {
     {NO_COLOR},
     {NO_COLOR},
@@ -63,69 +60,31 @@ static SDL_Color compoColors[g_total] = {
     {XOR_COLOR},
     {XNOR_COLOR}};
 
-static int offsetX, offsetY;
-
-void InitFont()
+void DisplayText(char *message, SDL_Rect dest)
 {
-    TTF_Init();
-    font = TTF_OpenFont("roboto.ttf", 20);
-    displayFont = TTF_OpenFont("Segment7Standard.ttf", 100);
-    if (font == NULL)
-    {
-        SDL_Log("Failed to load the font: %s\n", TTF_GetError());
-        exit(-1);
-    }
-}
-
-void CharacterMap()
-{
-    char * nums[16] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
-    SDL_Surface *characterSurface;
-    SDL_Color white = {WHITE, 200};
-    SDL_Color black = {BLACK, 255};
-
-    for (int i=0; i<256; i++){
-        characterSurface = TTF_RenderText_Blended(font, (char*)&i, white);
-        characters[i] = SDL_CreateTextureFromSurface(renderer, characterSurface);
-        characterWidth[i] = characterSurface ? characterSurface->w : 0;
-    }
-    for (int i=0; i<16; i++){
-        characterSurface = TTF_RenderText_Blended(displayFont, nums[i], black);
-        displayChars[i] = SDL_CreateTextureFromSurface(renderer, characterSurface);
-    }
-    SDL_FreeSurface(characterSurface);
-}
-
-void DisplayText(char * message, SDL_Rect dest)
-{
-    char * tmp = message;
+    char *tmp = message;
     int totalWidth = 0;
     float factor = 1;
-    for(; *tmp; tmp++){
+    for (; *tmp; tmp++)
+    {
         totalWidth += characterWidth[*tmp];
     }
     SDL_Rect charDest = {.y = dest.y, .h = dest.h};
-    
-    if(totalWidth > dest.w){
+
+    if (totalWidth > dest.w)
+    {
         charDest.x = dest.x;
         factor = dest.w / (float)totalWidth;
     }
     else
-        charDest.x = dest.x + (dest.w - totalWidth)/2;
+        charDest.x = dest.x + (dest.w - totalWidth) / 2;
 
-    for(int i=0; *message; message++, i++){
+    for (int i = 0; *message; message++, i++)
+    {
         charDest.w = characterWidth[*message] * factor;
         SDL_RenderCopy(renderer, characters[*message], NULL, &charDest);
         charDest.x += characterWidth[*message] * factor;
     }
-}
-
-void DestroyTextures()
-{    
-    for(int i = 0; i < 256; i++)
-        SDL_DestroyTexture(characters[i]);
-    for(int i = 0; i < 16; i++)
-        SDL_DestroyTexture(displayChars[i]);
 }
 
 void RenderGateText(SDL_Rect compo, Type type)
@@ -174,7 +133,7 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g,
                            RunButton.color.b, 255);
     SDL_RenderFillRect(renderer, &RunButton.buttonRect);
-    if(simulating)
+    if (simulating)
         DisplayText("STOP", RunButton.buttonRect);
     else
         DisplayText("RUN", RunButton.buttonRect);
@@ -239,21 +198,22 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     }
 }
 
-void DrawConfirmationScreen(ConfirmationFlags flag){
+void DrawConfirmationScreen(ConfirmationFlags flag)
+{
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
     SDL_Rect darken = {.x = 0, .y = 0, .w = w, .h = h};
     SDL_Rect box = {.x = w / 2 - 200, .y = h / 2 - 100, .w = 400, .h = 200};
-    SDL_Rect message = {.x = box.x + 10, box.y + box.h/4, box.w - 20, 30};
+    SDL_Rect message = {.x = box.x + 10, box.y + box.h / 4, box.w - 20, 30};
     SDL_SetRenderDrawColor(renderer, BLACK, 100);
     SDL_RenderFillRect(renderer, &darken);
     SDL_SetRenderDrawColor(renderer, BG2);
     SDL_RenderFillRect(renderer, &box);
-    if(flag == clearGrid)
+    if (flag == clearGrid)
         DisplayText("Clear Grid?", message);
-    else if(flag == q_saveNewFile || flag == o_saveNewFile || flag == n_saveNewFile)
+    else if (flag == q_saveNewFile || flag == o_saveNewFile || flag == n_saveNewFile)
         DisplayText("Do you want to save your work?", message);
-    else if(flag == q_saveChanges || flag == o_saveChanges || flag == n_saveChanges)
+    else if (flag == q_saveChanges || flag == o_saveChanges || flag == n_saveChanges)
         DisplayText("Save changes to the file?", message);
     SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
     SDL_RenderFillRect(renderer, &clearYes.buttonRect);
@@ -268,13 +228,16 @@ void HoverOver(Button *button, bool menuExpanded, ConfirmationFlags showConfirmS
     if (!button)
         return;
     bool toHover = !showConfirmScreen;
-    for (int i = 0; i < g_total; i ++){
-        if (button == &Components[i]){
+    for (int i = 0; i < g_total; i++)
+    {
+        if (button == &Components[i])
+        {
             toHover = menuExpanded;
             break;
         }
     }
-    if (button == &clearYes || button == &clearNo){
+    if (button == &clearYes || button == &clearNo)
+    {
         toHover = showConfirmScreen;
     }
     if (toHover)
@@ -388,17 +351,22 @@ void DrawWire(SDL_Point start, SDL_Point end)
     }
 }
 
-void DrawWires(Component component, int pad_x, int pad_y)
+void DrawWires(Component component, int pad_x, int pad_y, bool simulating)
 {
     SDL_Point start, end;
     for (int i = 0; i < component.inum; i++)
     {
         if (component.inpSrc[i].x >= 0)
         {
-            if (component.inputs[i]->outputs[component.inpSrc[i].y])
-                SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+            if (simulating)
+            {
+                if (component.inputs[i]->outputs[component.inpSrc[i].y])
+                    SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+                else
+                    SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
+            }
             else
-                SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
             Component sender = ComponentList[component.inpSrc[i].x];
             start.x = component.inpPos[i].x * CELL_SIZE + pad_x + TERMINAL_SIZE / 2;
             start.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.inum - CELL_SIZE * component.size / component.inum / 2 - TERMINAL_SIZE / 2 + 3;
@@ -415,29 +383,33 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
     pin.w = TERMINAL_SIZE;
     pin.h = TERMINAL_SIZE;
     char hnum = 0, lnum = 0, bnum = 0;
-    SDL_Rect high[MAX_TERM_NUM * 2], low[MAX_TERM_NUM * 2], border[MAX_TERM_NUM * 2];
+    SDL_Rect high[MAX_TERM_NUM + MAX_INPUTS], low[MAX_TERM_NUM + MAX_INPUTS], border[MAX_TERM_NUM + MAX_INPUTS];
     for (int i = 0; i < component.inum; i++)
     {
         if (component.inpPos[i].x >= 0)
         {
             pin.x = component.inpPos[i].x * CELL_SIZE + pad_x;
             pin.y = component.start.y * CELL_SIZE + pad_y + (i + 0.5) * CELL_SIZE * component.size / component.inum - TERMINAL_SIZE / 2;
-            if (component.inpSrc[i].x >= 0){
-                if (component.inputs[i]->outputs[component.inpSrc[i].y]){
+            if (component.inpSrc[i].x >= 0)
+            {
+                if (component.inputs[i]->outputs[component.inpSrc[i].y])
+                {
                     high[hnum] = pin;
                     hnum += 1;
                 }
-                else{
+                else
+                {
                     low[lnum] = pin;
                     lnum += 1;
                 }
             }
-            else{
+            else
+            {
                 low[lnum] = pin;
                 lnum += 1;
             }
-            border[bnum] = pin; 
-            bnum ++;
+            border[bnum] = pin;
+            bnum++;
         }
     }
     for (int i = 0; i < component.onum; i++)
@@ -446,16 +418,18 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
         {
             pin.x = component.outPos[i].x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE + 1;
             pin.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.onum - CELL_SIZE * component.size / component.onum / 2 - TERMINAL_SIZE / 2;
-            if (component.outputs[i]){
+            if (component.outputs[i])
+            {
                 high[hnum] = pin;
                 hnum += 1;
             }
-            else{
+            else
+            {
                 low[lnum] = pin;
                 lnum += 1;
             }
-            border[bnum] = pin; 
-            bnum ++;
+            border[bnum] = pin;
+            bnum++;
         }
     }
     SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
@@ -499,14 +473,17 @@ void DrawComponents(int pad_x, int pad_y)
             DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, ComponentList[i].inputs[0]->outputs[ComponentList[i].inpSrc[0].y]);
         else
             DrawComponent(ComponentList[i].width, ComponentList[i].size, ComponentList[i].start, ComponentList[i].type, pad_x, pad_y, 255, false);
-        if (ComponentList[i].type == d_oct || ComponentList[i].type == d_bcd){
-            for (int j = 0; j < ComponentList[i].onum; j ++){
-                if (ComponentList[i].outputs[j]){
+        if (ComponentList[i].type == d_oct || ComponentList[i].type == d_bcd)
+        {
+            for (int j = 0; j < ComponentList[i].onum; j++)
+            {
+                if (ComponentList[i].outputs[j])
+                {
                     SDL_Rect display;
-                    display.w = ComponentList[i].width / 2 * CELL_SIZE ;
-                    display.h = ComponentList[i].size  / 2 * CELL_SIZE ;
+                    display.w = ComponentList[i].width / 2 * CELL_SIZE;
+                    display.h = ComponentList[i].size / 2 * CELL_SIZE;
                     display.x = ComponentList[i].start.x * CELL_SIZE + pad_x + ComponentList[i].width / 4 * CELL_SIZE;
-                    display.y = ComponentList[i].start.y * CELL_SIZE + pad_y + ComponentList[i].size  / 4 * CELL_SIZE;
+                    display.y = ComponentList[i].start.y * CELL_SIZE + pad_y + ComponentList[i].size / 4 * CELL_SIZE;
                     SDL_RenderCopy(renderer, displayChars[j], NULL, &display);
                     break;
                 }
@@ -519,16 +496,16 @@ void DrawComponents(int pad_x, int pad_y)
 void DrawGrid(int pad_x, int pad_y)
 {
     SDL_SetRenderDrawColor(renderer, BG1);
-    for (int x = 0; x <= GRID_ROW; x+=SCALE)
+    for (int x = 0; x <= GRID_ROW; x += SCALE)
         SDL_RenderDrawLine(renderer, pad_x + x * CELL_SIZE, pad_y, pad_x + x * CELL_SIZE, pad_y + GRID_COL * CELL_SIZE);
-    for (int y = 0; y <= GRID_COL; y+=SCALE)
+    for (int y = 0; y <= GRID_COL; y += SCALE)
         SDL_RenderDrawLine(renderer, pad_x + GRID_ROW * CELL_SIZE, pad_y + y * CELL_SIZE, pad_x, pad_y + y * CELL_SIZE);
 }
 
 void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
               Selection choiceComponent, int pad_x, int pad_y,
               bool simulating, char *dropDownAnimationFlag, Pair gridPos,
-              int *grid, bool movingCompo, Pair selected, bool snap, ConfirmationFlags confirmationScreenFlag)
+              int grid[GRID_ROW * GRID_COL], bool movingCompo, Pair selected, bool snap, ConfirmationFlags confirmationScreenFlag)
 {
     SDL_Rect highlight;
     highlight.w = CELL_SIZE - 1;
@@ -544,23 +521,28 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     DrawComponents(pad_x, pad_y);
     for (int i = 0; i < componentCount; i++)
     {
-        DrawWires(ComponentList[i], pad_x, pad_y);
+        DrawWires(ComponentList[i], pad_x, pad_y, simulating);
     }
 
-    if (selected.x >= 0 && selected.y >= 0 && !movingCompo){
+    if (selected.x >= 0 && selected.y >= 0 && !movingCompo)
+    {
         Component selectedCompo = ComponentList[grid[selected.y * GRID_ROW + selected.x]];
         SDL_Rect selectedRect = {.x = selectedCompo.start.x * CELL_SIZE + pad_x + 1, .y = selectedCompo.start.y * CELL_SIZE + pad_y + 1, .w = selectedCompo.width * CELL_SIZE - 1, .h = selectedCompo.size * CELL_SIZE - 1};
         SDL_SetRenderDrawColor(renderer, GREEN, 255);
         SDL_RenderDrawRect(renderer, &selectedRect);
     }
 
-    if (confirmationScreenFlag != none){
+    if (confirmationScreenFlag != none)
+    {
         DrawConfirmationScreen(confirmationScreenFlag);
     }
     HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded, confirmationScreenFlag);
 
     if (drawingWire && !confirmationScreenFlag)
+    {
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         DrawWire(tmpWire.start, tmpWire.end);
+    }
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
         gridPos.y < GRID_COL && !movingCompo && !confirmationScreenFlag)
@@ -629,46 +611,6 @@ void WireEndPos(int x, int y)
 {
     tmpWire.end.x = x;
     tmpWire.end.y = y;
-}
-
-void InitGrid(int *grid)
-{
-    for (int i = 0; i < GRID_COL * GRID_ROW; i++)
-        grid[i] = -1;
-}
-
-void InitEverything(int *grid)
-{
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-        exit(-1);
-    window =
-        SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
-                         WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    renderer = SDL_CreateRenderer(
-        window, -1, SDL_RENDERER_SOFTWARE);
-    InitFont();
-    if (!(window && renderer))
-        exit(-2);
-
-    SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-    InitGrid(grid);
-    int w, h;
-    SDL_GetWindowSize(window, &w, &h);
-    InitMenu(w, h);
-    CharacterMap();
-}
-
-void CloseEverything()
-{
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    DestroyTextures();
-    TTF_CloseFont(font);
-    TTF_CloseFont(displayFont);
-    TTF_Quit();
-    SDL_Quit();
 }
 
 void PadGrid(int *pad_x, int *pad_y)

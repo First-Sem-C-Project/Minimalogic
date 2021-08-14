@@ -1,30 +1,50 @@
-#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL.h"
-#include "colors.h"
-#include "component.h"
-#include "settings.h"
+#pragma once
 #include <windows.h>
-#include <stdio.h>
-#include "../../Libraries/SDL2/SDL2-2.0.14/SDL2/SDL_syswm.h"
+#include "program.h"
+#include "SDL2/SDL_syswm.h"
+#pragma endregion
 
-typedef struct {
-    Type type;
-    char size;
-    Pair pos;
-} Selection;
+typedef struct
+{
+    unsigned char sendIndex, receiver, receiveIndex;
+} Connection;
 
-typedef struct Wire {
-    SDL_Point start, end;
-} Wire;
+typedef struct
+{
+    unsigned char index, conNo;
+    Component deletedCompo;
+    Connection connections[255];
+} Delete;
 
-typedef struct Button {
-    SDL_Rect buttonRect;
-    Selection selection;
-    SDL_Color color;
-} Button;
+typedef struct
+{
+    unsigned char sender;
+    Connection connection;
+} Wiring;
+typedef struct
+{
+    Component component;
+} Place;
 
-void InitMenu(int, int);
+typedef struct
+{
+    unsigned char index;
+    Pair before, after;
+} Move;
+
+typedef struct
+{
+    char act;
+    union
+    {
+        Delete deleted;
+        Wiring wired;
+        Place placed;
+        Move moved;
+    } Action;
+} Actions;
+
 void InitGrid(int *);
-Button *clickedOn(int, int, bool, Selection);
 bool StartWiring(Pair);
 void ToggleSnap(bool *);
 void ToggleSimulation(bool *);
@@ -34,10 +54,14 @@ void DeleteComponent(int *, Pair);
 void InsertComponent(int *, Selection, int, int);
 Selection SelectComponent(Button *);
 
-bool PositionIsValid(int *, int, int, Pair);
 char WireIsValid(int *, Pair, int, int, int, int);
 void ChangeNumofInputs(bool, Selection *);
 
-void ChooseFile(int*, bool saving);
-void ReadFromFile(int*, char*);
-void SaveToFile(int*, char*);
+void ChooseFile(int *, bool saving);
+void ReadFromFile(int *, char *);
+void SaveToFile(int *, char *);
+void NewProject(int *grid, bool *updated);
+void Undo(int *grid, int currentUndoLevel, int totalUndoLevel);
+void Redo(int *grid, int currentUndoLevel, int totalUndoLevel);
+void ShiftUndoQueue(int *currentUndoLevel, int *totalUndoLevel);
+void ClearUndoQueue(int *currentUndoLevel, int *totalUndoLevel);
