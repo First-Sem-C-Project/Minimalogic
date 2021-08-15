@@ -175,7 +175,6 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
                          WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(
         window, -1, SDL_RENDERER_SOFTWARE);
-    InitFont();
     if (!(window && renderer))
         exit(-2);
 
@@ -186,6 +185,7 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
     InitMenu(w, h);
+    InitFont();
     CharacterMap();
 }
 
@@ -210,6 +210,14 @@ void CloseEverything()
 
 void UpdateComponents()
 {
+    for (int i = componentCount - 1; i >= 0; i--)
+    {
+        if ((ComponentList[i].type == probe || ComponentList[i].type == d_oct || ComponentList[i].type == d_4x16) && !AlreadyUpdated[i])
+        {
+            AlreadyUpdated[i] = true;
+            update(&ComponentList[i]);
+        }
+    }
     for (int i = componentCount - 1; i >= 0; i--)
     {
         if (ComponentList[i].type != state && !AlreadyUpdated[i])
@@ -601,10 +609,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                 if (compo.start.x < 0)
                                     goLeft = false;
                                 if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                {
-                                    newPos = compo.start;
                                     break;
-                                }
                                 compo.start.x += i;
                             }
                             if (goUp)
@@ -613,10 +618,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                 if (compo.start.y < 0)
                                     goUp = false;
                                 if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                {
-                                    newPos = compo.start;
                                     break;
-                                }
                                 compo.start.y += i;
                             }
                             if (goRight)
@@ -625,10 +627,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                 if (compo.start.x >= GRID_ROW)
                                     goRight = false;
                                 if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                {
-                                    newPos = compo.start;
                                     break;
-                                }
                                 compo.start.x -= i;
                             }
                             if (goDown)
@@ -637,15 +636,12 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                 if (compo.start.y >= GRID_COL)
                                     goDown = false;
                                 if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                {
-                                    newPos = compo.start;
                                     break;
-                                }
                                 compo.start.y -= i;
                             }
                         }
                     }
-                    ComponentList[compoMoved].start = newPos;
+                    ComponentList[compoMoved].start = compo.start;
                     SetIOPos(&ComponentList[compoMoved]);
                 }
                 break;

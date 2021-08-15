@@ -4,16 +4,9 @@
 int main(int argc, char **argv)
 {
     //Change directory to location of the executable so that the program can find fonts
-    char *path, len;
-    path = argv[0];
-    for (int i = SDL_strlen(path) - 1; i >= 0; i--)
-    {
-        if (path[i] == '\\')
-        {
-            path[i + 1] = '\0';
-            break;
-        }
-    }
+    char *path = argv[0], i;
+    for (i = SDL_strlen(path) - 1; path[i] != '\\'; i--);
+    path[i] = '\0';
     _chdir(path);
 
     int grid[GRID_ROW * GRID_COL];

@@ -2,6 +2,25 @@
 #include <stdio.h>
 #define cell(y, x) grid[y * GRID_ROW + x]
 
+#define BG 41, 41, 41, 255
+#define BG1 59, 55, 53, 255
+#define BG2 69, 66, 62, 255
+
+#define AND_COLOR RED
+#define OR_COLOR ORANGE
+#define NAND_COLOR GREEN
+#define NOR_COLOR PURPLE
+#define XOR_COLOR YELLOW
+#define XNOR_COLOR VOMIT_GREEN
+#define NOT_COLOR GRAY
+#define LED_COLOR BLUE
+#define NO_COLOR 100, 100, 100
+#define HIGH_COLOR 180, 51, 48
+#define LOW_COLOR 51, 48, 180
+#define WIRE_NEUTRAL 58, 160, 61
+#define WIRE_HIGH_D 100, 31, 28
+#define WIRE_LOW_D 31, 28, 100
+#define WIRE_NEUTRAL_D 28, 100, 31
 extern Component ComponentList[256];
 extern unsigned char componentCount;
 
@@ -318,13 +337,9 @@ SDL_Point BezierPoint(float t, SDL_Point p[4])
 }
 
 // The wire looks jagged. Might need to implement anti-aliasing
-void DrawWire(SDL_Point start, SDL_Point end)
+void DrawWire(SDL_Point start, SDL_Point end, bool hilo, bool simulating)
 {
     SDL_Point wirePoints[MAX_WIRE_PTS];
-
-    SDL_Point p2 = {start.x + (end.x - start.x) / 3, start.y};
-    SDL_Point p3 = {end.x - (end.x - start.x) / 3, end.y};
-
     for (int i = 0; i < 3; i++)
     {
         if (abs(start.x - end.x) > abs(start.y - end.y))
@@ -339,6 +354,22 @@ void DrawWire(SDL_Point start, SDL_Point end)
         }
         SDL_Point p2 = {start.x + (end.x - start.x) / 3, start.y};
         SDL_Point p3 = {end.x - (end.x - start.x) / 3, end.y};
+        if (i == 1){
+            if(hilo && simulating)
+                SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
+            else if(!hilo && simulating)
+                SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, WIRE_NEUTRAL, 255);
+        }
+        else{
+            if(hilo && simulating)
+                SDL_SetRenderDrawColor(renderer, WIRE_HIGH_D, 255);
+            else if(!hilo && simulating)
+                SDL_SetRenderDrawColor(renderer, WIRE_LOW_D, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, WIRE_NEUTRAL_D, 255);
+        }
 
         for (int i = 0; i < MAX_WIRE_PTS; i++)
         {
@@ -358,21 +389,12 @@ void DrawWires(Component component, int pad_x, int pad_y, bool simulating)
     {
         if (component.inpSrc[i].x >= 0)
         {
-            if (simulating)
-            {
-                if (component.inputs[i]->outputs[component.inpSrc[i].y])
-                    SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
-                else
-                    SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
-            }
-            else
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
             Component sender = ComponentList[component.inpSrc[i].x];
             start.x = component.inpPos[i].x * CELL_SIZE + pad_x + TERMINAL_SIZE / 2;
             start.y = component.start.y * CELL_SIZE + pad_y + (i + 1) * CELL_SIZE * component.size / component.inum - CELL_SIZE * component.size / component.inum / 2 - TERMINAL_SIZE / 2 + 3;
             end.x = sender.outPos[component.inpSrc[i].y].x * CELL_SIZE + pad_x + CELL_SIZE - TERMINAL_SIZE / 2;
             end.y = sender.start.y * CELL_SIZE + pad_y + (component.inpSrc[i].y + 1) * CELL_SIZE * sender.size / sender.onum - CELL_SIZE * sender.size / sender.onum / 2 - TERMINAL_SIZE / 2 + 3;
-            DrawWire(start, end);
+            DrawWire(start, end, component.inputs[i]->outputs[component.inpSrc[i].y], simulating);
         }
     }
 }
@@ -495,7 +517,7 @@ void DrawComponents(int pad_x, int pad_y)
 
 void DrawGrid(int pad_x, int pad_y)
 {
-    SDL_SetRenderDrawColor(renderer, BG1);
+    SDL_SetRenderDrawColor(renderer, BG2);
     for (int x = 0; x <= GRID_ROW; x += SCALE)
         SDL_RenderDrawLine(renderer, pad_x + x * CELL_SIZE, pad_y, pad_x + x * CELL_SIZE, pad_y + GRID_COL * CELL_SIZE);
     for (int y = 0; y <= GRID_COL; y += SCALE)
@@ -520,9 +542,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     DrawGrid(pad_x, pad_y);
     DrawComponents(pad_x, pad_y);
     for (int i = 0; i < componentCount; i++)
-    {
         DrawWires(ComponentList[i], pad_x, pad_y, simulating);
-    }
 
     if (selected.x >= 0 && selected.y >= 0 && !movingCompo)
     {
@@ -533,15 +553,13 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     }
 
     if (confirmationScreenFlag != none)
-    {
         DrawConfirmationScreen(confirmationScreenFlag);
-    }
     HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded, confirmationScreenFlag);
 
     if (drawingWire && !confirmationScreenFlag)
     {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        DrawWire(tmpWire.start, tmpWire.end);
+        DrawWire(tmpWire.start, tmpWire.end, false, false);
     }
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&
