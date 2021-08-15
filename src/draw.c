@@ -27,20 +27,11 @@ extern unsigned char componentCount;
 extern Wire tmpWire;
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
-extern Button RunButton;
-extern Button ComponentsButton;
 extern Button Components[g_total];
-extern Button IncreaseInputs;
-extern Button DecreaseInputs;
-extern Button Open;
-extern Button Save;
-extern Button SaveAs;
-extern Button Snap;
-extern Button Clear;
+extern Button FileMenu[fm_total];
+extern Button SideMenu[sm_total];
 extern Button clearYes;
 extern Button clearNo;
-extern Button CompoDeleteButton;
-extern Button New;
 
 extern int characterWidth[256];
 extern SDL_Texture *characters[256];
@@ -142,45 +133,56 @@ void RenderGateText(SDL_Rect compo, Type type)
         DisplayText(compoTexts[type], textRect);
 }
 
+static char *SideMenuButtonText[sm_total] = {
+    "",
+    "Components",
+    "+",
+    "-",
+    "Undo",
+    "Redo",
+    "",
+    "Delete Component",
+    "Clear Grid",
+    "File Menu"};
+
+static char *FileMenuButtonText[fm_total] = {
+    "New File",
+    "Open File",
+    "Save File",
+    "Save As",
+    "Exit Menu",
+    "Exit Program"};
+
 void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
 {
-    SDL_SetRenderDrawColor(renderer, BG1);
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
     SDL_Rect menuBg = {0, 0, MENU_WIDTH, h};
+    SDL_SetRenderDrawColor(renderer, BG1);
     SDL_RenderFillRect(renderer, &menuBg);
-    SDL_SetRenderDrawColor(renderer, RunButton.color.r, RunButton.color.g,
-                           RunButton.color.b, 255);
-    SDL_RenderFillRect(renderer, &RunButton.buttonRect);
+    SDL_SetRenderDrawColor(renderer, SideMenu[sm_run].color.r, SideMenu[sm_run].color.g,
+                           SideMenu[sm_run].color.b, 255);
+    SDL_RenderFillRect(renderer, &SideMenu[sm_run].buttonRect);
     if (simulating)
-        DisplayText("STOP", RunButton.buttonRect);
+        DisplayText("STOP", SideMenu[sm_run].buttonRect);
     else
-        DisplayText("RUN", RunButton.buttonRect);
+        DisplayText("RUN", SideMenu[sm_run].buttonRect);
 
-    SDL_SetRenderDrawColor(renderer, ComponentsButton.color.r,
-                           ComponentsButton.color.g, ComponentsButton.color.b,
+    SDL_SetRenderDrawColor(renderer, SideMenu[sm_compo].color.r,
+                           SideMenu[sm_compo].color.g, SideMenu[sm_compo].color.b,
                            255);
-    SDL_RenderFillRect(renderer, &ComponentsButton.buttonRect);
-    DisplayText("Components", ComponentsButton.buttonRect);
+    for (int i = 1; i < sm_total; i++)
+    {
+        if (i == sm_inc || i == sm_dec && choice.type < g_and)
+            continue;
+        SDL_RenderFillRect(renderer, &SideMenu[i].buttonRect);
+        DisplayText(SideMenuButtonText[i], SideMenu[i].buttonRect);
+    }
 
-    SDL_SetRenderDrawColor(renderer, Open.color.r, Open.color.g, Open.color.b, Open.color.a);
-    SDL_RenderFillRect(renderer, &Open.buttonRect);
-    SDL_RenderFillRect(renderer, &Save.buttonRect);
-    SDL_RenderFillRect(renderer, &SaveAs.buttonRect);
-    SDL_RenderFillRect(renderer, &CompoDeleteButton.buttonRect);
-    SDL_RenderFillRect(renderer, &Snap.buttonRect);
-    SDL_RenderFillRect(renderer, &Clear.buttonRect);
-    SDL_RenderFillRect(renderer, &New.buttonRect);
-    DisplayText("Open", Open.buttonRect);
-    DisplayText("Save", Save.buttonRect);
-    DisplayText("Save As", SaveAs.buttonRect);
-    DisplayText("Delete Component", CompoDeleteButton.buttonRect);
-    DisplayText("Clear Grid", Clear.buttonRect);
-    DisplayText("New", New.buttonRect);
     if (snap)
-        DisplayText("Snap to Grid: On", Snap.buttonRect);
+        DisplayText("Snap to Grid: On", SideMenu[sm_snap].buttonRect);
     else
-        DisplayText("Snap to Grid: Off", Snap.buttonRect);
+        DisplayText("Snap to Grid: Off", SideMenu[sm_snap].buttonRect);
 
     if (choice.type >= g_and)
     {
@@ -190,20 +192,20 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
         tmptxt[8] = (char)(choice.size - 2 + 50);
         DisplayText(tmptxt, InputsCount);
 
-        SDL_SetRenderDrawColor(renderer, IncreaseInputs.color.r, IncreaseInputs.color.g,
-                               IncreaseInputs.color.b, 255);
-        SDL_RenderFillRect(renderer, &IncreaseInputs.buttonRect);
-        DisplayText("+", IncreaseInputs.buttonRect);
-        SDL_RenderFillRect(renderer, &DecreaseInputs.buttonRect);
-        DisplayText("-", DecreaseInputs.buttonRect);
+        SDL_SetRenderDrawColor(renderer, SideMenu[sm_inc].color.r, SideMenu[sm_inc].color.g,
+                               SideMenu[sm_inc].color.b, 255);
+        SDL_RenderFillRect(renderer, &SideMenu[sm_inc].buttonRect);
+        DisplayText("+", SideMenu[sm_inc].buttonRect);
+        SDL_RenderFillRect(renderer, &SideMenu[sm_dec].buttonRect);
+        DisplayText("-", SideMenu[sm_dec].buttonRect);
     }
 
     if (menuExpanded)
     {
-        SDL_Rect wrapper = {ComponentsButton.buttonRect.x,
-                            ComponentsButton.buttonRect.y +
-                                ComponentsButton.buttonRect.h,
-                            ComponentsButton.buttonRect.w, 2 + g_total * (25 + 2)};
+        SDL_Rect wrapper = {SideMenu[sm_compo].buttonRect.x,
+                            SideMenu[sm_compo].buttonRect.y +
+                                SideMenu[sm_compo].buttonRect.h,
+                            SideMenu[sm_compo].buttonRect.w, 2 + g_total * (25 + 2)};
         SDL_SetRenderDrawColor(renderer, BG2);
         SDL_RenderFillRect(renderer, &wrapper);
 
@@ -219,50 +221,73 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
 
 void DrawConfirmationScreen(ConfirmationFlags flag)
 {
-    int w, h;
-    SDL_GetWindowSize(window, &w, &h);
-    SDL_Rect darken = {.x = 0, .y = 0, .w = w, .h = h};
-    SDL_Rect box = {.x = w / 2 - 200, .y = h / 2 - 100, .w = 400, .h = 200};
-    SDL_Rect message = {.x = box.x + 10, box.y + box.h / 4, box.w - 20, 30};
-    SDL_SetRenderDrawColor(renderer, BLACK, 100);
-    SDL_RenderFillRect(renderer, &darken);
-    SDL_SetRenderDrawColor(renderer, BG2);
-    SDL_RenderFillRect(renderer, &box);
-    if (flag == clearGrid)
-        DisplayText("Clear Grid? This action cannot be undone.", message);
-    else if (flag == q_saveNewFile || flag == o_saveNewFile || flag == n_saveNewFile)
-        DisplayText("Do you want to save your work?", message);
-    else if (flag == q_saveChanges || flag == o_saveChanges || flag == n_saveChanges)
-        DisplayText("Save changes to the file?", message);
-    SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
-    SDL_RenderFillRect(renderer, &clearYes.buttonRect);
-    DisplayText("Yes", clearYes.buttonRect);
-    SDL_SetRenderDrawColor(renderer, clearNo.color.r, clearNo.color.g, clearNo.color.b, 255);
-    SDL_RenderFillRect(renderer, &clearNo.buttonRect);
-    DisplayText("No", clearNo.buttonRect);
+    if (flag != fileMenuFlag){
+        int w, h;
+        SDL_GetWindowSize(window, &w, &h);
+        SDL_Rect darken = {.x = 0, .y = 0, .w = w, .h = h};
+        SDL_Rect box = {.x = w / 2 - 200, .y = h / 2 - 100, .w = 400, .h = 200};
+        SDL_Rect message = {.x = box.x + 10, box.y + box.h / 4, box.w - 20, 30};
+        SDL_SetRenderDrawColor(renderer, BLACK, 100);
+        SDL_RenderFillRect(renderer, &darken);
+        SDL_SetRenderDrawColor(renderer, BG2);
+        SDL_RenderFillRect(renderer, &box);
+        if (flag == clearGrid)
+            DisplayText("Clear Grid? This action cannot be undone.", message);
+        else if (flag == q_saveNewFile || flag == o_saveNewFile || flag == n_saveNewFile)
+            DisplayText("Do you want to save your work?", message);
+        else if (flag == q_saveChanges || flag == o_saveChanges || flag == n_saveChanges)
+            DisplayText("Save changes to the file?", message);
+        SDL_SetRenderDrawColor(renderer, clearYes.color.r, clearYes.color.g, clearYes.color.b, 255);
+        SDL_RenderFillRect(renderer, &clearYes.buttonRect);
+        DisplayText("Yes", clearYes.buttonRect);
+        SDL_SetRenderDrawColor(renderer, clearNo.color.r, clearNo.color.g, clearNo.color.b, 255);
+        SDL_RenderFillRect(renderer, &clearNo.buttonRect);
+        DisplayText("No", clearNo.buttonRect);
+    }
+
+    for (int i = 0; i < fm_total && flag == fileMenuFlag; i++)
+    {
+        SDL_RenderFillRect(renderer, &FileMenu[i].buttonRect);
+        DisplayText(FileMenuButtonText[i], FileMenu[i].buttonRect);
+    }
 }
 
-void HoverOver(Button *button, bool menuExpanded, ConfirmationFlags showConfirmScreen)
+void HoverOver(Pair button, bool menuExpanded, ConfirmationFlags showConfirmScreen)
 {
-    if (!button)
+    if (button.x < 0)
         return;
     bool toHover = !showConfirmScreen;
-    for (int i = 0; i < g_total; i++)
+    SDL_Rect border;
+    if (button.x == cm)
     {
-        if (button == &Components[i])
-        {
-            toHover = menuExpanded;
-            break;
-        }
+        toHover = menuExpanded;
+        border = (SDL_Rect){Components[button.y].buttonRect.x - 1, Components[button.y].buttonRect.y - 1,
+                            Components[button.y].buttonRect.w + 2, Components[button.y].buttonRect.h + 2};
     }
-    if (button == &clearYes || button == &clearNo)
+    else if (button.x == con)
     {
+        if (button.y)
+            border = (SDL_Rect){clearYes.buttonRect.x - 1, clearYes.buttonRect.y - 1,
+                                clearYes.buttonRect.w + 2, clearYes.buttonRect.h + 2};
+        else
+            border = (SDL_Rect){clearNo.buttonRect.x - 1, clearNo.buttonRect.y - 1,
+                                clearNo.buttonRect.w + 2, clearNo.buttonRect.h + 2};
         toHover = showConfirmScreen;
+    }
+    else if (button.x == fm)
+    {
+        border = (SDL_Rect){FileMenu[button.y].buttonRect.x - 1, FileMenu[button.y].buttonRect.y - 1,
+                            FileMenu[button.y].buttonRect.w + 2, FileMenu[button.y].buttonRect.h + 2};
+        toHover = showConfirmScreen;
+    }
+    else if (button.x == sm)
+    {
+        border = (SDL_Rect){SideMenu[button.y].buttonRect.x - 1, SideMenu[button.y].buttonRect.y - 1,
+                            SideMenu[button.y].buttonRect.w + 2, SideMenu[button.y].buttonRect.h + 2};
+        toHover = !showConfirmScreen;
     }
     if (toHover)
     {
-        SDL_Rect border = {button->buttonRect.x - 1, button->buttonRect.y - 1,
-                           button->buttonRect.w + 2, button->buttonRect.h + 2};
         SDL_SetRenderDrawColor(renderer, 25, 255, 0, 255);
         SDL_RenderDrawRect(renderer, &border);
     }
@@ -299,11 +324,11 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Se
     if (menuExpanded)
     {
         SDL_SetRenderDrawColor(renderer, BG1);
-        SDL_Rect cover = {ComponentsButton.buttonRect.x,
-                          ComponentsButton.buttonRect.y +
-                              ComponentsButton.buttonRect.h +
+        SDL_Rect cover = {SideMenu[sm_compo].buttonRect.x,
+                          SideMenu[sm_compo].buttonRect.y +
+                              SideMenu[sm_compo].buttonRect.h +
                               (2 * (*animationFlag) - 1) * (25 + 2),
-                          ComponentsButton.buttonRect.w,
+                          SideMenu[sm_compo].buttonRect.w,
                           2 + (g_total + 1 - 2 * (*animationFlag)) * (25 + 2)};
         SDL_RenderFillRect(renderer, &cover);
         *animationFlag += 1;
@@ -312,11 +337,11 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Se
     {
         DrawMenu(true, simulating, snap, choice);
         SDL_SetRenderDrawColor(renderer, BG1);
-        SDL_Rect cover = {ComponentsButton.buttonRect.x,
-                          ComponentsButton.buttonRect.y +
-                              ComponentsButton.buttonRect.h +
+        SDL_Rect cover = {SideMenu[sm_compo].buttonRect.x,
+                          SideMenu[sm_compo].buttonRect.y +
+                              SideMenu[sm_compo].buttonRect.h +
                               (2 * (*animationFlag)) * (25 + 2),
-                          ComponentsButton.buttonRect.w,
+                          SideMenu[sm_compo].buttonRect.w,
                           2 + (g_total - 2 * (*animationFlag)) * (25 + 2)};
         SDL_RenderFillRect(renderer, &cover);
         *animationFlag -= 1;
@@ -354,18 +379,20 @@ void DrawWire(SDL_Point start, SDL_Point end, bool hilo, bool simulating)
         }
         SDL_Point p2 = {start.x + (end.x - start.x) / 3, start.y};
         SDL_Point p3 = {end.x - (end.x - start.x) / 3, end.y};
-        if (i == 1){
-            if(hilo && simulating)
+        if (i == 1)
+        {
+            if (hilo && simulating)
                 SDL_SetRenderDrawColor(renderer, HIGH_COLOR, 255);
-            else if(!hilo && simulating)
+            else if (!hilo && simulating)
                 SDL_SetRenderDrawColor(renderer, LOW_COLOR, 255);
             else
                 SDL_SetRenderDrawColor(renderer, WIRE_NEUTRAL, 255);
         }
-        else{
-            if(hilo && simulating)
+        else
+        {
+            if (hilo && simulating)
                 SDL_SetRenderDrawColor(renderer, WIRE_HIGH_D, 255);
-            else if(!hilo && simulating)
+            else if (!hilo && simulating)
                 SDL_SetRenderDrawColor(renderer, WIRE_LOW_D, 255);
             else
                 SDL_SetRenderDrawColor(renderer, WIRE_NEUTRAL_D, 255);
@@ -554,7 +581,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
 
     if (confirmationScreenFlag != none)
         DrawConfirmationScreen(confirmationScreenFlag);
-    HoverOver(clickedOn(x, y, menuExpanded, choiceComponent), menuExpanded, confirmationScreenFlag);
+    HoverOver(clickedOn(x, y, menuExpanded, choiceComponent, confirmationScreenFlag == fileMenuFlag), menuExpanded, confirmationScreenFlag);
 
     if (drawingWire && !confirmationScreenFlag)
     {

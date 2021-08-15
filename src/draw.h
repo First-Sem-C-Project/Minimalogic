@@ -5,6 +5,7 @@
 typedef enum
 {
     none,
+    fileMenuFlag,
     clearGrid,
     q_saveNewFile,
     q_saveChanges,

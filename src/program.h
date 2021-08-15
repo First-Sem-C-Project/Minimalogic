@@ -38,6 +38,38 @@
 #define BLACK 0, 0, 0
 #pragma endregion
 
+typedef enum
+{
+    sm,
+    fm,
+    cm,
+    con
+} ButtonClan;
+typedef enum
+{
+    sm_run,
+    sm_compo,
+    sm_inc,
+    sm_dec,
+    sm_undo,
+    sm_redo,
+    sm_snap,
+    sm_delete,
+    sm_clear,
+    sm_fmenu,
+    sm_total
+} SidemenuButtons;
+typedef enum
+{
+    fm_new,
+    fm_open,
+    fm_save,
+    fm_saveas,
+    fm_exitm,
+    fm_exitp,
+    fm_total
+} FileMenuButtons;
+
 typedef struct
 {
     Type type;
@@ -58,8 +90,8 @@ typedef struct Button
 } Button;
 
 bool PositionIsValid(int *, int, int, Pair);
-Button *clickedOn(int, int, bool, Selection);
 void InitEverything(int *);
 void InitMenu(int, int);
 void CloseEverything();
 void ProgramMainLoop(int *);
+Pair clickedOn(int, int, bool, Selection, bool);

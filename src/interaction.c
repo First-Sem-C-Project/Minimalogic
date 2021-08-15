@@ -3,20 +3,11 @@
 
 Wire tmpWire;
 
-extern Button RunButton;
-extern Button ComponentsButton;
+extern Button SideMenu[sm_total];
+extern Button FileMenu[fm_total];
 extern Button Components[g_total];
-extern Button IncreaseInputs;
-extern Button DecreaseInputs;
-extern Button Open;
-extern Button Save;
-extern Button SaveAs;
-extern Button Snap;
-extern Button Clear;
 extern Button clearYes;
 extern Button clearNo;
-extern Button CompoDeleteButton;
-extern Button New;
 
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
@@ -30,115 +21,51 @@ Actions undos[MAX_UNDOS];
 
 extern bool fileExists;
 
-Button *clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice)
+Pair clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice, bool fmenuOpen)
 {
-    if (cursorX > RunButton.buttonRect.x &&
-        cursorX < RunButton.buttonRect.x + RunButton.buttonRect.w &&
-        cursorY > RunButton.buttonRect.y &&
-        cursorY < RunButton.buttonRect.y + RunButton.buttonRect.h)
+    for (int i = 0; i < sm_total; i++)
     {
-        return &RunButton;
+        if (cursorX > SideMenu[i].buttonRect.x &&
+            cursorX < SideMenu[i].buttonRect.x + SideMenu[i].buttonRect.w &&
+            cursorY > SideMenu[i].buttonRect.y &&
+            cursorY < SideMenu[i].buttonRect.y + SideMenu[i].buttonRect.h)
+        {
+            if (i != sm_inc && i != sm_dec)
+                return (Pair){sm, i};
+            else if ((i == sm_inc || i == sm_dec) && choice.type >= g_and)
+                return (Pair){sm, i};
+            return (Pair){-1, -1};
+        }
     }
-    else if (cursorX > ComponentsButton.buttonRect.x &&
-             cursorX < ComponentsButton.buttonRect.x + ComponentsButton.buttonRect.w &&
-             cursorY > ComponentsButton.buttonRect.y &&
-             cursorY < ComponentsButton.buttonRect.y + ComponentsButton.buttonRect.h)
+    for (int i = 0; i < fm_total && fmenuOpen; i++)
     {
-        return &ComponentsButton;
+        if (cursorX > FileMenu[i].buttonRect.x &&
+            cursorX < FileMenu[i].buttonRect.x + FileMenu[i].buttonRect.w &&
+            cursorY > FileMenu[i].buttonRect.y &&
+            cursorY < FileMenu[i].buttonRect.y + FileMenu[i].buttonRect.h)
+            return (Pair){fm, i};
     }
-    else if (cursorX > CompoDeleteButton.buttonRect.x &&
-             cursorX < CompoDeleteButton.buttonRect.x + CompoDeleteButton.buttonRect.w &&
-             cursorY > CompoDeleteButton.buttonRect.y &&
-             cursorY < CompoDeleteButton.buttonRect.y + CompoDeleteButton.buttonRect.h)
-    {
-        return &CompoDeleteButton;
-    }
-    else if (cursorX > Snap.buttonRect.x &&
-             cursorX < Snap.buttonRect.x + Snap.buttonRect.w &&
-             cursorY > Snap.buttonRect.y &&
-             cursorY < Snap.buttonRect.y + Snap.buttonRect.h)
-    {
-        return &Snap;
-    }
-    else if (cursorX > Clear.buttonRect.x &&
-             cursorX < Clear.buttonRect.x + Clear.buttonRect.w &&
-             cursorY > Clear.buttonRect.y &&
-             cursorY < Clear.buttonRect.y + Clear.buttonRect.h)
-    {
-        return &Clear;
-    }
-    else if (cursorX > clearYes.buttonRect.x &&
-             cursorX < clearYes.buttonRect.x + clearYes.buttonRect.w &&
-             cursorY > clearYes.buttonRect.y &&
-             cursorY < clearYes.buttonRect.y + clearYes.buttonRect.h)
-    {
-        return &clearYes;
-    }
+    if (cursorX > clearYes.buttonRect.x &&
+        cursorX < clearYes.buttonRect.x + clearYes.buttonRect.w &&
+        cursorY > clearYes.buttonRect.y &&
+        cursorY < clearYes.buttonRect.y + clearYes.buttonRect.h && !fmenuOpen)
+        return (Pair){con, 1};
     else if (cursorX > clearNo.buttonRect.x &&
              cursorX < clearNo.buttonRect.x + clearNo.buttonRect.w &&
              cursorY > clearNo.buttonRect.y &&
-             cursorY < clearNo.buttonRect.y + clearNo.buttonRect.h)
-    {
-        return &clearNo;
-    }
-    else if (cursorX > Open.buttonRect.x &&
-             cursorX < Open.buttonRect.x + Open.buttonRect.w &&
-             cursorY > Open.buttonRect.y &&
-             cursorY < Open.buttonRect.y + Open.buttonRect.h)
-    {
-        return &Open;
-    }
-    else if (cursorX > Save.buttonRect.x &&
-             cursorX < Save.buttonRect.x + Save.buttonRect.w &&
-             cursorY > Save.buttonRect.y &&
-             cursorY < Save.buttonRect.y + Save.buttonRect.h)
-    {
-        return &Save;
-    }
-    else if (cursorX > SaveAs.buttonRect.x &&
-             cursorX < SaveAs.buttonRect.x + SaveAs.buttonRect.w &&
-             cursorY > SaveAs.buttonRect.y &&
-             cursorY < SaveAs.buttonRect.y + SaveAs.buttonRect.h)
-    {
-        return &SaveAs;
-    }
-    else if (cursorX > New.buttonRect.x &&
-             cursorX < New.buttonRect.x + New.buttonRect.w &&
-             cursorY > New.buttonRect.y &&
-             cursorY < New.buttonRect.y + New.buttonRect.h)
-    {
-        return &New;
-    }
-    for (int i = 0; i < g_total; i++)
+             cursorY < clearNo.buttonRect.y + clearNo.buttonRect.h && !fmenuOpen)
+        return (Pair){con, 0};
+    for (int i = 0; i < g_total && menuExpanded; i++)
     {
         if (cursorX > Components[i].buttonRect.x &&
             cursorX < Components[i].buttonRect.x + Components[i].buttonRect.w &&
             cursorY > Components[i].buttonRect.y &&
             cursorY < Components[i].buttonRect.y + Components[i].buttonRect.h)
         {
-            return &Components[i];
+            return (Pair){cm, i};
         }
     }
-
-    if (choice.type >= g_and)
-    {
-        if (cursorX > IncreaseInputs.buttonRect.x &&
-            cursorX < IncreaseInputs.buttonRect.x + IncreaseInputs.buttonRect.w &&
-            cursorY > IncreaseInputs.buttonRect.y &&
-            cursorY < IncreaseInputs.buttonRect.y + IncreaseInputs.buttonRect.h)
-        {
-            return &IncreaseInputs;
-        }
-
-        if (cursorX > DecreaseInputs.buttonRect.x &&
-            cursorX < DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w &&
-            cursorY > DecreaseInputs.buttonRect.y &&
-            cursorY < DecreaseInputs.buttonRect.y + DecreaseInputs.buttonRect.h)
-        {
-            return &DecreaseInputs;
-        }
-    }
-    return NULL;
+    return (Pair){-1, -1};
 }
 
 bool StartWiring(Pair pos)
@@ -167,7 +94,7 @@ void ToggleSimulation(bool *running)
     {
         *running = false;
         SDL_Color green = {GREEN};
-        RunButton.color = green;
+        SideMenu[sm_run].color = green;
         for (int i = 0; i < componentCount; i++)
         {
             ComponentList[i].depth = 0;
@@ -182,7 +109,7 @@ void ToggleSimulation(bool *running)
     {
         *running = true;
         SDL_Color red = {RED};
-        RunButton.color = red;
+        SideMenu[sm_run].color = red;
     }
 }
 
@@ -527,11 +454,11 @@ void UndoMoving(Move moved, int *grid)
     SetIOPos(&ComponentList[moved.index]);
 }
 
-void Undo(int *grid, int currentUndoLevel, int totalUndoLevel)
+void Undo(int *grid, int *currentUndoLevel, int totalUndoLevel)
 {
-    if (currentUndoLevel >= totalUndoLevel)
+    if (*currentUndoLevel >= totalUndoLevel)
         return;
-    Actions toUndo = undos[currentUndoLevel];
+    Actions toUndo = undos[*currentUndoLevel];
     switch (toUndo.act)
     {
     case 'd':
@@ -549,6 +476,7 @@ void Undo(int *grid, int currentUndoLevel, int totalUndoLevel)
     default:
         break;
     }
+    *currentUndoLevel += 1;
 }
 
 void RedoDeletion(Delete deleted, int *grid)
@@ -581,9 +509,10 @@ void RedoMoving(Move moved, int *grid)
     SetIOPos(&ComponentList[moved.index]);
 }
 
-void Redo(int *grid, int currentUndoLevel, int totalUndoLevel)
+void Redo(int *grid, int *currentUndoLevel, int totalUndoLevel)
 {
-    Actions toRedo = undos[currentUndoLevel];
+    *currentUndoLevel -= 1;
+    Actions toRedo = undos[*currentUndoLevel];
     switch (toRedo.act)
     {
     case 'd':

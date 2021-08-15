@@ -1,25 +1,17 @@
 #include "program.h"
 #include "interaction.h"
 #include "draw.h"
+#include <stdio.h>
 
 // SDL window and renderer
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 // Buttons
-Button RunButton = {.color = {GREEN}};
-Button ComponentsButton = {.color = {BLACK}};
-Button CompoDeleteButton = {.color = {BLACK}};
-Button Components[g_total];
-Button IncreaseInputs = {.color = RED};
-Button DecreaseInputs = {.color = RED};
-Button Open = {.color = {BLACK, 255}};
-Button Save = {.color = {BLACK, 255}};
-Button SaveAs = {.color = {BLACK, 255}};
-Button Snap = {.color = {BLACK, 255}};
-Button Clear = {.color = {BLACK, 255}};
 Button clearYes = {.color = {GREEN, 255}};
 Button clearNo = {.color = {RED, 255}};
-Button New = {.color = {BLACK, 255}};
+Button Components[g_total];
+Button SideMenu[sm_total];
+Button FileMenu[fm_total];
 //Fonts and Character Maps
 TTF_Font *font = NULL;        //Font used in UI
 TTF_Font *displayFont = NULL; //Font used in decoders
@@ -56,40 +48,40 @@ void InitFont()
 
 void InitMenu(int windowWidth, int windowHeight)
 {
-    RunButton.buttonRect.x = 10;
-    RunButton.buttonRect.y = 10;
-    RunButton.buttonRect.w = MENU_WIDTH - 20;
-    RunButton.buttonRect.h = 30;
+    for (int i = 0; i < sm_total; i++)
+    {
+        SideMenu[i].buttonRect.w = MENU_WIDTH - 20;
+        SideMenu[i].buttonRect.h = 30;
+        SideMenu[i].buttonRect.x = 10;
+        SideMenu[i].buttonRect.y = windowHeight -
+                                   (sm_total - i) * (10 + SideMenu[i].buttonRect.h);
+    }
+    for (int i = 0; i < fm_total; i++)
+    {
+        FileMenu[i].buttonRect.w = MENU_WIDTH - 20;
+        FileMenu[i].buttonRect.h = 30;
+        FileMenu[i].buttonRect.x = windowWidth / 2 - FileMenu[i].buttonRect.w / 2;
+        FileMenu[i].buttonRect.y = windowHeight / 2 +
+                                   FileMenu[i].buttonRect.h / 2 +
+                                   (i - fm_total / 2) * FileMenu[i].buttonRect.h;
+    }
+    SideMenu[sm_run].color = (SDL_Color){GREEN};
+    SideMenu[sm_compo].color = (SDL_Color){BLACK};
+    SideMenu[sm_run].buttonRect.y = 10;
+    SideMenu[sm_compo].buttonRect.y = SideMenu[sm_run].buttonRect.y + SideMenu[sm_compo].buttonRect.h + 10;
+    SideMenu[sm_dec].color = (SDL_Color){RED};
+    SideMenu[sm_dec].buttonRect.w = 0.15 * MENU_WIDTH - 10;
+    SideMenu[sm_dec].buttonRect.x = 10;
 
-    ComponentsButton.buttonRect.x = 10;
-    ComponentsButton.buttonRect.y = 50;
-    ComponentsButton.buttonRect.w = MENU_WIDTH - 20;
-    ComponentsButton.buttonRect.h = 30;
+    InputsCount.x = SideMenu[sm_dec].buttonRect.x + SideMenu[sm_dec].buttonRect.w + 5;
+    InputsCount.y = SideMenu[sm_dec].buttonRect.y;
+    InputsCount.w = 0.7 * MENU_WIDTH - 10;
+    InputsCount.h = 30;
 
-    New.buttonRect.w = MENU_WIDTH - 20;
-    New.buttonRect.h = 30;
-    New.buttonRect.x = 10;
-    New.buttonRect.y = windowHeight - New.buttonRect.h - 10;
-
-    SaveAs.buttonRect.w = MENU_WIDTH - 20;
-    SaveAs.buttonRect.h = 30;
-    SaveAs.buttonRect.x = 10;
-    SaveAs.buttonRect.y = New.buttonRect.y - SaveAs.buttonRect.h - 10;
-
-    Save.buttonRect.w = MENU_WIDTH - 20;
-    Save.buttonRect.h = 30;
-    Save.buttonRect.x = 10;
-    Save.buttonRect.y = SaveAs.buttonRect.y - Save.buttonRect.h - 10;
-
-    Open.buttonRect.w = MENU_WIDTH - 20;
-    Open.buttonRect.h = 30;
-    Open.buttonRect.x = 10;
-    Open.buttonRect.y = Save.buttonRect.y - Open.buttonRect.h - 10;
-
-    Clear.buttonRect.w = MENU_WIDTH - 20;
-    Clear.buttonRect.h = 30;
-    Clear.buttonRect.x = 10;
-    Clear.buttonRect.y = Open.buttonRect.y - Clear.buttonRect.h - 10;
+    SideMenu[sm_inc].color = (SDL_Color){RED};
+    SideMenu[sm_inc].buttonRect.w = 0.15 * MENU_WIDTH - 10;
+    SideMenu[sm_inc].buttonRect.x = InputsCount.x + InputsCount.w + 5;
+    SideMenu[sm_inc].buttonRect.y = SideMenu[sm_dec].buttonRect.y;
 
     clearYes.buttonRect.w = 150;
     clearYes.buttonRect.h = 30;
@@ -101,38 +93,13 @@ void InitMenu(int windowWidth, int windowHeight)
     clearNo.buttonRect.x = windowWidth / 2 - 200 + 400 - 25 - clearNo.buttonRect.w;
     clearNo.buttonRect.y = windowHeight / 2 - 100 + 200 - clearNo.buttonRect.h - 25;
 
-    Snap.buttonRect.w = MENU_WIDTH - 20;
-    Snap.buttonRect.h = 30;
-    Snap.buttonRect.x = 10;
-    Snap.buttonRect.y = Clear.buttonRect.y - Snap.buttonRect.h - 10;
-
-    CompoDeleteButton.buttonRect.w = MENU_WIDTH - 20;
-    CompoDeleteButton.buttonRect.h = 30;
-    CompoDeleteButton.buttonRect.x = 10;
-    CompoDeleteButton.buttonRect.y = Snap.buttonRect.y - CompoDeleteButton.buttonRect.h - 10;
-
-    DecreaseInputs.buttonRect.w = 0.15 * MENU_WIDTH - 10;
-    DecreaseInputs.buttonRect.h = 30;
-    DecreaseInputs.buttonRect.x = 10;
-    DecreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - DecreaseInputs.buttonRect.h - 10;
-
-    InputsCount.x = DecreaseInputs.buttonRect.x + DecreaseInputs.buttonRect.w + 5;
-    InputsCount.y = DecreaseInputs.buttonRect.y;
-    InputsCount.w = 0.7 * MENU_WIDTH - 10;
-    InputsCount.h = DecreaseInputs.buttonRect.h;
-
-    IncreaseInputs.buttonRect.w = 0.15 * MENU_WIDTH - 10;
-    IncreaseInputs.buttonRect.h = 30;
-    IncreaseInputs.buttonRect.x = InputsCount.x + InputsCount.w + 5;
-    IncreaseInputs.buttonRect.y = CompoDeleteButton.buttonRect.y - IncreaseInputs.buttonRect.h - 10;
-
     for (int i = 0; i < g_total; i++)
     {
         Components[i].selection.type = i;
         Components[i].selection.size = 2;
         Components[i].buttonRect.x = 20;
-        Components[i].buttonRect.y = ComponentsButton.buttonRect.y +
-                                     ComponentsButton.buttonRect.h +
+        Components[i].buttonRect.y = SideMenu[sm_compo].buttonRect.y +
+                                     SideMenu[sm_compo].buttonRect.h +
                                      i * (CELL_SIZE * SCALE + 2) + 2;
         Components[i].buttonRect.w = MENU_WIDTH - 40;
         Components[i].buttonRect.h = MENU_FONT_SIZE;
@@ -374,43 +341,73 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                     }
                     if (x <= MENU_WIDTH)
                     {
-                        Button *clickedButton = clickedOn(x, y, menuExpanded, compoChoice);
-                        if (clickedButton == &RunButton)
+                        Pair clickedButton = clickedOn(x, y, menuExpanded, compoChoice, confirmationScreenFlag == fileMenuFlag);
+                        if (clickedButton.x == sm)
                         {
-                            ToggleSimulation(&simulating);
-                            selected = (Pair){-1, -1};
+                            if (clickedButton.y == sm_run)
+                            {
+                                ToggleSimulation(&simulating);
+                                selected = (Pair){-1, -1};
+                            }
+                            else if (!simulating)
+                            {
+                                switch (clickedButton.y)
+                                {
+                                case (sm_clear):
+                                    confirmationScreenFlag = clearGrid;
+                                    break;
+                                case (sm_compo):
+                                    ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
+                                    animating = 0;
+                                    break;
+                                case (sm_dec):
+                                    ChangeNumofInputs(true, &compoChoice);
+                                    break;
+                                case (sm_inc):
+                                    ChangeNumofInputs(false, &compoChoice);
+                                    break;
+                                case (sm_delete):
+                                    AddDeletedToUndo(&currentUndoLevel, &totalUndoLevel, cell(selected.y, selected.x));
+                                    DeleteComponent(grid, selected);
+                                    selected = (Pair){-1, -1};
+                                    updated = true;
+                                    break;
+                                case (sm_undo):
+                                    if (currentUndoLevel < totalUndoLevel)
+                                        Undo(grid, &currentUndoLevel, totalUndoLevel);
+                                    break;
+                                case (sm_redo):
+                                    if (currentUndoLevel > 0)
+                                        Redo(grid, &currentUndoLevel, totalUndoLevel);
+                                    break;
+                                case (sm_snap):
+                                    ToggleSnap(&snapToGrid);
+                                    snapToggeled = !snapToggeled;
+                                    break;
+                                case (sm_fmenu):
+                                    confirmationScreenFlag = fileMenuFlag;
+                                    break;
+                                default:
+                                    break;
+                                }
+                            }
                         }
-                        else if (clickedButton == &ComponentsButton)
+                        else if (clickedButton.x == cm && menuExpanded)
                         {
-                            ToggleDropDown(&menuExpanded, &dropDownAnimationFlag);
-                            animating = 0;
+                            UnHighlight(compoChoice.type);
+                            compoChoice = SelectComponent(&Components[clickedButton.y]);
                         }
-                        else if (clickedButton == &Open && !simulating)
+                    }
+                }
+                else
+                {
+                    Pair clickedButton = clickedOn(x, y, menuExpanded, compoChoice, confirmationScreenFlag == fileMenuFlag);
+                    if (confirmationScreenFlag == fileMenuFlag && clickedButton.x == fm)
+                    {
+                        switch (clickedButton.y)
                         {
-                            if (fileExists && updated)
-                                confirmationScreenFlag = o_saveChanges;
-                            else if (updated && componentCount > 0)
-                                confirmationScreenFlag = o_saveNewFile;
-                            else
-                                ChooseFile(grid, false);
-                            ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
-                            updated = false;
-                        }
-                        else if (clickedButton == &SaveAs)
-                        {
-                            ChooseFile(grid, true);
-                            updated = false;
-                        }
-                        else if (clickedButton == &Save)
-                        {
-                            if (fileExists)
-                                SaveToFile(grid, currentFile);
-                            else
-                                ChooseFile(grid, true);
-                            updated = false;
-                        }
-                        else if (clickedButton == &New)
-                        {
+                        case fm_new:
+                            printf("anlaksd");
                             if (fileExists && updated)
                                 confirmationScreenFlag = n_saveChanges;
                             else if (updated && componentCount > 0)
@@ -419,36 +416,44 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                 NewProject(grid, &updated);
                             ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
                             updated = false;
-                        }
-                        else if (clickedButton == &Clear && !simulating)
-                            confirmationScreenFlag = clearGrid;
-                        else if (clickedButton == &IncreaseInputs && compoChoice.type >= g_and && !simulating)
-                            ChangeNumofInputs(false, &compoChoice);
-                        else if (clickedButton == &DecreaseInputs && compoChoice.type >= g_and && !simulating)
-                            ChangeNumofInputs(true, &compoChoice);
-                        else if (clickedButton == &Snap)
-                        {
-                            ToggleSnap(&snapToGrid);
-                            snapToggeled = !snapToggeled;
-                        }
-                        else if (clickedButton == &CompoDeleteButton && cell(selected.y, selected.x) != -1)
-                        {
-                            AddDeletedToUndo(&currentUndoLevel, &totalUndoLevel, cell(selected.y, selected.x));
-                            DeleteComponent(grid, selected);
-                            selected = (Pair){-1, -1};
-                            updated = true;
-                        }
-                        else if (clickedButton && menuExpanded)
-                        {
-                            UnHighlight(compoChoice.type);
-                            compoChoice = SelectComponent(clickedButton);
+                            break;
+                        case fm_open:
+                            if (fileExists && updated)
+                                confirmationScreenFlag = o_saveChanges;
+                            else if (updated && componentCount > 0)
+                                confirmationScreenFlag = o_saveNewFile;
+                            else
+                                ChooseFile(grid, false);
+                            ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
+                            updated = false;
+                            break;
+                        case fm_save:
+                            if (fileExists)
+                                SaveToFile(grid, currentFile);
+                            else
+                                ChooseFile(grid, true);
+                            updated = false;
+                            break;
+                        case fm_saveas:
+                            ChooseFile(grid, true);
+                            updated = false;
+                            break;
+                        case fm_exitm:
+                            confirmationScreenFlag = none;
+                            break;
+                        case fm_exitp:
+                            if (fileExists && updated)
+                                confirmationScreenFlag = q_saveChanges;
+                            else if (updated && componentCount > 0)
+                                confirmationScreenFlag = q_saveNewFile;
+                            else
+                                run = false;
+                            break;
+                        default:
+                            break;
                         }
                     }
-                }
-                else
-                {
-                    Button *clickedButton = clickedOn(x, y, menuExpanded, compoChoice);
-                    if (clickedButton == &clearYes)
+                    else if (clickedButton.x == con && clickedButton.y)
                     {
                         switch (confirmationScreenFlag)
                         {
@@ -485,7 +490,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                             break;
                         }
                     }
-                    else if (clickedButton == &clearNo)
+                    else if (clickedButton.x == con && !clickedButton.y)
                     {
                         if (confirmationScreenFlag == q_saveChanges || confirmationScreenFlag == q_saveNewFile)
                             run = false;
@@ -688,17 +693,11 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                     break;
                 case SDL_SCANCODE_Z:
                     if (ctrlHeld && currentUndoLevel < totalUndoLevel)
-                    {
-                        Undo(grid, currentUndoLevel, totalUndoLevel);
-                        currentUndoLevel++;
-                    }
+                        Undo(grid, &currentUndoLevel, totalUndoLevel);
                     break;
                 case SDL_SCANCODE_R:
                     if (ctrlHeld && currentUndoLevel > 0)
-                    {
-                        currentUndoLevel--;
-                        Redo(grid, currentUndoLevel, totalUndoLevel);
-                    }
+                        Redo(grid, &currentUndoLevel, totalUndoLevel);
                     break;
                 case SDL_SCANCODE_S:
                     if (ctrlHeld)
