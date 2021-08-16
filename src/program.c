@@ -231,7 +231,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
     int pad_x, pad_y;
     PadGrid(&pad_x, &pad_y);
 
-    int changeX = 0, changeY = 0, sender, receiver, sendIndex, receiveIndex, compoMoved;
+    int sender, receiver, sendIndex, receiveIndex, compoMoved;
     bool simulating = false, menuExpanded = false, drawingWire = false, movingCompo = false, confirmWire = false;
     bool snapToGrid = false, snapToggeled = false, cursorInGrid, draw, updated = false, ctrlHeld = false;
     char dropDownAnimationFlag = 0, startAt = 0, endAt = 0, animating = 0;
@@ -759,15 +759,12 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
         }
 
         if (simulating || animating < 8)
+            DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
+        if (simulating)
         {
             for (int i = 0; i < 256; i++)
                 AlreadyUpdated[i] = false;
-            drawingWire = false;
-            DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
-        }
-        if (simulating)
-        {
             UpdateComponents();
             time += DELAY;
             if (time >= DELAY * 20)
