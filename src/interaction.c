@@ -6,8 +6,8 @@ Wire tmpWire;
 extern Button SideMenu[sm_total];
 extern Button FileMenu[fm_total];
 extern Button Components[g_total];
-extern Button clearYes;
-extern Button clearNo;
+extern Button confirmYes;
+extern Button confirmNo;
 
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
@@ -21,7 +21,7 @@ Actions undos[MAX_UNDOS];
 
 extern bool fileExists;
 
-Pair clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice, bool fmenuOpen)
+Pair MouseIsOver(int cursorX, int cursorY, bool menuExpanded, Selection choice, bool fmenuOpen)
 {
     for (int i = 0; i < sm_total; i++)
     {
@@ -45,15 +45,15 @@ Pair clickedOn(int cursorX, int cursorY, bool menuExpanded, Selection choice, bo
             cursorY < FileMenu[i].buttonRect.y + FileMenu[i].buttonRect.h)
             return (Pair){fm, i};
     }
-    if (cursorX > clearYes.buttonRect.x &&
-        cursorX < clearYes.buttonRect.x + clearYes.buttonRect.w &&
-        cursorY > clearYes.buttonRect.y &&
-        cursorY < clearYes.buttonRect.y + clearYes.buttonRect.h && !fmenuOpen)
+    if (cursorX > confirmYes.buttonRect.x &&
+        cursorX < confirmYes.buttonRect.x + confirmYes.buttonRect.w &&
+        cursorY > confirmYes.buttonRect.y &&
+        cursorY < confirmYes.buttonRect.y + confirmYes.buttonRect.h && !fmenuOpen)
         return (Pair){con, 1};
-    else if (cursorX > clearNo.buttonRect.x &&
-             cursorX < clearNo.buttonRect.x + clearNo.buttonRect.w &&
-             cursorY > clearNo.buttonRect.y &&
-             cursorY < clearNo.buttonRect.y + clearNo.buttonRect.h && !fmenuOpen)
+    else if (cursorX > confirmNo.buttonRect.x &&
+             cursorX < confirmNo.buttonRect.x + confirmNo.buttonRect.w &&
+             cursorY > confirmNo.buttonRect.y &&
+             cursorY < confirmNo.buttonRect.y + confirmNo.buttonRect.h && !fmenuOpen)
         return (Pair){con, 0};
     for (int i = 0; i < g_total && menuExpanded; i++)
     {

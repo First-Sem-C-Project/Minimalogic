@@ -14,16 +14,15 @@
 
 #define SCALE 12
 #define CELL_SIZE 2
-#define MENU_FONT_SIZE 20
+#define MENU_FONT_SIZE 30
 #define GRID_ROW (GRID_WIDTH / CELL_SIZE - GRID_WIDTH / CELL_SIZE % SCALE)
 #define GRID_COL (GRID_HEIGHT / CELL_SIZE - GRID_HEIGHT / CELL_SIZE % SCALE)
 
 #define MIN_WINDOW_WIDTH GRID_WIDTH + MENU_WIDTH
 #define MIN_WINDOW_HEIGHT GRID_HEIGHT
-#define DELAY 33
+#define DELAY 40
 
 #define TERMINAL_SIZE 12
-#define MAX_WIRE_PTS 1000
 #define MAX_UNDOS 200
 
 #define RED 181, 60, 54
@@ -91,7 +90,7 @@ typedef struct Button
 
 bool PositionIsValid(int *, int, int, Pair);
 void InitEverything(int *);
-void InitMenu(int, int);
+void InitMenu(int, int, bool);
 void CloseEverything();
 void ProgramMainLoop(int *);
-Pair clickedOn(int, int, bool, Selection, bool);
+Pair MouseIsOver(int, int, bool, Selection, bool);

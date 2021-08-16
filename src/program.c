@@ -7,8 +7,8 @@
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 // Buttons
-Button clearYes = {.color = {GREEN, 255}};
-Button clearNo = {.color = {RED, 255}};
+Button confirmYes = {.color = {GREEN, 255}};
+Button confirmNo = {.color = {RED, 255}};
 Button Components[g_total];
 Button SideMenu[sm_total];
 Button FileMenu[fm_total];
@@ -46,12 +46,13 @@ void InitFont()
     }
 }
 
-void InitMenu(int windowWidth, int windowHeight)
+void InitMenu(int windowWidth, int windowHeight, bool simulating)
 {
     for (int i = 0; i < sm_total; i++)
     {
         SideMenu[i].buttonRect.w = MENU_WIDTH - 20;
-        SideMenu[i].buttonRect.h = 30;
+        SideMenu[i].color = (SDL_Color){BLACK};
+        SideMenu[i].buttonRect.h = MENU_FONT_SIZE;
         SideMenu[i].buttonRect.x = 10;
         SideMenu[i].buttonRect.y = windowHeight -
                                    (sm_total - i) * (10 + SideMenu[i].buttonRect.h);
@@ -59,14 +60,16 @@ void InitMenu(int windowWidth, int windowHeight)
     for (int i = 0; i < fm_total; i++)
     {
         FileMenu[i].buttonRect.w = MENU_WIDTH - 20;
-        FileMenu[i].buttonRect.h = 30;
+        FileMenu[i].buttonRect.h = MENU_FONT_SIZE;
         FileMenu[i].buttonRect.x = windowWidth / 2 - FileMenu[i].buttonRect.w / 2;
         FileMenu[i].buttonRect.y = windowHeight / 2 +
                                    FileMenu[i].buttonRect.h / 2 +
-                                   (i - fm_total / 2) * FileMenu[i].buttonRect.h;
+                                   (i - fm_total / 2) * (FileMenu[i].buttonRect.h + 10);
     }
-    SideMenu[sm_run].color = (SDL_Color){GREEN};
-    SideMenu[sm_compo].color = (SDL_Color){BLACK};
+    if (simulating)
+        SideMenu[sm_run].color = (SDL_Color){RED};
+    else
+        SideMenu[sm_run].color = (SDL_Color){GREEN};
     SideMenu[sm_run].buttonRect.y = 10;
     SideMenu[sm_compo].buttonRect.y = SideMenu[sm_run].buttonRect.y + SideMenu[sm_compo].buttonRect.h + 10;
     SideMenu[sm_dec].color = (SDL_Color){RED};
@@ -76,22 +79,22 @@ void InitMenu(int windowWidth, int windowHeight)
     InputsCount.x = SideMenu[sm_dec].buttonRect.x + SideMenu[sm_dec].buttonRect.w + 5;
     InputsCount.y = SideMenu[sm_dec].buttonRect.y;
     InputsCount.w = 0.7 * MENU_WIDTH - 10;
-    InputsCount.h = 30;
+    InputsCount.h = MENU_FONT_SIZE;
 
     SideMenu[sm_inc].color = (SDL_Color){RED};
     SideMenu[sm_inc].buttonRect.w = 0.15 * MENU_WIDTH - 10;
     SideMenu[sm_inc].buttonRect.x = InputsCount.x + InputsCount.w + 5;
     SideMenu[sm_inc].buttonRect.y = SideMenu[sm_dec].buttonRect.y;
 
-    clearYes.buttonRect.w = 150;
-    clearYes.buttonRect.h = 30;
-    clearYes.buttonRect.x = windowWidth / 2 - 200 + 25;
-    clearYes.buttonRect.y = windowHeight / 2 - 100 + 200 - clearYes.buttonRect.h - 25;
+    confirmYes.buttonRect.w = 150;
+    confirmYes.buttonRect.h = MENU_FONT_SIZE;
+    confirmYes.buttonRect.x = windowWidth / 2 - 200 + 25;
+    confirmYes.buttonRect.y = windowHeight / 2 - 100 + 200 - confirmYes.buttonRect.h - 25;
 
-    clearNo.buttonRect.w = 150;
-    clearNo.buttonRect.h = 30;
-    clearNo.buttonRect.x = windowWidth / 2 - 200 + 400 - 25 - clearNo.buttonRect.w;
-    clearNo.buttonRect.y = windowHeight / 2 - 100 + 200 - clearNo.buttonRect.h - 25;
+    confirmNo.buttonRect.w = 150;
+    confirmNo.buttonRect.h = MENU_FONT_SIZE;
+    confirmNo.buttonRect.x = windowWidth / 2 - 200 + 400 - 25 - confirmNo.buttonRect.w;
+    confirmNo.buttonRect.y = windowHeight / 2 - 100 + 200 - confirmNo.buttonRect.h - 25;
 
     for (int i = 0; i < g_total; i++)
     {
@@ -100,9 +103,9 @@ void InitMenu(int windowWidth, int windowHeight)
         Components[i].buttonRect.x = 20;
         Components[i].buttonRect.y = SideMenu[sm_compo].buttonRect.y +
                                      SideMenu[sm_compo].buttonRect.h +
-                                     i * (CELL_SIZE * SCALE + 2) + 2;
+                                     i * (CELL_SIZE * SCALE + 2) + 10;
         Components[i].buttonRect.w = MENU_WIDTH - 40;
-        Components[i].buttonRect.h = MENU_FONT_SIZE;
+        Components[i].buttonRect.h = MENU_FONT_SIZE - 10;
     }
 }
 
@@ -146,12 +149,11 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
         exit(-2);
 
     SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     InitGrid(grid);
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
-    InitMenu(w, h);
+    InitMenu(w, h, false);
     InitFont();
     CharacterMap();
 }
@@ -244,7 +246,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
     {
         int begin = SDL_GetTicks();
         SDL_GetMouseState(&x, &y);
-        draw = true;
+        draw = !simulating;
 
         if (x - pad_x > 0)
             gridPos.x = (x - pad_x) / CELL_SIZE;
@@ -277,7 +279,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
             {
                 int w, h;
                 SDL_GetWindowSize(window, &w, &h);
-                InitMenu(w, h);
+                InitMenu(w, h, simulating);
                 PadGrid(&pad_x, &pad_y);
                 break;
             }
@@ -341,7 +343,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                     }
                     if (x <= MENU_WIDTH)
                     {
-                        Pair clickedButton = clickedOn(x, y, menuExpanded, compoChoice, confirmationScreenFlag == fileMenuFlag);
+                        Pair clickedButton = MouseIsOver(x, y, menuExpanded, compoChoice, confirmationScreenFlag == fileMenuFlag);
                         if (clickedButton.x == sm)
                         {
                             if (clickedButton.y == sm_run)
@@ -401,7 +403,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                 }
                 else
                 {
-                    Pair clickedButton = clickedOn(x, y, menuExpanded, compoChoice, confirmationScreenFlag == fileMenuFlag);
+                    Pair clickedButton = MouseIsOver(x, y, menuExpanded, compoChoice, confirmationScreenFlag == fileMenuFlag);
                     if (confirmationScreenFlag == fileMenuFlag && clickedButton.x == fm)
                     {
                         switch (clickedButton.y)
@@ -750,8 +752,8 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
             }
             if (draw)
             {
-                DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
+            DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
                 draw = false;
             }
         }
