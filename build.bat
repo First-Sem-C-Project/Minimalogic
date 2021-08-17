@@ -12,9 +12,9 @@ set CLANGFlags=-g -gcodeview
 set GCCFlags=-O
 
 if "%1" neq "optimize" goto DoneConfig
-set CLFlags=-O2
-set CLANGFlags=-O2 -gcodeview
-set GCCFlags=-O2
+set CLFlags=/Ox
+set CLANGFlags=-O3 -gcodeview
+set GCCFlags=-O3
 
 echo -------------------------------------
 echo Optimize Build configured
