@@ -15,8 +15,8 @@ Button FileMenu[fm_total];
 //Fonts and Character Maps
 TTF_Font *font = NULL;        //Font used in UI
 TTF_Font *displayFont = NULL; //Font used in decoders
-SDL_Texture *characters[256]; //Character map for UI
-int characterWidth[256];
+SDL_Texture *characters[127 - 32]; //Character map for UI
+int characterWidth[127 - 32];
 SDL_Texture *displayChars[16]; //Character Map for decoders
 //To display no. of inputs for multi-input gates
 SDL_Rect InputsCount;
@@ -116,11 +116,11 @@ void CharacterMap()
     SDL_Color white = {WHITE, 200};
     SDL_Color black = {BLACK, 255};
 
-    for (int i = 0; i < 256; i++)
+    for (int i = 32; i < 127; i++)
     {
         characterSurface = TTF_RenderText_Blended(font, (char *)&i, white);
-        characters[i] = SDL_CreateTextureFromSurface(renderer, characterSurface);
-        characterWidth[i] = characterSurface ? characterSurface->w : 0;
+        characters[i - 32] = SDL_CreateTextureFromSurface(renderer, characterSurface);
+        characterWidth[i - 32] = characterSurface ? characterSurface->w : 0;
     }
     for (int i = 0; i < 16; i++)
     {
@@ -160,8 +160,8 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
 
 void DestroyTextures()
 {
-    for (int i = 0; i < 256; i++)
-        SDL_DestroyTexture(characters[i]);
+    for (int i = 32; i < 127; i++)
+        SDL_DestroyTexture(characters[i - 32]);
     for (int i = 0; i < 16; i++)
         SDL_DestroyTexture(displayChars[i]);
 }
@@ -227,7 +227,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
     int sender, receiver, sendIndex, receiveIndex, compoMoved;
     bool simulating = false, menuExpanded = false, drawingWire = false, movingCompo = false, confirmWire = false;
     bool snapToGrid = false, snapToggeled = false, cursorInGrid, draw, updated = false, ctrlHeld = false;
-    char dropDownAnimationFlag = 0, startAt = 0, endAt = 0, animating = 0;
+    char dropDownAnimationFlag = 0, startAt = 0, endAt = 0, animating = 8;
     Pair offset, initialPos;
     ConfirmationFlags confirmationScreenFlag = none;
     unsigned char updateOrder[256];

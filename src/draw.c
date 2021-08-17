@@ -34,8 +34,8 @@ extern Button SideMenu[sm_total];
 extern Button confirmYes;
 extern Button confirmNo;
 
-extern int characterWidth[256];
-extern SDL_Texture *characters[256];
+extern int characterWidth[127 - 32];
+extern SDL_Texture *characters[127 - 32];
 extern SDL_Texture *displayChars[16];
 extern TTF_Font *font;
 extern TTF_Font *displayFont;
@@ -78,7 +78,7 @@ void DisplayText(char *message, SDL_Rect dest)
     float factor = 1;
     for (; *tmp; tmp++)
     {
-        totalWidth += characterWidth[*tmp];
+        totalWidth += characterWidth[*tmp - 32];
     }
     SDL_Rect charDest = {.y = dest.y, .h = dest.h};
 
@@ -92,9 +92,9 @@ void DisplayText(char *message, SDL_Rect dest)
 
     for (int i = 0; *message; message++, i++)
     {
-        charDest.w = characterWidth[*message] * factor;
-        SDL_RenderCopy(renderer, characters[*message], NULL, &charDest);
-        charDest.x += characterWidth[*message] * factor;
+        charDest.w = characterWidth[*message - 32] * factor;
+        SDL_RenderCopy(renderer, characters[*message - 32], NULL, &charDest);
+        charDest.x += characterWidth[*message - 32] * factor;
     }
 }
 
