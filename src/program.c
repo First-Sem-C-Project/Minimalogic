@@ -406,13 +406,14 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                         switch (clickedButton.y)
                         {
                         case fm_new:
-                            printf("anlaksd");
                             if (fileExists && updated)
                                 confirmationScreenFlag = n_saveChanges;
                             else if (updated && componentCount > 0)
                                 confirmationScreenFlag = n_saveNewFile;
-                            else
+                            else{
                                 NewProject(grid, &updated);
+                                confirmationScreenFlag = none;
+                            }
                             ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
                             updated = false;
                             break;
@@ -421,8 +422,10 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                 confirmationScreenFlag = o_saveChanges;
                             else if (updated && componentCount > 0)
                                 confirmationScreenFlag = o_saveNewFile;
-                            else
+                            else{
                                 ChooseFile(grid, false);
+                                confirmationScreenFlag = none;
+                            }
                             ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
                             updated = false;
                             break;
@@ -432,10 +435,12 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                             else
                                 ChooseFile(grid, true);
                             updated = false;
+                            confirmationScreenFlag = none;
                             break;
                         case fm_saveas:
                             ChooseFile(grid, true);
                             updated = false;
+                            confirmationScreenFlag = none;
                             break;
                         case fm_exitm:
                             confirmationScreenFlag = none;
@@ -488,6 +493,8 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                         default:
                             break;
                         }
+                        confirmationScreenFlag = none;
+                        updated = false;
                     }
                     else if (clickedButton.x == con && !clickedButton.y)
                     {
@@ -497,9 +504,9 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                             ChooseFile(grid, false);
                         else if (confirmationScreenFlag == n_saveChanges || confirmationScreenFlag == n_saveNewFile)
                             NewProject(grid, &updated);
+                        confirmationScreenFlag = none;
+                        updated = false;
                     }
-                    confirmationScreenFlag = none;
-                    updated = false;
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
