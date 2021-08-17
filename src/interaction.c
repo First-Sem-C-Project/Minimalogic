@@ -19,6 +19,8 @@ extern SDL_Window *window;
 char currentFile[256];
 Actions undos[MAX_UNDOS];
 
+extern bool AlreadyUpdated[256];
+
 extern bool fileExists;
 
 Pair MouseIsOver(int cursorX, int cursorY, bool menuExpanded, Selection choice, bool fmenuOpen)
@@ -97,7 +99,6 @@ void ToggleSimulation(bool *running)
         SideMenu[sm_run].color = green;
         for (int i = 0; i < componentCount; i++)
         {
-            ComponentList[i].depth = 0;
             if (ComponentList[i].type == state)
                 continue;
             for (int j = 0; j < ComponentList[i].onum; j++)
@@ -337,6 +338,21 @@ void DeleteComponent(int *grid, Pair gridPos)
 
 Selection SelectComponent(Button *button) { return button->selection; }
 
+void UpdateChildCount(int index, bool inc){
+    if (inc)
+        ComponentList[index].childCount++;
+    else
+        ComponentList[index].childCount--;
+    AlreadyUpdated[index] = true;
+    Component compo = ComponentList[index];
+    for (int i = 0; i < compo.inum; i ++){
+        if(compo.inpSrc[i].x >= 0){
+            if (!AlreadyUpdated[compo.inpSrc[i].x])
+                UpdateChildCount(compo.inpSrc[i].x, inc);
+        }
+    }
+}
+
 void ChangeNumofInputs(bool dec, Selection *choice)
 {
     if (dec)
@@ -431,6 +447,9 @@ void UndoDeletion(Delete deleted, int *grid)
 
 void UndoWiring(Wiring wired)
 {
+    for (int i = 0; i < 256; i++)
+        AlreadyUpdated[i] = false;
+    UpdateChildCount(wired.sender, false);
     ComponentList[wired.connection.receiver]
         .inpSrc[wired.connection.receiveIndex] = (Pair){-1, -1};
     ComponentList[wired.connection.receiver].inputs[wired.connection.receiveIndex] = NULL;
@@ -486,6 +505,9 @@ void RedoDeletion(Delete deleted, int *grid)
 
 void RedoWiring(Wiring wired)
 {
+    for (int i = 0; i < 256; i++)
+        AlreadyUpdated[i] = false;
+    UpdateChildCount(wired.sender, true);
     ComponentList[wired.connection.receiver].inpSrc[wired.connection.receiveIndex] = (Pair){wired.sender, wired.connection.sendIndex};
     ComponentList[wired.connection.receiver].inputs[wired.connection.receiveIndex] = &ComponentList[wired.sender];
 }

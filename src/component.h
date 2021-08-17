@@ -28,7 +28,7 @@ typedef enum
 typedef struct _component
 {
     Pair start, inpPos[MAX_INPUTS], outPos[MAX_TERM_NUM], inpSrc[MAX_INPUTS];
-    unsigned char size, inum, onum, width, depth;
+    unsigned char size, inum, onum, width, childCount;
     bool outputs[MAX_TERM_NUM];
     Type type;
     struct _component *inputs[MAX_INPUTS];

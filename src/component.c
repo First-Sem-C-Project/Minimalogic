@@ -22,20 +22,17 @@ static void (*operate[g_total])(Component *component) = {ToggleState, ToggleProb
 
 void SetInputs(Component *component)
 {
-    component->depth += 1;
     for (int i = 0; i < component->inum; i++)
     {
-        if (component->inpSrc[i].x != -1 && component->depth < 2)
+        if (component->inpSrc[i].x != -1)
         {
-            component->inputs[i] = &ComponentList[component->inpSrc[i].x];
             if (!AlreadyUpdated[component->inpSrc[i].x])
             {
-                update(component->inputs[i]);
                 AlreadyUpdated[component->inpSrc[i].x] = true;
+                update(component->inputs[i]);
             }
         }
     }
-    component->depth = 0;
 }
 
 void update(Component *component)
@@ -114,7 +111,7 @@ Component SingleInputComponent(Type type, Pair pos)
     component.size *= SCALE;
     component.width *= SCALE;
     component.start = pos;
-    component.depth = 0;
+    component.childCount = 0;
     component.type = type;
     ClearIO(&component);
     if (type == g_not)
@@ -146,8 +143,8 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos)
     component.width = 4;
     component.size *= SCALE;
     component.width *= SCALE;
+    component.childCount = 0;
     component.type = type;
-    component.depth = 0;
     ClearIO(&component);
     SetIOPos(&component);
     return component;
@@ -158,6 +155,7 @@ Component MultiOutComponent(Type type, Pair pos)
     Component component;
     component.width = 5;
     component.start = pos;
+    component.childCount = 0;
 
     switch (type)
     {
@@ -177,7 +175,6 @@ Component MultiOutComponent(Type type, Pair pos)
     component.size *= SCALE;
     component.width *= SCALE;
     component.type = type;
-    component.depth = 0;
     ClearIO(&component);
     SetIOPos(&component);
     return component;

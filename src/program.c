@@ -177,19 +177,11 @@ void CloseEverything()
     SDL_Quit();
 }
 
-void UpdateComponents()
+void UpdateComponents(int leastChildCount)
 {
     for (int i = componentCount - 1; i >= 0; i--)
     {
-        if ((ComponentList[i].type == probe || ComponentList[i].type == d_oct || ComponentList[i].type == d_4x16) && !AlreadyUpdated[i])
-        {
-            AlreadyUpdated[i] = true;
-            update(&ComponentList[i]);
-        }
-    }
-    for (int i = componentCount - 1; i >= 0; i--)
-    {
-        if (ComponentList[i].type != state && !AlreadyUpdated[i])
+        if (!AlreadyUpdated[i] && ComponentList[i].childCount == leastChildCount)
         {
             AlreadyUpdated[i] = true;
             update(&ComponentList[i]);
@@ -237,6 +229,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
     char dropDownAnimationFlag = 0, startAt = 0, endAt = 0, animating = 0;
     Pair offset, initialPos;
     ConfirmationFlags confirmationScreenFlag = none;
+    unsigned char leastChildCount;
 
     int currentUndoLevel = 0, totalUndoLevel = 0;
     bool run = true;
@@ -349,6 +342,10 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                             if (clickedButton.y == sm_run)
                             {
                                 ToggleSimulation(&simulating);
+                                leastChildCount = 255;
+                                for(int i = 0; i < componentCount; i ++){
+                                    leastChildCount = ComponentList[i].childCount < leastChildCount ? ComponentList[i].childCount : leastChildCount;
+                                }
                                 selected = (Pair){-1, -1};
                             }
                             else if (!simulating)
@@ -528,6 +525,9 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                             ComponentList[receiver].inpSrc[receiveIndex - 1] = (Pair){sender, sendIndex * -1 - 1};
                             ComponentList[receiver].inputs[receiveIndex - 1] = &ComponentList[sender];
                             updated = true;
+                            for (int i = 0; i < 256; i++)
+                                AlreadyUpdated[i] = false;
+                            UpdateChildCount(sender, true);
                             ShiftUndoQueue(&currentUndoLevel, &totalUndoLevel);
                             undos[0].act = 'w';
                             undos[0].Action.wired.sender = sender;
@@ -765,7 +765,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
         {
             for (int i = 0; i < 256; i++)
                 AlreadyUpdated[i] = false;
-            UpdateComponents();
+            UpdateComponents(leastChildCount);
             time += DELAY;
             if (time >= DELAY * 20)
                 time = 0;
