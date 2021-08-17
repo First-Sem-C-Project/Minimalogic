@@ -177,14 +177,15 @@ void CloseEverything()
     SDL_Quit();
 }
 
-void UpdateComponents(int leastChildCount)
+void UpdateComponents(unsigned char *updateOrder)
 {
-    for (int i = componentCount - 1; i >= 0; i--)
+    for (int i = 0; i < componentCount; i++)
     {
-        if (!AlreadyUpdated[i] && ComponentList[i].childCount == leastChildCount)
+        unsigned char index = updateOrder[i];
+        if (!AlreadyUpdated[index])
         {
-            AlreadyUpdated[i] = true;
-            update(&ComponentList[i]);
+            AlreadyUpdated[index] = true;
+            update(&ComponentList[index]);
         }
     }
 }
@@ -229,7 +230,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
     char dropDownAnimationFlag = 0, startAt = 0, endAt = 0, animating = 0;
     Pair offset, initialPos;
     ConfirmationFlags confirmationScreenFlag = none;
-    unsigned char leastChildCount;
+    unsigned char updateOrder[256];
 
     int currentUndoLevel = 0, totalUndoLevel = 0;
     bool run = true;
@@ -342,9 +343,18 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                             if (clickedButton.y == sm_run)
                             {
                                 ToggleSimulation(&simulating);
-                                leastChildCount = 255;
-                                for(int i = 0; i < componentCount; i ++){
-                                    leastChildCount = ComponentList[i].childCount < leastChildCount ? ComponentList[i].childCount : leastChildCount;
+                                if (simulating){
+                                    for(int i = 0; i < 256; i ++)
+                                        updateOrder[i] = i;
+                                    for(int i = 0; i < componentCount; i ++){
+                                        for(int j = i; j < componentCount; j ++){
+                                            if (ComponentList[i].childCount > ComponentList[j].childCount){
+                                                unsigned char tmp = updateOrder[i];
+                                                updateOrder[i] = updateOrder[j];
+                                                updateOrder[j] = tmp;
+                                            }
+                                        }
+                                    }
                                 }
                                 selected = (Pair){-1, -1};
                             }
@@ -529,6 +539,8 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                         }
                         if (sender != receiver && confirmWire)
                         {
+                            if (ComponentList[receiver].inpSrc[receiveIndex - 1].x != -1)
+                                UpdateChildCount(sender, false);
                             ComponentList[receiver].inpSrc[receiveIndex - 1] = (Pair){sender, sendIndex * -1 - 1};
                             ComponentList[receiver].inputs[receiveIndex - 1] = &ComponentList[sender];
                             updated = true;
@@ -772,7 +784,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
         {
             for (int i = 0; i < 256; i++)
                 AlreadyUpdated[i] = false;
-            UpdateComponents(leastChildCount);
+            UpdateComponents(updateOrder);
             time += DELAY;
             if (time >= DELAY * 20)
                 time = 0;
