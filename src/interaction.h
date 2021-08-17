@@ -66,3 +66,4 @@ void Undo(int *grid, int *currentUndoLevel, int totalUndoLevel);
 void Redo(int *grid, int *currentUndoLevel, int totalUndoLevel);
 void ShiftUndoQueue(int *currentUndoLevel, int *totalUndoLevel);
 void ClearUndoQueue(int *currentUndoLevel, int *totalUndoLevel);
+void UpdateChildCount(int, bool);

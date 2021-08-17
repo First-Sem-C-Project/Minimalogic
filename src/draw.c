@@ -149,7 +149,7 @@ static char *SideMenuButtonText[sm_total] = {
 static char *FileMenuButtonText[fm_total] = {
     "New File",
     "Open File",
-    "Save File",
+    "Save",
     "Save As",
     "Exit Menu",
     "Exit Program"};
