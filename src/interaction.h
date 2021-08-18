@@ -45,21 +45,16 @@ typedef struct
 } Actions;
 
 void InitGrid(int *);
-bool StartWiring(Pair);
-void WireEndPos(int, int);
-void ToggleSnap(bool *);
-void ToggleSimulation(bool *);
+void ToggleSimulation(bool *, unsigned char *);
 void ToggleDropDown(bool *, char *);
 
 void DeleteComponent(int *, Pair);
 void InsertComponent(int *, Selection, int, int);
-Selection SelectComponent(Button *);
 
 char WireIsValid(int *, Pair, int, int, int, int);
 void ChangeNumofInputs(bool, Selection *);
 
 void ChooseFile(int *, bool saving);
-void ReadFromFile(int *, char *);
 void SaveToFile(int *, char *);
 void NewProject(int *grid, bool *updated);
 void Undo(int *grid, int *currentUndoLevel, int totalUndoLevel);

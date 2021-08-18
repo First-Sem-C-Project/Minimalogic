@@ -13,12 +13,11 @@ void norGate(Component *component);
 void xorGate(Component *component);
 void xnorGate(Component *component);
 void nandGate(Component *component);
-void ToggleState(Component *component);
-void ToggleProbe(Component *component);
+void DoNothing(Component *component);
 void Decode(Component *component);
 int BinToDec(bool[4]);
 
-static void (*operate[g_total])(Component *component) = {ToggleState, ToggleProbe, Tick, notGate, Decode, Decode, andGate, orGate, nandGate, norGate, xorGate, xnorGate};
+static void (*operate[g_total])(Component *component) = {DoNothing, DoNothing, Tick, notGate, Decode, Decode, andGate, orGate, nandGate, norGate, xorGate, xnorGate};
 
 void SetInputs(Component *component)
 {
@@ -293,9 +292,7 @@ void Tick(Component *component)
         component->outputs[0] = !component->outputs[0];
 }
 
-void ToggleState(Component *component) {}
-
-void ToggleProbe(Component *component){};
+void DoNothing(Component *component) {}
 
 void Decode(Component *component)
 {

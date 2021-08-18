@@ -25,7 +25,7 @@
 extern Component ComponentList[256];
 extern unsigned char componentCount;
 
-extern Wire tmpWire;
+static SDL_Point tmpWire[2];
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern Button Components[g_total];
@@ -332,6 +332,21 @@ void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Se
     }
 }
 
+bool StartWiring(Pair pos)
+{
+    tmpWire[0].x = pos.x;
+    tmpWire[0].y = pos.y;
+    tmpWire[1] = tmpWire[0];
+
+    return true;
+}
+
+void WireEndPos(int x, int y)
+{
+    tmpWire[1].x = x;
+    tmpWire[1].y = y;
+}
+
 SDL_Point BezierPoint(float t, SDL_Point p[4])
 {
     float tt = t * t;
@@ -572,7 +587,7 @@ void DrawCall(bool menuExpanded, bool drawingWire, int x, int y,
     if (drawingWire && !confirmationScreenFlag)
     {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        DrawWire(tmpWire.start, tmpWire.end, false, false);
+        DrawWire(tmpWire[0], tmpWire[1], false, false);
     }
 
     if (gridPos.x >= 0 && gridPos.x < GRID_ROW && gridPos.y >= 0 &&

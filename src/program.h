@@ -76,11 +76,6 @@ typedef struct
     Pair pos;
 } Selection;
 
-typedef struct Wire
-{
-    SDL_Point start, end;
-} Wire;
-
 typedef struct Button
 {
     SDL_Rect buttonRect;

@@ -121,6 +121,7 @@ void CharacterMap()
         characterSurface = TTF_RenderText_Blended(font, (char *)&i, white);
         characters[i - 32] = SDL_CreateTextureFromSurface(renderer, characterSurface);
         characterWidth[i - 32] = characterSurface ? characterSurface->w : 0;
+        printf("%d\n", characterWidth[i - 32]);
     }
     for (int i = 0; i < 16; i++)
     {
@@ -342,20 +343,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                         {
                             if (clickedButton.y == sm_run)
                             {
-                                ToggleSimulation(&simulating);
-                                if (simulating){
-                                    for(int i = 0; i < 256; i ++)
-                                        updateOrder[i] = i;
-                                    for(int i = 0; i < componentCount; i ++){
-                                        for(int j = i; j < componentCount; j ++){
-                                            if (ComponentList[i].childCount > ComponentList[j].childCount){
-                                                unsigned char tmp = updateOrder[i];
-                                                updateOrder[i] = updateOrder[j];
-                                                updateOrder[j] = tmp;
-                                            }
-                                        }
-                                    }
-                                }
+                                ToggleSimulation(&simulating, updateOrder);
                                 selected = (Pair){-1, -1};
                             }
                             else if (!simulating)
@@ -390,7 +378,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                                         Redo(grid, &currentUndoLevel, totalUndoLevel);
                                     break;
                                 case (sm_snap):
-                                    ToggleSnap(&snapToGrid);
+                                    snapToGrid = !snapToGrid;
                                     snapToggeled = !snapToggeled;
                                     break;
                                 case (sm_fmenu):
@@ -404,7 +392,7 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                         else if (clickedButton.x == cm && menuExpanded)
                         {
                             UnHighlight(compoChoice.type);
-                            compoChoice = SelectComponent(&Components[clickedButton.y]);
+                            compoChoice = Components[clickedButton.y].selection;
                         }
                     }
                 }
@@ -597,10 +585,6 @@ void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
                     compoChoice.pos.x = GRID_ROW - w;
                 if (compoChoice.pos.y + h >= GRID_COL)
                     compoChoice.pos.y = GRID_COL - h;
-                if (compoChoice.pos.x < 0)
-                    compoChoice.pos.x = 0;
-                if (compoChoice.pos.y < 0)
-                    compoChoice.pos.y = 0;
             }
                 if (drawingWire)
                 {

@@ -1,8 +1,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include "interaction.h"
 
-Wire tmpWire;
-
 extern Button SideMenu[sm_total];
 extern Button FileMenu[fm_total];
 extern Button Components[g_total];
@@ -70,27 +68,7 @@ Pair MouseIsOver(int cursorX, int cursorY, bool menuExpanded, Selection choice, 
     return (Pair){-1, -1};
 }
 
-bool StartWiring(Pair pos)
-{
-    tmpWire.start.x = pos.x;
-    tmpWire.start.y = pos.y;
-    tmpWire.end = tmpWire.start;
-
-    return true;
-}
-
-void WireEndPos(int x, int y)
-{
-    tmpWire.end.x = x;
-    tmpWire.end.y = y;
-}
-
-void ToggleSnap(bool *snap)
-{
-    *snap = !*snap;
-}
-
-void ToggleSimulation(bool *running)
+void ToggleSimulation(bool *running, unsigned char *updateOrder)
 {
     if (*running)
     {
@@ -109,6 +87,17 @@ void ToggleSimulation(bool *running)
     else
     {
         *running = true;
+        for(int i = 0; i < 256; i ++)
+            updateOrder[i] = i;
+        for(int i = 0; i < componentCount; i ++){
+            for(int j = i; j < componentCount; j ++){
+                if (ComponentList[i].childCount > ComponentList[j].childCount){
+                    unsigned char tmp = updateOrder[i];
+                    updateOrder[i] = updateOrder[j];
+                    updateOrder[j] = tmp;
+                }
+            }
+        }
         SDL_Color red = {RED};
         SideMenu[sm_run].color = red;
     }
@@ -173,7 +162,6 @@ void SaveToFile(int *grid, char *fileName)
 
 void ChooseFile(int *grid, bool saving)
 {
-
     char FileName[256] = "";
 
     SDL_SysWMinfo wmInfo;
@@ -335,8 +323,6 @@ void DeleteComponent(int *grid, Pair gridPos)
     }
     componentCount--;
 }
-
-Selection SelectComponent(Button *button) { return button->selection; }
 
 void UpdateChildCount(int index, bool inc){
     if (inc)
