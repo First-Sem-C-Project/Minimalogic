@@ -95,14 +95,16 @@ void DisplayText(char *message, SDL_Rect dest)
 
 void RenderGateText(SDL_Rect compo, Type type)
 {
-    SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE * SCALE / 2,
-                         0, CELL_SIZE * SCALE};
-    char *tmp = compoTexts[type];
-    for (; *tmp; tmp++)
-        textRect.w += characterWidth[*tmp - 32];
-    textRect.x -= textRect.w / 2;
     if (type >= g_and || type == g_not)
+    {
+        SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE * SCALE / 2,
+                             0, CELL_SIZE * SCALE};
+        char *tmp = compoTexts[type];
+        for (; *tmp; tmp++)
+            textRect.w += characterWidth[*tmp - 32];
+        textRect.x -= textRect.w / 2;
         DisplayText(compoTexts[type], textRect);
+    }
 }
 
 static char *SideMenuButtonText[sm_total] = {
@@ -202,7 +204,8 @@ void DrawConfirmationScreen(ConfirmationFlags flag)
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     SDL_Rect box;
     SDL_SetRenderDrawColor(renderer, BG2);
-    if (flag != fileMenuFlag){
+    if (flag != fileMenuFlag)
+    {
         box = (SDL_Rect){.x = w / 2 - 200, .y = h / 2 - 100, .w = 400, .h = 200};
         SDL_Rect message = {.x = box.x + 10, box.y + box.h / 4, box.w - 20, MENU_FONT_SIZE};
         SDL_RenderFillRect(renderer, &box);
@@ -220,7 +223,8 @@ void DrawConfirmationScreen(ConfirmationFlags flag)
         DisplayText("No", confirmNo.buttonRect);
     }
 
-    if (flag == fileMenuFlag){
+    if (flag == fileMenuFlag)
+    {
         box = (SDL_Rect){.x = FileMenu[0].buttonRect.x - 10, .y = FileMenu[0].buttonRect.y - 10, .w = FileMenu[0].buttonRect.w + 20, .h = (FileMenu[fm_total - 1].buttonRect.y - FileMenu[0].buttonRect.y) + FileMenu[0].buttonRect.h + 20};
         SDL_RenderFillRect(renderer, &box);
     }
