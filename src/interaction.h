@@ -1,7 +1,5 @@
 #pragma once
-#include <windows.h>
 #include "program.h"
-#include "SDL2/SDL_syswm.h"
 #pragma endregion
 
 typedef struct

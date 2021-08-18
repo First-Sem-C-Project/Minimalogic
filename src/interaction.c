@@ -1,5 +1,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include "interaction.h"
+#include <windows.h>
+#include "SDL2/SDL_syswm.h"
 
 extern Button SideMenu[sm_total];
 extern Button FileMenu[fm_total];
@@ -87,11 +89,14 @@ void ToggleSimulation(bool *running, unsigned char *updateOrder)
     else
     {
         *running = true;
-        for(int i = 0; i < 256; i ++)
+        for (int i = 0; i < 256; i++)
             updateOrder[i] = i;
-        for(int i = 0; i < componentCount; i ++){
-            for(int j = i; j < componentCount; j ++){
-                if (ComponentList[i].childCount > ComponentList[j].childCount){
+        for (int i = 0; i < componentCount; i++)
+        {
+            for (int j = i; j < componentCount; j++)
+            {
+                if (ComponentList[i].childCount > ComponentList[j].childCount)
+                {
                     unsigned char tmp = updateOrder[i];
                     updateOrder[i] = updateOrder[j];
                     updateOrder[j] = tmp;
@@ -324,15 +329,18 @@ void DeleteComponent(int *grid, Pair gridPos)
     componentCount--;
 }
 
-void UpdateChildCount(int index, bool inc){
+void UpdateChildCount(int index, bool inc)
+{
     if (inc)
         ComponentList[index].childCount++;
     else
         ComponentList[index].childCount--;
     AlreadyUpdated[index] = true;
     Component compo = ComponentList[index];
-    for (int i = 0; i < compo.inum; i ++){
-        if(compo.inpSrc[i].x >= 0){
+    for (int i = 0; i < compo.inum; i++)
+    {
+        if (compo.inpSrc[i].x >= 0)
+        {
             if (!AlreadyUpdated[compo.inpSrc[i].x])
                 UpdateChildCount(compo.inpSrc[i].x, inc);
         }

@@ -1,5 +1,4 @@
 #include "draw.h"
-#include <stdio.h>
 #define cell(y, x) grid[y * GRID_ROW + x]
 
 #define BG1 59, 55, 53, 255
