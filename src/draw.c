@@ -77,18 +77,13 @@ void DisplayText(char *message, SDL_Rect dest)
     int totalWidth = 0;
     float factor = 1;
     for (; *tmp; tmp++)
-    {
         totalWidth += characterWidth[*tmp - 32];
-    }
     SDL_Rect charDest = {.y = dest.y, .h = dest.h};
 
     if (totalWidth > dest.w)
-    {
-        charDest.x = dest.x;
         factor = dest.w / (float)totalWidth;
-    }
-    else
-        charDest.x = dest.x + (dest.w - totalWidth) / 2;
+    totalWidth *= factor;
+    charDest.x = dest.x + (dest.w - totalWidth) / 2;
 
     for (int i = 0; *message; message++, i++)
     {
@@ -100,36 +95,12 @@ void DisplayText(char *message, SDL_Rect dest)
 
 void RenderGateText(SDL_Rect compo, Type type)
 {
-    SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE * SCALE,
-                         0, CELL_SIZE * SCALE * 2};
-    if (type == g_nand || type == g_xnor)
-    {
-        textRect.x -= 3 * CELL_SIZE * SCALE / 2;
-        textRect.w = 3 * CELL_SIZE * SCALE;
-        textRect.h = textRect.h * 3 / 4;
-        textRect.y = compo.y + compo.h / 2 - textRect.h / 2;
-    }
-    else if (type == g_or)
-    {
-        textRect.x -= CELL_SIZE * SCALE;
-        textRect.y += 6 * SCALE / 10;
-        textRect.w = 2 * CELL_SIZE * SCALE;
-        textRect.h = textRect.h * 3 / 4;
-    }
-    else if (type == g_not)
-    {
-        textRect.x -= 3 * CELL_SIZE * SCALE / 4;
-        textRect.w = 3 * CELL_SIZE * SCALE / 2;
-        textRect.h = CELL_SIZE * SCALE;
-        textRect.y = compo.y;
-    }
-    else
-    {
-        textRect.x -= 3 * CELL_SIZE * SCALE / 2;
-        textRect.w = 3 * CELL_SIZE * SCALE;
-        textRect.y += 4 * SCALE / 10;
-        textRect.h = textRect.h * 4 / 5;
-    }
+    SDL_Rect textRect = {compo.x + compo.w / 2, compo.y + compo.h / 2 - CELL_SIZE * SCALE / 2,
+                         0, CELL_SIZE * SCALE};
+    char *tmp = compoTexts[type];
+    for (; *tmp; tmp++)
+        textRect.w += characterWidth[*tmp - 32];
+    textRect.x -= textRect.w / 2;
     if (type >= g_and || type == g_not)
         DisplayText(compoTexts[type], textRect);
 }

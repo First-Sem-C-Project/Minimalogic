@@ -37,8 +37,8 @@ int time = 0;
 void InitFont()
 {
     TTF_Init();
-    font = TTF_OpenFont("roboto.ttf", 20);
-    displayFont = TTF_OpenFont("Segment7Standard.ttf", 100);
+    font = TTF_OpenFont("ui_font.ttf", 25);
+    displayFont = TTF_OpenFont("led_font.otf", 100);
     if (font == NULL || displayFont == NULL)
     {
         SDL_Log("Failed to load the font: %s\n", TTF_GetError());
@@ -141,8 +141,8 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         exit(-1);
     window =
-        SDL_CreateWindow("MinimaLogic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
-                         WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+        SDL_CreateWindow("MinimaLogic", 0, 0, WINDOW_WIDTH,
+                         WINDOW_HEIGHT, SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(
         window, -1, SDL_RENDERER_SOFTWARE);
     if (!(window && renderer))
@@ -156,6 +156,9 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
     InitMenu(w, h, false);
     InitFont();
     CharacterMap();
+    TTF_CloseFont(font);
+    TTF_CloseFont(displayFont);
+    TTF_Quit();
 }
 
 void DestroyTextures()
@@ -171,9 +174,6 @@ void CloseEverything()
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     DestroyTextures();
-    TTF_CloseFont(font);
-    TTF_CloseFont(displayFont);
-    TTF_Quit();
     SDL_Quit();
 }
 

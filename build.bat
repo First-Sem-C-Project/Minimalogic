@@ -79,7 +79,8 @@ set SDL2MinGw_DLL="..\..\..\Libraries\SDL2MinGw\SDL2-2.0.14\x86_64-w64-mingw32\b
 
 set SDL2MinGw_ttf_Library="../../../Libraries/SDL2MinGw/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib/"
 set SDL2MinGw_ttf_DLL="..\..\..\Libraries\SDL2MinGw\SDL2_ttf-2.0.15\x86_64-w64-mingw32\bin\*.dll"
-set FontFile="..\..\fonts\*.ttf"
+set UIFont="..\..\fonts\anka-coder-narrow\*.ttf"
+set LEDFont="..\..\fonts\segment7\*.otf"
 
 if not exist "bin" mkdir bin
 
@@ -92,7 +93,14 @@ if not exist "bin\MSVCBuild" mkdir bin\MSVCBuild
 pushd bin\MSVCBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
-xcopy %FontFile% .\ /Y
+if not exist "ui_font.ttf" (
+xcopy %UIFont% .\ /Y
+ren "AnkaCoder-C75-r.ttf" "ui_font.ttf"
+)
+if not exist "led_font.otf" (
+xcopy %LEDFont% .\ /Y
+ren "Segment7Standard.otf" "led_font.otf"
+)
 call cl -I%SDL2_Include% %CLFlags% -nologo -Zi -EHsc %SourceFiles% -Fe%OutputName% /link /LIBPATH:%SDL2_Library% SDL2.lib SDL2main.lib Shell32.lib Comdlg32.lib /LIBPATH:%SDL2_ttf_Library% SDL2_ttf.lib /subsystem:windows
 popd
 echo MSVC Build Complete
@@ -111,7 +119,14 @@ if not exist "bin\ClangBuild" mkdir bin\ClangBuild
 pushd bin\ClangBuild
 xcopy %SDL2_DLL% .\ /Y
 xcopy %SDL2_ttf_DLL% .\ /Y
-xcopy %FontFile% .\ /Y
+if not exist "ui_font.ttf" (
+xcopy %UIFont% .\ /Y
+ren "AnkaCoder-C75-r.ttf" "ui_font.ttf"
+)
+if not exist "led_font.otf" (
+xcopy %LEDFont% .\ /Y
+ren "Segment7Standard.otf" "led_font.otf"
+)
 call clang -I%SDL2_Include% -L%SDL2_Library% -L%SDL2_ttf_Library% %CLANGFlags% %SourceFiles% -o %OutputName% -lSDL2main -lSDL2 -lSDL2_ttf -lShell32 -lComdlg32 -Xlinker -subsystem:windows
 echo Clang Build Complete
 echo ----------------------------------------
@@ -130,7 +145,14 @@ if not exist "bin\GccBuild" mkdir bin\GccBuild
 pushd bin\GccBuild
 xcopy %SDL2MinGw_DLL% .\ /Y
 xcopy %SDL2MinGw_ttf_DLL% .\ /Y
-xcopy %FontFile% .\ /Y
+if not exist "ui_font.ttf" (
+xcopy %UIFont% .\ /Y
+ren "AnkaCoder-C75-r.ttf" "ui_font.ttf"
+)
+if not exist "led_font.otf" (
+xcopy %LEDFont% .\ /Y
+ren "Segment7Standard.otf" "led_font.otf"
+)
 call gcc -I%SDL2MinGw_Include% -L%SDL2MinGw_Library% -L%SDL2MinGw_ttf_Library% %GCCFlags% %SourceFiles% -o %OutputName% -w -Wl,-subsystem,windows -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lComdlg32
 echo Gcc Build Complete
 echo ----------------------------------------
