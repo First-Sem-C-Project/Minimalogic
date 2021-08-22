@@ -5,6 +5,8 @@ setlocal
 set SourceFiles=../../src/*.c
 set OutputName=MinimaLogic.exe
 
+pushd ..
+
 set CLFlags=-Od
 set CLANGFlags=-g -gcodeview
 set GCCFlags=-O
@@ -62,20 +64,21 @@ xcopy /Y SDL2MinGw\SDL2_ttf-2.0.15\x86_64-w64-mingw32\include\SDL2\SDL_ttf.h SDL
 popd
 
 :SkipDownloadSDLMinGw
+popd
 
-set SDL2_Include="../../Libraries/SDL2/SDL2-2.0.14/"
-set SDL2_Library="../../Libraries/SDL2/SDL2-2.0.14/lib/x64/"
-set SDL2_DLL="..\..\Libraries\SDL2\SDL2-2.0.14\lib\x64\SDL2.dll"
+set SDL2_Include="../../../Libraries/SDL2/SDL2-2.0.14/"
+set SDL2_Library="../../../Libraries/SDL2/SDL2-2.0.14/lib/x64/"
+set SDL2_DLL="..\..\..\Libraries\SDL2\SDL2-2.0.14\lib\x64\SDL2.dll"
 
-set SDL2_ttf_Library="../../Libraries/SDL2/SDL2_ttf-2.0.15/lib/x64"
-set SDL2_ttf_DLL="..\..\Libraries\SDL2\SDL2_ttf-2.0.15\lib\x64\*.dll"
+set SDL2_ttf_Library="../../../Libraries/SDL2/SDL2_ttf-2.0.15/lib/x64"
+set SDL2_ttf_DLL="..\..\..\Libraries\SDL2\SDL2_ttf-2.0.15\lib\x64\*.dll"
 
-set SDL2MinGw_Include="../../Libraries/SDL2MinGw/SDL2-2.0.14/x86_64-w64-mingw32/include/"
-set SDL2MinGw_Library="../../Libraries/SDL2MinGw/SDL2-2.0.14/x86_64-w64-mingw32/lib/"
-set SDL2MinGw_DLL="..\..\Libraries\SDL2MinGw\SDL2-2.0.14\x86_64-w64-mingw32\bin\SDL2.dll"
+set SDL2MinGw_Include="../../../Libraries/SDL2MinGw/SDL2-2.0.14/x86_64-w64-mingw32/include/"
+set SDL2MinGw_Library="../../../Libraries/SDL2MinGw/SDL2-2.0.14/x86_64-w64-mingw32/lib/"
+set SDL2MinGw_DLL="..\..\..\Libraries\SDL2MinGw\SDL2-2.0.14\x86_64-w64-mingw32\bin\SDL2.dll"
 
-set SDL2MinGw_ttf_Library="../../Libraries/SDL2MinGw/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib/"
-set SDL2MinGw_ttf_DLL="..\..\Libraries\SDL2MinGw\SDL2_ttf-2.0.15\x86_64-w64-mingw32\bin\*.dll"
+set SDL2MinGw_ttf_Library="../../../Libraries/SDL2MinGw/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib/"
+set SDL2MinGw_ttf_DLL="..\..\..\Libraries\SDL2MinGw\SDL2_ttf-2.0.15\x86_64-w64-mingw32\bin\*.dll"
 set UIFont="..\..\fonts\anka-coder-narrow\*.ttf"
 set LEDFont="..\..\fonts\segment7\*.otf"
 
