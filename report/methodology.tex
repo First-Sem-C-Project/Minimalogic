@@ -1,16 +1,32 @@
 \documentclass[report.tex]{subfiles}
 \begin{document}
+\newpage
 \begin{large}
     \section{METHODOLOGY}
     % planning/gathering resources
-    \subsection{Planning}
-    % implementation
-    \subsection{Implementing}
-    % building
-    \subsection{Building}
+    \subsection{Planning and Gathering resources}
+
+    In the planning phase of the project, we made a list of features that we wanted to implement in the program.
+    User interaction (placing, deleting, simulating components, wiring) and drawing were of highest priority on our list.
+    This process of planning persisted throughout the duration of the project as we kept on adding new ideas (undo, redo) and abandoning some old ones (zomming, panning).\\\\
+    As for gathering resources, we couldnt get our hands on any books/ebooks to refer to, so we instead stuck to online tutorials (GeeksforGeeks, tutorialspoint, GitHub gists)
+    as well as the offical documentation of the libraries (libsdl, MSDN).
+    % implementation & building
+    \subsection{Developing}
+
+    Development of the project consisted of implementing features by writing code and then compiling/building them. The code was written using Visual Studio Code and Visual Studio. 
+    Since the project uses SDL2 and SDL2\_ttf libraries, we downloaded development libraries for both SDL2 and SDL2\_ttf and setup our IDEs to work with them. 
+    During the development process, each team member picked worked on implementing different features individually.
+    Since certain features overlapped or had to interact with each other (for eg: wiring and updating components), we also had to collaborate with each other so that the code would fit together nicely. We used git for version control and GitHub to share and collaborate on code.\\\\
+    For building, we wrote a batchfile that would automate the build process. The batchfile would build using GCC, Clang and MSVC of they any of these compilers is found. 
+    It also downloads and copies the necessary libraries by itself. Since the project relies on Windows API, it cannot be built on unix or linux systems.
     % testing and debugging
     \subsection{Testing \& Debugging}
-    % collaboration
-    \subsection{Collaborating}
+
+    Testing the project was done manually. We often asked each other to test the features that we implemented. We also asked some friends to help test the program and obtain some feedback.
+    Although we were unable to perform any automated tests, this method of manually testing features proved to be quite effective as we were able to quickly find and fix many bugs in the program.\\\\
+    Through our testing process we were able to find lots of bugs and bottle necks in our program such as memory leaks, high gpu usage etc.
+    We utilized various debugging and profiling tools provided by Visual Studio Code and Visual Studio to locate and fix these issues. 
+    These tools (such as call stack, watch values etc) allowed us to pinpoint errors and correct them quickly.
 \end{large}
 \end{document}

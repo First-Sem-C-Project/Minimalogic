@@ -1,5 +1,6 @@
 \documentclass[report.tex]{subfiles}
 \begin{document}
+\newpage
 \begin{large}
 \section{INTRODUCTION}
     % what is the program
@@ -17,12 +18,24 @@
     Other standard headers that are available with all modern development environments have also been used.
     % describe a little bit about C
     \subsection{The C language}
+    % describe program structure
+    \subsection{Structure of Code}
     % describe a little about SDL
     % SDL program loop
     \subsection{Simple DirectMedia Layer(SDL2)}
-    % describe program structure
-    \subsection{Structure of Code}
-    % build.bat baby
-    \subsection{Building}
+    Simple DirectMedia Layer is a cross-platform development library designed to pro-
+    vide low level access to audio, keyboard, mouse, joystick, and graphics hardware
+    via OpenGL and Direct3D. It is used by video playback software, emulators, and
+    popular games including Valve’s award winning catalog and many Humble Bundle
+    games.\\\\
+    SDL2 libraries also contains extension to keep SDL as light as possible. Some of the
+    libraries are SDL2\_image,SDL2\_net,SDL2\_mixer,SDL2\_ttf, true type SDL2\_rtf.SDL2\_image
+    is used to load different images,SDL2\_net is used for cross platform networking
+    , SDL2\_mixer is an audio mixer library that supports WAV,MP3,MIDI and OGG.
+    SDL2\_ttf is used to write using fonts in the program and SDL2\_rtf is Rich Text Format
+    library. Out of these libraries, we only used SDL2\_ttf.
+    \\\\
+    The SDL2 library is more oriented towards game development and it provides a vast quantity of features such as 3D rendering, hardware accelerated 2D graphics, multiple windows, multiple audio devices, multiple input devices etc. 
+    Since our program is much simpler than a full fledged game, We were only able to utilize a small fraction of SDL's features.
 \end{large}
 \end{document}
