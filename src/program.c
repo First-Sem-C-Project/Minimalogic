@@ -1,7 +1,6 @@
 #include "program.h"
 #include "interaction.h"
 #include "draw.h"
-#include <stdio.h>
 
 // SDL window and renderer
 SDL_Window *window = NULL;
@@ -215,7 +214,7 @@ void AddDeletedToUndo(int *currentUndoLevel, int *totalUndoLevel, int index)
 }
 
 extern char currentFile[256];
-void ProgramMainLoop(int grid[GRID_ROW * GRID_COL])
+void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
 {
     Selection compoChoice = {.type = 0, .size = 0};
     Pair selected = {-1, -1};

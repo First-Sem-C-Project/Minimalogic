@@ -87,5 +87,5 @@ bool PositionIsValid(int *, int, int, Pair);
 void InitEverything(int *);
 void InitMenu(int, int, bool);
 void CloseEverything();
-void ProgramMainLoop(int *);
+void MainProgramLoop(int *);
 Pair MouseIsOver(int, int, bool, Selection, bool);

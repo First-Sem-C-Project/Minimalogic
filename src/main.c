@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     //Initialize the window, char maps, grid, font, UI etc
     InitEverything(grid);
     //The main program loop. User input, drawing, output, simulation everything happens here
-    ProgramMainLoop(grid);
+    MainProgramLoop(grid);
     //Destroying textures, window, renderer and closing fonts happens here
     CloseEverything();
     return 0;
