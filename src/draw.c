@@ -32,6 +32,7 @@ extern Button FileMenu[fm_total];
 extern Button SideMenu[sm_total];
 extern Button confirmYes;
 extern Button confirmNo;
+extern Button confirmCancel;
 
 extern int characterWidth[127 - 32];
 extern SDL_Texture *characters[127 - 32];
@@ -79,7 +80,8 @@ void DisplayText(char *message, SDL_Rect dest)
         totalWidth += characterWidth[*tmp - 32];
     SDL_Rect charDest = {.y = dest.y, .h = dest.h};
 
-    if (totalWidth > dest.w){
+    if (totalWidth > dest.w)
+    {
         factor = dest.w / (float)totalWidth;
         tmp = message;
         totalWidth = 0;
@@ -215,9 +217,19 @@ void DrawConfirmationScreen(ConfirmationFlags flag)
         if (flag == clearGrid)
             DisplayText("Clear Grid? This action cannot be undone.", message);
         else if (flag == q_saveNewFile || flag == o_saveNewFile || flag == n_saveNewFile)
+        {
+            SDL_SetRenderDrawColor(renderer, confirmCancel.color.r, confirmCancel.color.g, confirmCancel.color.b, 255);
+            SDL_RenderFillRect(renderer, &confirmCancel.buttonRect);
+            DisplayText("Cancel", confirmCancel.buttonRect);
             DisplayText("Do you want to save your work?", message);
+        }
         else if (flag == q_saveChanges || flag == o_saveChanges || flag == n_saveChanges)
+        {
+            SDL_SetRenderDrawColor(renderer, confirmCancel.color.r, confirmCancel.color.g, confirmCancel.color.b, 255);
+            SDL_RenderFillRect(renderer, &confirmCancel.buttonRect);
+            DisplayText("Cancel", confirmCancel.buttonRect);
             DisplayText("Save changes to the file?", message);
+        }
         SDL_SetRenderDrawColor(renderer, confirmYes.color.r, confirmYes.color.g, confirmYes.color.b, 255);
         SDL_RenderFillRect(renderer, &confirmYes.buttonRect);
         DisplayText("Yes", confirmYes.buttonRect);
@@ -253,12 +265,15 @@ void HoverOver(Pair button, bool menuExpanded, ConfirmationFlags showConfirmScre
     }
     else if (button.x == con)
     {
-        if (button.y)
+        if (button.y > 0)
             border = (SDL_Rect){confirmYes.buttonRect.x - 1, confirmYes.buttonRect.y - 1,
                                 confirmYes.buttonRect.w + 2, confirmYes.buttonRect.h + 2};
-        else
+        else if (!button.y)
             border = (SDL_Rect){confirmNo.buttonRect.x - 1, confirmNo.buttonRect.y - 1,
                                 confirmNo.buttonRect.w + 2, confirmNo.buttonRect.h + 2};
+        else
+            border = (SDL_Rect){confirmCancel.buttonRect.x - 1, confirmCancel.buttonRect.y - 1,
+                                confirmCancel.buttonRect.w + 2, confirmCancel.buttonRect.h + 2};
         toHover = showConfirmScreen;
     }
     else if (button.x == fm)

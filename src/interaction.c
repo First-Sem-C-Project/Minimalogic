@@ -8,6 +8,7 @@ extern Button FileMenu[fm_total];
 extern Button Components[g_total];
 extern Button confirmYes;
 extern Button confirmNo;
+extern Button confirmCancel;
 
 extern SDL_Rect InputsCount;
 extern SDL_Rect InputsCountText;
@@ -57,6 +58,11 @@ Pair MouseIsOver(int cursorX, int cursorY, bool menuExpanded, Selection choice, 
              cursorY > confirmNo.buttonRect.y &&
              cursorY < confirmNo.buttonRect.y + confirmNo.buttonRect.h && !fmenuOpen)
         return (Pair){con, 0};
+    else if (cursorX > confirmCancel.buttonRect.x &&
+             cursorX < confirmCancel.buttonRect.x + confirmCancel.buttonRect.w &&
+             cursorY > confirmCancel.buttonRect.y &&
+             cursorY < confirmCancel.buttonRect.y + confirmCancel.buttonRect.h && !fmenuOpen)
+        return (Pair){con, -1};
     for (int i = 0; i < g_total && menuExpanded; i++)
     {
         if (cursorX > Components[i].buttonRect.x &&

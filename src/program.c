@@ -8,12 +8,13 @@ SDL_Renderer *renderer = NULL;
 // Buttons
 Button confirmYes = {.color = {GREEN, 255}};
 Button confirmNo = {.color = {RED, 255}};
+Button confirmCancel = {.color = {BLUE, 255}};
 Button Components[g_total];
 Button SideMenu[sm_total];
 Button FileMenu[fm_total];
 //Fonts and Character Maps
-TTF_Font *font = NULL;        //Font used in UI
-TTF_Font *displayFont = NULL; //Font used in decoders
+TTF_Font *font = NULL;             //Font used in UI
+TTF_Font *displayFont = NULL;      //Font used in decoders
 SDL_Texture *characters[127 - 32]; //Character map for UI
 int characterWidth[127 - 32];
 SDL_Texture *displayChars[16]; //Character Map for decoders
@@ -88,12 +89,17 @@ void InitMenu(int windowWidth, int windowHeight, bool simulating)
     confirmYes.buttonRect.w = 150;
     confirmYes.buttonRect.h = MENU_FONT_SIZE;
     confirmYes.buttonRect.x = windowWidth / 2 - 200 + 25;
-    confirmYes.buttonRect.y = windowHeight / 2 - 100 + 200 - confirmYes.buttonRect.h - 25;
+    confirmYes.buttonRect.y = windowHeight / 2 - 100 + 200 - confirmYes.buttonRect.h - 15 - MENU_FONT_SIZE;
 
     confirmNo.buttonRect.w = 150;
     confirmNo.buttonRect.h = MENU_FONT_SIZE;
     confirmNo.buttonRect.x = windowWidth / 2 - 200 + 400 - 25 - confirmNo.buttonRect.w;
-    confirmNo.buttonRect.y = windowHeight / 2 - 100 + 200 - confirmNo.buttonRect.h - 25;
+    confirmNo.buttonRect.y = windowHeight / 2 - 100 + 200 - confirmNo.buttonRect.h - 15 - MENU_FONT_SIZE;
+
+    confirmCancel.buttonRect.w = 150;
+    confirmCancel.buttonRect.h = MENU_FONT_SIZE;
+    confirmCancel.buttonRect.x = windowWidth / 2 - confirmCancel.buttonRect.w / 2;
+    confirmCancel.buttonRect.y = windowHeight / 2 - 100 + 200 - confirmCancel.buttonRect.h - 10;
 
     for (int i = 0; i < g_total; i++)
     {
@@ -398,6 +404,7 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                 else
                 {
                     Pair clickedButton = MouseIsOver(x, y, menuExpanded, compoChoice, confirmationScreenFlag == fileMenuFlag);
+                    char fname[256];
                     if (confirmationScreenFlag == fileMenuFlag && clickedButton.x == fm)
                     {
                         switch (clickedButton.y)
@@ -407,7 +414,8 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                                 confirmationScreenFlag = n_saveChanges;
                             else if (updated && componentCount > 0)
                                 confirmationScreenFlag = n_saveNewFile;
-                            else{
+                            else
+                            {
                                 NewProject(grid, &updated);
                                 confirmationScreenFlag = none;
                             }
@@ -415,16 +423,16 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                             updated = false;
                             break;
                         case fm_open:
+                            SDL_strlcpy(fname, currentFile, 256);
                             if (fileExists && updated)
                                 confirmationScreenFlag = o_saveChanges;
                             else if (updated && componentCount > 0)
                                 confirmationScreenFlag = o_saveNewFile;
-                            else{
+                            else
+                            {
                                 ChooseFile(grid, false);
                                 confirmationScreenFlag = none;
                             }
-                            ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
-                            updated = false;
                             break;
                         case fm_save:
                             if (fileExists)
@@ -454,7 +462,7 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                             break;
                         }
                     }
-                    else if (clickedButton.x == con && clickedButton.y)
+                    else if (clickedButton.x == con && clickedButton.y > 0)
                     {
                         switch (confirmationScreenFlag)
                         {
@@ -478,6 +486,11 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                         case o_saveNewFile:
                             ChooseFile(grid, true);
                             ChooseFile(grid, false);
+                            if (SDL_strcmp(fname, currentFile))
+                            {
+                                ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                                updated = false;
+                            }
                             break;
                         case n_saveChanges:
                             SaveToFile(grid, currentFile);
@@ -498,12 +511,24 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                         if (confirmationScreenFlag == q_saveChanges || confirmationScreenFlag == q_saveNewFile)
                             run = false;
                         else if (confirmationScreenFlag == o_saveChanges || confirmationScreenFlag == o_saveNewFile)
+                        {
                             ChooseFile(grid, false);
+                            if (SDL_strcmp(fname, currentFile))
+                            {
+                                updated = false;
+                                ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                            }
+                        }
                         else if (confirmationScreenFlag == n_saveChanges || confirmationScreenFlag == n_saveNewFile)
+                        {
                             NewProject(grid, &updated);
+                            updated = false;
+                            ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                        }
                         confirmationScreenFlag = none;
-                        updated = false;
                     }
+                    else if (clickedButton.x == con)
+                        confirmationScreenFlag = none;
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
@@ -754,8 +779,8 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
             }
             if (draw)
             {
-            DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
+                DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
+                         simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
                 draw = false;
             }
         }
