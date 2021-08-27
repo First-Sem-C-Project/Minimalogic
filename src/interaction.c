@@ -17,7 +17,7 @@ unsigned char componentCount;
 extern int time;
 extern SDL_Window *window;
 char currentFile[256];
-Actions undos[MAX_UNDOS];
+Actions UndoBuffer[MAX_UNDOS];
 
 extern bool AlreadyUpdated[256];
 
@@ -365,30 +365,30 @@ void ChangeNumofInputs(bool dec, Selection *choice)
     }
 }
 
-void ResetUndoQueue(int *currentUndoLevel, int *totalUndoLevel)
+void ResetUndoBuffer(int *currentUndoLevel, int *totalUndoLevel)
 {
     for (int i = *currentUndoLevel; i < *totalUndoLevel; i++)
-        undos[i - *currentUndoLevel] = undos[i];
+        UndoBuffer[i - *currentUndoLevel] = UndoBuffer[i];
     *totalUndoLevel -= *currentUndoLevel;
     *currentUndoLevel = 0;
     for (int i = *totalUndoLevel; i < MAX_UNDOS; i++)
-        undos[i].act = '\0';
+        UndoBuffer[i].act = '\0';
 }
 
-void ShiftUndoQueue(int *currentUndoLevel, int *totalUndoLevel)
+void ShiftUndoBuffer(int *currentUndoLevel, int *totalUndoLevel)
 {
     if (*totalUndoLevel < MAX_UNDOS - 1)
         *totalUndoLevel += 1;
     if (*currentUndoLevel > 0)
-        ResetUndoQueue(currentUndoLevel, totalUndoLevel);
+        ResetUndoBuffer(currentUndoLevel, totalUndoLevel);
     for (int i = *totalUndoLevel; i > 0; i--)
-        undos[i] = undos[i - 1];
+        UndoBuffer[i] = UndoBuffer[i - 1];
 }
 
-void ClearUndoQueue(int *currentUndoLevel, int *totalUndoLevel)
+void ClearUndoBuffer(int *currentUndoLevel, int *totalUndoLevel)
 {
     for (int i = 0; i < MAX_UNDOS; i++)
-        undos[i].act = '\0';
+        UndoBuffer[i].act = '\0';
     *totalUndoLevel = 0;
     *currentUndoLevel = 0;
 }
@@ -471,7 +471,7 @@ void Undo(int *grid, int *currentUndoLevel, int totalUndoLevel)
 {
     if (*currentUndoLevel >= totalUndoLevel)
         return;
-    Actions toUndo = undos[*currentUndoLevel];
+    Actions toUndo = UndoBuffer[*currentUndoLevel];
     switch (toUndo.act)
     {
     case 'd':
@@ -528,7 +528,7 @@ void RedoMoving(Move moved, int *grid)
 void Redo(int *grid, int *currentUndoLevel, int totalUndoLevel)
 {
     *currentUndoLevel -= 1;
-    Actions toRedo = undos[*currentUndoLevel];
+    Actions toRedo = UndoBuffer[*currentUndoLevel];
     switch (toRedo.act)
     {
     case 'd':

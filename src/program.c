@@ -21,7 +21,7 @@ SDL_Texture *displayChars[16]; //Character Map for decoders
 SDL_Rect InputsCount;
 SDL_Rect InputsCountText;
 //Array to keep track of changes for undo/redo
-extern Actions undos[MAX_UNDOS];
+extern Actions UndoBuffer[MAX_UNDOS];
 //To check is user is working in a new file or existing file
 bool fileExists = false;
 //List of components on the grid
@@ -192,11 +192,11 @@ void UpdateComponents(unsigned char *updateOrder)
 
 void AddDeletedToUndo(int *currentUndoLevel, int *totalUndoLevel, int index)
 {
-    ShiftUndoQueue(currentUndoLevel, totalUndoLevel);
-    undos[0].act = 'd';
-    undos[0].Action.deleted.deletedCompo = ComponentList[index];
-    undos[0].Action.deleted.index = index;
-    undos[0].Action.deleted.conNo = 0;
+    ShiftUndoBuffer(currentUndoLevel, totalUndoLevel);
+    UndoBuffer[0].act = 'd';
+    UndoBuffer[0].Action.deleted.deletedCompo = ComponentList[index];
+    UndoBuffer[0].Action.deleted.index = index;
+    UndoBuffer[0].Action.deleted.conNo = 0;
     for (int i = 0; i < componentCount; i++)
     {
         Component *compo = &ComponentList[i];
@@ -204,10 +204,10 @@ void AddDeletedToUndo(int *currentUndoLevel, int *totalUndoLevel, int index)
         {
             if (compo->inpSrc[j].x == index)
             {
-                undos[0].Action.deleted.connections[undos[0].Action.deleted.conNo].sendIndex = compo->inpSrc[j].y;
-                undos[0].Action.deleted.connections[undos[0].Action.deleted.conNo].receiveIndex = j;
-                undos[0].Action.deleted.connections[undos[0].Action.deleted.conNo].receiver = i;
-                undos[0].Action.deleted.conNo++;
+                UndoBuffer[0].Action.deleted.connections[UndoBuffer[0].Action.deleted.conNo].sendIndex = compo->inpSrc[j].y;
+                UndoBuffer[0].Action.deleted.connections[UndoBuffer[0].Action.deleted.conNo].receiveIndex = j;
+                UndoBuffer[0].Action.deleted.connections[UndoBuffer[0].Action.deleted.conNo].receiver = i;
+                UndoBuffer[0].Action.deleted.conNo++;
             }
         }
     }
@@ -314,9 +314,9 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                         {
                             InsertComponent(grid, compoChoice, w, h);
                             updated = true;
-                            ShiftUndoQueue(&currentUndoLevel, &totalUndoLevel);
-                            undos[0].act = 'p';
-                            undos[0].Action.placed.component = ComponentList[componentCount - 1];
+                            ShiftUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                            UndoBuffer[0].act = 'p';
+                            UndoBuffer[0].Action.placed.component = ComponentList[componentCount - 1];
                         }
                         else if (!simulating && !drawingWire && !movingCompo)
                         {
@@ -411,7 +411,7 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                                 NewProject(grid, &updated);
                                 confirmationScreenFlag = none;
                             }
-                            ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
+                            ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
                             updated = false;
                             break;
                         case fm_open:
@@ -423,7 +423,7 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                                 ChooseFile(grid, false);
                                 confirmationScreenFlag = none;
                             }
-                            ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
+                            ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
                             updated = false;
                             break;
                         case fm_save:
@@ -534,12 +534,12 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                             for (int i = 0; i < 256; i++)
                                 AlreadyUpdated[i] = false;
                             UpdateChildCount(sender, true);
-                            ShiftUndoQueue(&currentUndoLevel, &totalUndoLevel);
-                            undos[0].act = 'w';
-                            undos[0].Action.wired.sender = sender;
-                            undos[0].Action.wired.connection.receiver = receiver;
-                            undos[0].Action.wired.connection.receiveIndex = receiveIndex - 1;
-                            undos[0].Action.wired.connection.sendIndex = sendIndex * -1 - 1;
+                            ShiftUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                            UndoBuffer[0].act = 'w';
+                            UndoBuffer[0].Action.wired.sender = sender;
+                            UndoBuffer[0].Action.wired.connection.receiver = receiver;
+                            UndoBuffer[0].Action.wired.connection.receiveIndex = receiveIndex - 1;
+                            UndoBuffer[0].Action.wired.connection.sendIndex = sendIndex * -1 - 1;
                         }
                     }
                     drawingWire = false;
@@ -568,11 +568,11 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                     if (initialPos.x != compo.start.x || initialPos.y != compo.start.y)
                     {
                         updated = true;
-                        ShiftUndoQueue(&currentUndoLevel, &totalUndoLevel);
-                        undos[0].act = 'm';
-                        undos[0].Action.moved.before = initialPos;
-                        undos[0].Action.moved.after = finalPos;
-                        undos[0].Action.moved.index = compoMoved;
+                        ShiftUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                        UndoBuffer[0].act = 'm';
+                        UndoBuffer[0].Action.moved.before = initialPos;
+                        UndoBuffer[0].Action.moved.after = finalPos;
+                        UndoBuffer[0].Action.moved.index = compoMoved;
                     }
                 }
             case SDL_MOUSEMOTION:
@@ -722,7 +722,7 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                             confirmationScreenFlag = o_saveNewFile;
                         else
                             ChooseFile(grid, false);
-                        ClearUndoQueue(&currentUndoLevel, &totalUndoLevel);
+                        ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
                         updated = false;
                     }
                     break;
