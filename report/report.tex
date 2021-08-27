@@ -1,12 +1,6 @@
-\documentclass[12pt, final]{article}
-
+\documentclass[12pt, final]{report}
 % for page geometry/layout
 \usepackage[a4paper, margin=0.7in]{geometry}
-% \usepackage[utf8]{inputenc}
-% \usepackage[english]{babel}
-% \usepackage {array}
-% % for non-indented paragraphs separated by an empty line
-% \usepackage{parskip}
 
 \usepackage{menukeys}
 % for one and a half line spacing throughout the document
@@ -23,35 +17,6 @@
 % for including subfiles
 \usepackage{subfiles}
 \usepackage{caption}
-% \usepackage{subcaption}
-
-% for entries that will span multiple rows/columns of a table
-% \usepackage{multirow}
-% \usepackage{multicol}
-
-\usepackage{pgf}
-\usepackage{pgfpages}
-\pgfpagesdeclarelayout{boxed}
-{
-  \edef\pgfpageoptionborder{0pt}
-}
-{
-  \pgfpagesphysicalpageoptions
-  {%
-    logical pages=1,%
-  }
-  \pgfpageslogicalpageoptions{1}
-  {
-    border code=\pgfsetlinewidth{1pt}\pgfstroke,%
-    border shrink=\pgfpageoptionborder,%
-    resized width=.9\pgfphysicalwidth,%
-    resized height=.9\pgfphysicalheight,%
-    center=\pgfpoint{.5\pgfphysicalwidth}{.5\pgfphysicalheight}%
-  }%
-}
-
-\pgfpagesuselayout{boxed}
-
 \usepackage{listings}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -70,11 +35,15 @@
     stringstyle=\color{mauve}
 }
 
-% change the depth of subsections so that subsubsections can also be numbered
+% change the depth of sections so that subsections can also be numbered
 \setcounter{secnumdepth}{3}
+\usepackage{tocloft}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{allcolors=black}
 
 \begin{document}
 \subfile{coverpage}
+\tableofcontents
 \subfile{introduction}
 \subfile{methodology}
 \subfile{implementation}
