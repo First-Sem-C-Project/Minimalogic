@@ -1,6 +1,6 @@
-\documentclass[report.tex]{subfiles}
+\documentclass[report]{subfiles}
 \begin{document}
-\newpage
+\pagenumbering{arabic}
 \chapter{INTRODUCTION}
     % what is the program
     Logic circuits are one of the core components of CPUs. These circuits allow manipulating binary data and carrying out various logical operations.
@@ -51,7 +51,7 @@
         \item{Main Function Section}\\
             There can only be one \texttt{main()} function in the entire C program. The \texttt{main()} function acts as the entry point to the program i.e. execution of program begins from the main function.
     \end{itemize}
-    \subsection*{Sample C Program}
+    \subsection{Sample C Program}
     \begin{mdframed}[backgroundcolor=bg]
 \begin{minted}[xleftmargin=20pt,linenos,breaklines]{c}
 // Linking section
@@ -111,7 +111,7 @@ int main(){
         \includegraphics[width=3in]{graphics/SDL_loop.png}
         \caption{SDL program loop}
     \end{figure}
-    \subsection*{Sample SDL Program}
+    \subsection{Sample SDL Program}
     \begin{mdframed}[backgroundcolor=bg]
     \begin{minted}[xleftmargin=20pt,linenos,breaklines]{c}
 // This programs opens a SDL window which shows a blank screen until the user quits

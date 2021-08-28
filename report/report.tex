@@ -28,7 +28,13 @@
 
 \begin{document}
 \subfile{coverpage}
+\pagenumbering{roman}
+\subfile{acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\newpage
+\renewcommand{\contentsname}{Table of Contents}
 \tableofcontents
+\newpage
 \subfile{introduction}
 \subfile{methodology}
 \subfile{implementation}
