@@ -51,7 +51,7 @@
         \item{Main Function Section}\\
             There can only be one \texttt{main()} function in the entire C program. The \texttt{main()} function acts as the entry point to the program i.e. execution of program begins from the main function.
     \end{itemize}
-    For example:    
+    \subsection*{Sample C Program}
 \begin{lstlisting}
 // Linking section
 #include <stdio.h>
@@ -78,13 +78,13 @@ int main(){
 // Output
 // Hello, Peter
 \end{lstlisting}
-    The source code for our program has been divided into 9 files (4 headers and 5 C files). We have tried to make the C files conform to the above format.
+    The source code for our program has been divided into 9 files (4 headers and 5 C files). Our source code mostly follows this format however at certain parts of the code the format has not been followed for the sake of convinience.
     \begin{figure}[H]
         \centering
         \includegraphics[width=4in]{graphics/component_8h__dep__incl.png}
         \caption{File inclusion graph}
     \end{figure}
-    The files are linked as shown in figure above. Other header files have also been linked which is discussed in the implementation section.
+    The files are linked as shown in figure above. Other header files have also been linked which is discussed in the implementation section. Functions, structs and enums shared across multiple files have been defined in the relevant header file.
     % describe a little about SDL
     % SDL program loop
     \section{Simple DirectMedia Layer(SDL2)}
@@ -102,4 +102,69 @@ int main(){
     \\\\
     The SDL2 library is more oriented towards game development and it provides a vast quantity of features such as 3D rendering, hardware accelerated 2D graphics, multiple windows, multiple audio devices, multiple input devices etc. 
     Since our program is much simpler than a full fledged game, we were only able to utilize a small fraction of SDL's features.
+    \\\\
+    SDL programs run continuously in a loop which is often referred to as the game loop. The loop can be summarized by the following diagram:
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=3in]{graphics/SDL_loop.png}
+        \caption{SDL program loop}
+    \end{figure}
+    \subsection*{Sample SDL Program}
+    \begin{lstlisting}
+// This programs opens a SDL window which shows a blank screen until the user quits
+#include <SDL2/SDL.h>
+#include <stdio.h>
+
+// Declare SDL window and renderer
+SDL_Window *window;
+SDL_Renderer *renderer;
+
+int main(int argc, char ** argv) {
+    // Display error and quit program if SDL cannot be initialized
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        printf("Failed to initialize SDL\n");
+        return -1;
+    }
+    // Create a window
+    window = SDL_CreateWindow("Demo", 0, 0, 500, 500, SDL_WINDOW_RESIZABLE);
+    // Display error and quit program if window cannot be created
+    if (!window) {
+        printf("Could not create a window: %s", SDL_GetError());
+        return -1;
+    }
+    // Create a renderer
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    // Display error and quit program if renderer cannot be created
+    if (!renderer) {
+        printf("Could not create a renderer: %s", SDL_GetError());
+        return -1;
+    }
+    // Main program loop
+    while (true) {
+        // Get the next event
+        SDL_Event event;
+        if (SDL_WaitEventTimeout(&event, 10)) // Wait for event (user input) {
+            if (event.type == SDL_QUIT) {
+                // Exit loop if user presses quit
+                break;
+            }
+	        /* User Input Processing happens here */
+        }
+        // Clear the screen
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        /* Rendering/drawing code goes here */
+        /* Updating code goes here */
+
+        SDL_RenderPresent(renderer); // Update the screen
+        SDL_Delay(10);	// Limit frame rate to reduce CPU load
+    }
+    // Clean up
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 0;
+}
+\end{lstlisting}
 \end{document}
