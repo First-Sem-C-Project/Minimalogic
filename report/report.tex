@@ -1,6 +1,6 @@
 \documentclass[12pt, final]{report}
 % for page geometry/layout
-\usepackage[a4paper, margin=0.7in]{geometry}
+\usepackage[a4paper, margin=1in]{geometry}
 
 % for one and a half line spacing throughout the document
 \usepackage{setspace}
@@ -24,7 +24,12 @@
 \setcounter{secnumdepth}{3}
 \usepackage{tocloft}
 \usepackage[hidelinks]{hyperref}
-\hypersetup{allcolors=black}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdfpagemode=FullScreen,
+}
 
 \begin{document}
 \subfile{coverpage}

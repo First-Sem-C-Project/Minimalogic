@@ -118,7 +118,9 @@
     After the program exits from the loop, it calls some clean up function which destroy the textures, window and renderer and frees memory.\\
         \textbf{\texttt{Algorithm for Closing}}
         \begin{minted}[breaklines]{text}
-    destroy all textures, window and renderer
+    destroy all textures
+    destroy window
+    destroy renderer
     quit SDL
     exit program
         \end{minted}
