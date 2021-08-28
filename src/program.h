@@ -35,7 +35,6 @@
 #define WHITE 255, 255, 255
 #define GRAY 100, 103, 109
 #define BLACK 0, 0, 0
-#pragma endregion
 
 typedef enum
 {
@@ -89,3 +88,4 @@ void InitMenu(int, int, bool);
 void CloseEverything();
 void MainProgramLoop(int *);
 Pair MouseIsOver(int, int, bool, Selection, bool);
+void InitGrid(int *);

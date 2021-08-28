@@ -5,21 +5,21 @@ extern Component ComponentList[256];
 extern int time;
 extern bool AlreadyUpdated[256];
 
-void Tick(Component *component);
-void orGate(Component *component);
-void andGate(Component *component);
-void notGate(Component *component);
-void norGate(Component *component);
-void xorGate(Component *component);
-void xnorGate(Component *component);
-void nandGate(Component *component);
-void DoNothing(Component *component);
-void Decode(Component *component);
-int BinToDec(bool[4]);
+static void Tick(Component *component);
+static void orGate(Component *component);
+static void andGate(Component *component);
+static void notGate(Component *component);
+static void norGate(Component *component);
+static void xorGate(Component *component);
+static void xnorGate(Component *component);
+static void nandGate(Component *component);
+static void DoNothing(Component *component);
+static void Decode(Component *component);
+static int BinToDec(bool[4]);
 
 static void (*operate[g_total])(Component *component) = {DoNothing, DoNothing, Tick, notGate, Decode, Decode, andGate, orGate, nandGate, norGate, xorGate, xnorGate};
 
-void SetInputs(Component *component)
+static void SetInputs(Component *component)
 {
     for (int i = 0; i < component->inum; i++)
     {
@@ -102,7 +102,7 @@ void ClearIO(Component *component)
     }
 }
 
-Component SingleInputComponent(Type type, Pair pos)
+static Component SingleInputComponent(Type type, Pair pos)
 {
     Component component;
     component.size = 1;
@@ -132,7 +132,7 @@ Component SingleInputComponent(Type type, Pair pos)
     return component;
 }
 
-Component MultiInputComponent(Type type, int inpNum, Pair pos)
+static Component MultiInputComponent(Type type, int inpNum, Pair pos)
 {
     Component component;
     component.start = pos;
@@ -149,7 +149,7 @@ Component MultiInputComponent(Type type, int inpNum, Pair pos)
     return component;
 }
 
-Component MultiOutComponent(Type type, Pair pos)
+static Component MultiOutComponent(Type type, Pair pos)
 {
     Component component;
     component.width = 5;
@@ -189,7 +189,7 @@ Component GetComponent(Type type, char inpNum, Pair pos)
         return MultiInputComponent(type, inpNum, pos);
 }
 
-void andGate(Component *component)
+static void andGate(Component *component)
 {
     if (component->inpSrc[0].x >= 0)
     {
@@ -213,7 +213,7 @@ void andGate(Component *component)
     }
 }
 
-void orGate(Component *component)
+static void orGate(Component *component)
 {
     if (component->inpSrc[0].x >= 0)
     {
@@ -236,19 +236,19 @@ void orGate(Component *component)
     }
 }
 
-void nandGate(Component *component)
+static void nandGate(Component *component)
 {
     andGate(component);
     component->outputs[0] = !component->outputs[0];
 }
 
-void norGate(Component *component)
+static void norGate(Component *component)
 {
     orGate(component);
     component->outputs[0] = !component->outputs[0];
 }
 
-void xorGate(Component *component)
+static void xorGate(Component *component)
 {
     if (component->inpSrc[0].x >= 0)
     {
@@ -268,7 +268,7 @@ void xorGate(Component *component)
     }
 }
 
-void xnorGate(Component *component)
+static void xnorGate(Component *component)
 {
     xorGate(component);
     component->outputs[0] = !component->outputs[0];
@@ -286,15 +286,15 @@ void notGate(Component *component)
     }
 }
 
-void Tick(Component *component)
+static void Tick(Component *component)
 {
     if (time == 0)
         component->outputs[0] = !component->outputs[0];
 }
 
-void DoNothing(Component *component) {}
+static void DoNothing(Component *component) {}
 
-void Decode(Component *component)
+static void Decode(Component *component)
 {
     bool toDecode[4];
     char stop = component->type == d_oct ? 3 : 4;
@@ -311,7 +311,7 @@ void Decode(Component *component)
     component->outputs[BinToDec(toDecode)] = true;
 };
 
-int BinToDec(bool binary[4])
+static int BinToDec(bool binary[4])
 {
     return binary[0] * 8 + binary[1] * 4 + binary[2] * 2 + binary[3];
 }

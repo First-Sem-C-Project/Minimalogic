@@ -71,7 +71,7 @@ static SDL_Color compoColors[g_total] = {
     {XOR_COLOR},
     {XNOR_COLOR}};
 
-void DisplayText(char *message, SDL_Rect dest)
+static void DisplayText(char *message, SDL_Rect dest)
 {
     char *tmp = message;
     int totalWidth = 0;
@@ -98,7 +98,7 @@ void DisplayText(char *message, SDL_Rect dest)
     }
 }
 
-void RenderGateText(SDL_Rect compo, Type type)
+static void RenderGateText(SDL_Rect compo, Type type)
 {
     if (type >= g_and || type == g_not)
     {
@@ -132,7 +132,7 @@ static char *FileMenuButtonText[fm_total] = {
     "Exit Menu",
     "Exit Program"};
 
-void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
+static void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
 {
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
@@ -198,7 +198,7 @@ void DrawMenu(bool menuExpanded, bool simulating, bool snap, Selection choice)
     }
 }
 
-void DrawConfirmationScreen(ConfirmationFlags flag)
+static void DrawConfirmationScreen(ConfirmationFlags flag)
 {
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
@@ -251,7 +251,7 @@ void DrawConfirmationScreen(ConfirmationFlags flag)
     }
 }
 
-void HoverOver(Pair button, bool menuExpanded, ConfirmationFlags showConfirmScreen)
+static void HoverOver(Pair button, bool menuExpanded, ConfirmationFlags showConfirmScreen)
 {
     if (button.x < 0)
         return;
@@ -295,7 +295,7 @@ void HoverOver(Pair button, bool menuExpanded, ConfirmationFlags showConfirmScre
     }
 }
 
-void HighlightSelected(Type type)
+static void HighlightSelected(Type type)
 {
     for (int i = 0; i < g_total; i++)
     {
@@ -321,7 +321,7 @@ void UnHighlight(Type type)
     }
 }
 
-void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection choice, bool snap)
+static void AnimateDropDown(char *animationFlag, bool menuExpanded, bool simulating, Selection choice, bool snap)
 {
     if (menuExpanded)
     {
@@ -365,7 +365,7 @@ void WireEndPos(int x, int y)
     tmpWire[1].y = y;
 }
 
-SDL_Point BezierPoint(float t, SDL_Point p[4])
+static SDL_Point BezierPoint(float t, SDL_Point p[4])
 {
     float tt = t * t;
     float ttt = tt * t;
@@ -379,7 +379,7 @@ SDL_Point BezierPoint(float t, SDL_Point p[4])
 }
 
 // The wire looks jagged. Might need to implement anti-aliasing
-void DrawWire(SDL_Point start, SDL_Point end, bool hilo, bool simulating)
+static void DrawWire(SDL_Point start, SDL_Point end, bool hilo, bool simulating)
 {
     SDL_Point wirePoints[MAX_WIRE_PTS];
     for (int i = 0; i < 3; i++)
@@ -426,7 +426,7 @@ void DrawWire(SDL_Point start, SDL_Point end, bool hilo, bool simulating)
     }
 }
 
-void DrawWires(Component component, int pad_x, int pad_y, bool simulating)
+static void DrawWires(Component component, int pad_x, int pad_y, bool simulating)
 {
     SDL_Point start, end;
     for (int i = 0; i < component.inum; i++)
@@ -443,7 +443,7 @@ void DrawWires(Component component, int pad_x, int pad_y, bool simulating)
     }
 }
 
-void DrawIOPins(Component component, int pad_x, int pad_y)
+static void DrawIOPins(Component component, int pad_x, int pad_y)
 {
     SDL_Rect pin;
     pin.w = TERMINAL_SIZE;
@@ -506,7 +506,7 @@ void DrawIOPins(Component component, int pad_x, int pad_y)
     SDL_RenderDrawRects(renderer, border, bnum);
 }
 
-void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int opacity, bool isHigh)
+static void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int opacity, bool isHigh)
 {
     SDL_Rect compo;
     compo.w = w * CELL_SIZE - 1;
@@ -529,7 +529,7 @@ void DrawComponent(int w, int h, Pair pos, Type type, int pad_x, int pad_y, int 
     RenderGateText(compo, type);
 }
 
-void DrawComponents(int pad_x, int pad_y)
+static void DrawComponents(int pad_x, int pad_y)
 {
     for (int i = 0; i < componentCount; i++)
     {
@@ -559,7 +559,7 @@ void DrawComponents(int pad_x, int pad_y)
     }
 }
 
-void DrawGrid(int pad_x, int pad_y)
+static void DrawGrid(int pad_x, int pad_y)
 {
     SDL_SetRenderDrawColor(renderer, BG2);
     for (int x = 0; x <= GRID_ROW; x += SCALE)

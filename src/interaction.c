@@ -137,7 +137,7 @@ void NewProject(int *grid, bool *updated)
     fileExists = false;
 }
 
-void ReadFromFile(int *grid, char *fileName)
+static void ReadFromFile(int *grid, char *fileName)
 {
     FILE *data = fopen(fileName, "rb");
 
@@ -371,7 +371,7 @@ void ChangeNumofInputs(bool dec, Selection *choice)
     }
 }
 
-void ResetUndoBuffer(int *currentUndoLevel, int *totalUndoLevel)
+static void ResetUndoBuffer(int *currentUndoLevel, int *totalUndoLevel)
 {
     for (int i = *currentUndoLevel; i < *totalUndoLevel; i++)
         UndoBuffer[i - *currentUndoLevel] = UndoBuffer[i];
@@ -399,7 +399,7 @@ void ClearUndoBuffer(int *currentUndoLevel, int *totalUndoLevel)
     *currentUndoLevel = 0;
 }
 
-void UndoDeletion(Delete deleted, int *grid)
+static void UndoDeletion(Delete deleted, int *grid)
 {
     int toDelete = deleted.index;
 
@@ -445,7 +445,7 @@ void UndoDeletion(Delete deleted, int *grid)
     }
 }
 
-void UndoWiring(Wiring wired)
+static void UndoWiring(Wiring wired)
 {
     for (int i = 0; i < 256; i++)
         AlreadyUpdated[i] = false;
@@ -455,12 +455,12 @@ void UndoWiring(Wiring wired)
     ComponentList[wired.connection.receiver].inputs[wired.connection.receiveIndex] = NULL;
 }
 
-void UndoPlacing(Place placed, int *grid)
+static void UndoPlacing(Place placed, int *grid)
 {
     DeleteComponent(grid, placed.component.start);
 }
 
-void UndoMoving(Move moved, int *grid)
+static void UndoMoving(Move moved, int *grid)
 {
     Component compo = ComponentList[moved.index];
     for (int i = moved.after.x; i < moved.after.x + compo.width; i++)
@@ -498,12 +498,12 @@ void Undo(int *grid, int *currentUndoLevel, int totalUndoLevel)
     *currentUndoLevel += 1;
 }
 
-void RedoDeletion(Delete deleted, int *grid)
+static void RedoDeletion(Delete deleted, int *grid)
 {
     DeleteComponent(grid, deleted.deletedCompo.start);
 }
 
-void RedoWiring(Wiring wired)
+static void RedoWiring(Wiring wired)
 {
     for (int i = 0; i < 256; i++)
         AlreadyUpdated[i] = false;
@@ -512,13 +512,13 @@ void RedoWiring(Wiring wired)
     ComponentList[wired.connection.receiver].inputs[wired.connection.receiveIndex] = &ComponentList[wired.sender];
 }
 
-void RedoPlacing(Place placed, int *grid)
+static void RedoPlacing(Place placed, int *grid)
 {
     Selection placing = {.type = placed.component.type, .size = placed.component.inum, .pos = placed.component.start};
     InsertComponent(grid, placing, placed.component.width, placed.component.size);
 }
 
-void RedoMoving(Move moved, int *grid)
+static void RedoMoving(Move moved, int *grid)
 {
     Component compo = ComponentList[moved.index];
     for (int i = moved.before.x; i < moved.before.x + compo.width; i++)

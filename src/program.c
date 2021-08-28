@@ -34,7 +34,7 @@ bool AlreadyUpdated[256];
 //To update clocks
 int time = 0;
 
-void InitFont()
+static void InitFont()
 {
     TTF_Init();
     font = TTF_OpenFont("ui_font.ttf", 25);
@@ -144,7 +144,7 @@ void InitGrid(int grid[GRID_ROW * GRID_COL])
 
 void InitEverything(int grid[GRID_ROW * GRID_COL])
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         exit(-1);
     window =
         SDL_CreateWindow("MinimaLogic", 0, 0, WINDOW_WIDTH,
@@ -167,7 +167,7 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
     TTF_Quit();
 }
 
-void DestroyTextures()
+static void DestroyTextures()
 {
     for (int i = 32; i < 127; i++)
         SDL_DestroyTexture(characters[i - 32]);
@@ -183,7 +183,7 @@ void CloseEverything()
     SDL_Quit();
 }
 
-void UpdateComponents(unsigned char *updateOrder)
+static void UpdateComponents(unsigned char *updateOrder)
 {
     for (int i = 0; i < componentCount; i++)
     {
@@ -196,7 +196,7 @@ void UpdateComponents(unsigned char *updateOrder)
     }
 }
 
-void AddDeletedToUndo(int *currentUndoLevel, int *totalUndoLevel, int index)
+static void AddDeletedToUndo(int *currentUndoLevel, int *totalUndoLevel, int index)
 {
     ShiftUndoBuffer(currentUndoLevel, totalUndoLevel);
     UndoBuffer[0].act = 'd';

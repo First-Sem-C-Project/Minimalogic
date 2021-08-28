@@ -1,6 +1,5 @@
 #pragma once
 #include "program.h"
-#pragma endregion
 
 typedef struct
 {
@@ -42,7 +41,6 @@ typedef struct
     } Action;
 } Actions;
 
-void InitGrid(int *);
 void ToggleSimulation(bool *, unsigned char *);
 void ToggleDropDown(bool *, char *);
 

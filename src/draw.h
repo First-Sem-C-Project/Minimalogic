@@ -1,6 +1,5 @@
 #pragma once
 #include "program.h"
-#pragma endregion
 
 typedef enum
 {
