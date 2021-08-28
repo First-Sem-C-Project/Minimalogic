@@ -293,7 +293,7 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                     }
                     if (cursorInGrid)
                     {
-                        if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
+                        if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0 && !simulating)
                         {
                             selected = gridPos;
                             if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
@@ -785,9 +785,6 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
             }
         }
 
-        if (simulating || animating < 8)
-            DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
-                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
         if (simulating)
         {
             for (int i = 0; i < 256; i++)
@@ -799,9 +796,12 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
             selected = (Pair){-1, -1};
         }
 
+        if (simulating || animating < 8)
+            DrawCall(menuExpanded, drawingWire, x, y, compoChoice, pad_x, pad_y,
+                     simulating, &dropDownAnimationFlag, gridPos, grid, movingCompo, selected, snapToGrid, confirmationScreenFlag);
+
         animating += 1;
-        if (animating > 8)
-            animating = 8;
+        animating = (animating > 8)? 8 : animating;
 
         if ((SDL_GetTicks() - begin) < DELAY)
             SDL_Delay(DELAY - (SDL_GetTicks() - begin));
