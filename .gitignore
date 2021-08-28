@@ -1,4 +1,6 @@
 /bin
+/fonts
+/libs
 /report/_minted-report
 *.exe
 *.json
