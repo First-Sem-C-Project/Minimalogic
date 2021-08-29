@@ -71,24 +71,24 @@ static SDL_Color compoColors[g_total] = {
     {XOR_COLOR},
     {XNOR_COLOR}};
 
-static void DisplayText(char *message, SDL_Rect dest)
+static void DisplayText(char *message, SDL_Rect parent)
 {
     char *tmp = message;
     int totalWidth = 0;
     float factor = 1;
     for (; *tmp; tmp++)
         totalWidth += characterWidth[*tmp - 32];
-    SDL_Rect charDest = {.y = dest.y, .h = dest.h};
+    SDL_Rect charDest = {.y = parent.y, .h = parent.h};
 
-    if (totalWidth > dest.w)
+    if (totalWidth > parent.w)
     {
-        factor = dest.w / (float)totalWidth;
+        factor = parent.w / (float)totalWidth;
         tmp = message;
         totalWidth = 0;
         for (; *tmp; tmp++)
             totalWidth += characterWidth[*tmp - 32] * factor;
     }
-    charDest.x = dest.x + (dest.w - totalWidth) / 2;
+    charDest.x = parent.x + (parent.w - totalWidth) / 2;
 
     for (int i = 0; *message; message++, i++)
     {

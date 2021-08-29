@@ -126,7 +126,6 @@ void CharacterMap()
         characterSurface = TTF_RenderText_Blended(font, (char *)&i, white);
         characters[i - 32] = SDL_CreateTextureFromSurface(renderer, characterSurface);
         characterWidth[i - 32] = characterSurface ? characterSurface->w : 0;
-        printf("%d\n", characterWidth[i - 32]);
     }
     for (int i = 0; i < 16; i++)
     {
@@ -297,19 +296,17 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                         {
                             if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock))
                                 ComponentList[cell(gridPos.y, gridPos.x)].outputs[0] = !ComponentList[cell(gridPos.y, gridPos.x)].outputs[0];
-                            if (!simulating){
+                            if (!drawingWire && !movingCompo && !simulating)
+                            {
                                 selected = gridPos;
-                                if (!drawingWire && !movingCompo)
-                                {
-                                    Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
-                                    initialPos = compo.start;
-                                    offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
-                                    compoMoved = cell(gridPos.y, gridPos.x);
-                                    movingCompo = true;
-                                    for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
-                                        for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
-                                            cell(i, j) = -1;
-                                }
+                                Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
+                                initialPos = compo.start;
+                                offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
+                                compoMoved = cell(gridPos.y, gridPos.x);
+                                movingCompo = true;
+                                for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
+                                    for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
+                                        cell(i, j) = -1;
                             }
                         }
                         else
