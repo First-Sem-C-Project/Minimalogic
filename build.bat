@@ -104,7 +104,7 @@ set SDL2MinGw_DLL="..\..\libs\SDL2MinGw\SDL2-2.0.14\x86_64-w64-mingw32\bin\SDL2.
 
 set SDL2MinGw_ttf_Library="../../libs/SDL2MinGw/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib/"
 set SDL2MinGw_ttf_DLL="..\..\libs\SDL2MinGw\SDL2_ttf-2.0.15\x86_64-w64-mingw32\bin\*.dll"
-set UIFont="..\..\fonts\anka-coder-narrow\*.ttf"
+set UIFont="..\..\fonts\anka-coder-narrow\AnkaCoder-C75-r.ttf"
 set LEDFont="..\..\fonts\segment7\*.otf"
 
 if not exist "bin" mkdir bin
