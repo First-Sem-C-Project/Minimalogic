@@ -21,7 +21,7 @@ echo -------------------------------------
 
 if not exist "fonts" mkdir fonts
 pushd fonts
-if exist "fonts/anka-coder-narrow/AnkaCoder-C75-r.ttf" goto SkipDownloadUIFont
+if exist "anka-coder-narrow/AnkaCoder-C75-r.ttf" goto SkipDownloadUIFont
 echo ----------------------------------------
 echo Downloading UI Font
 echo ----------------------------------------
@@ -30,7 +30,7 @@ mkdir anka-coder-narrow
 tar -zxvf anka.zip -C anka-coder-narrow
 del anka.zip
 :SkipDownloadUIFont
-if exist "fonts/segment7/Segment7Standard.otf" goto SkipDownloadLEDFont
+if exist "segment7/Segment7Standard.otf" goto SkipDownloadLEDFont
 echo ----------------------------------------
 echo Downloading LED Font
 echo ----------------------------------------
@@ -50,7 +50,7 @@ goto DownloadSDL
 where clang >nul 2>nul
 IF %ERRORLEVEL% NEQ 0 goto SkipDownloadSDL
 :DownloadSDL
-if exist "libs/SDL2/" goto SkipDownloadSDL
+if exist "SDL2/" goto SkipDownloadSDL
 mkdir SDL2
 echo ----------------------------------------
 echo Downloading SDL
@@ -72,7 +72,7 @@ ren "SDL2\SDL2-2.0.14\include" "SDL2"
 where gcc >nul 2>nul
 IF %ERRORLEVEL% NEQ 0 goto SkipDownloadSDLMinGw
 
-if exist "libs/SDL2MinGw/" goto SkipDownloadSDLMinGw
+if exist "SDL2MinGw/" goto SkipDownloadSDLMinGw
 mkdir SDL2MinGw
 echo ----------------------------------------
 echo Downloading SDLMinGw
