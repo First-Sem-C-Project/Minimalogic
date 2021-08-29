@@ -13,7 +13,7 @@
     \subsection{Initialize}
     When the program is launched, initialization is carried out. If initialization is unsucessful, the program will display and error and quit. During this process, the libraries used by the program (SDL2 and SDL2\_ttf) are initialized. Then the SDL window and renderer are created. Fonts used to display text in the program are loaded and then a character map is created using the fonts. Since SDL2\_ttf ant the fonts are no longer required after the character map has been created, the fonts get closed and SDL2\_ttf is quit.\\
         \textbf{\texttt{Algorithm for Inititalizing}}
-        \begin{minted}[breaklines]{text}
+        \begin{verbatim}
     initialize SDL
     did SDL initialize successfully?
         yes: continue
@@ -43,11 +43,11 @@
         create textures for all characters to be used
     close fonts
     close SDL_ttf
-        \end{minted}
+        \end{verbatim}
     \subsection{Loop}
     All user interaction, simulation and rendering happen inside the main program loop. During each iteration of the loop, the program waits for user input and then processes it as shown in the flowchart. Then all components of the program are rendered (drawn) onto the screen. If the simulation is running then all the components get updated. The loop continues to run until the user quits (presses the X button in title bar or presses Alt+F4) or exits program from the menu.\\
         \textbf{\texttt{Algorithm for Loop}}
-        \begin{minted}[breaklines]{text}
+        \begin{verbatim}
     loop if program continue condition is true{
         await user input
         what state is program in?
@@ -67,7 +67,6 @@
                 if user clicked on Clear Grid
                     show confirmation screen
                         user clicked yes: empty the grid
-                                          remove all components
                 if user clicked on Snap to Grid or user held Shift
                     toggle snapping to grid
                     is snapping toggled on?
@@ -113,15 +112,15 @@
             draw wires
         delay
     }
-        \end{minted}
+        \end{verbatim}
     \subsection{Close}
     After the program exits from the loop, it calls some clean up function which destroy the textures, window and renderer and frees memory.\\
         \textbf{\texttt{Algorithm for Closing}}
-        \begin{minted}[breaklines]{text}
+        \begin{verbatim}
     destroy all textures
     destroy window
     destroy renderer
     quit SDL
     exit program
-        \end{minted}
+        \end{verbatim}
 \end{document}

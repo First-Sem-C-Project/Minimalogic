@@ -52,8 +52,7 @@
             There can only be one \texttt{main()} function in the entire C program. The \texttt{main()} function acts as the entry point to the program i.e. execution of program begins from the main function.
     \end{itemize}
     \subsection{Sample C Program}
-    \begin{mdframed}[backgroundcolor=bg]
-\begin{minted}[xleftmargin=20pt,linenos,breaklines]{c}
+\begin{lstlisting}
 // Linking section
 #include <stdio.h>
 // Here, the C standard library stdio.h (standard input output) has been included
@@ -78,8 +77,7 @@ int main(){
 
 // Output
 // Hello, Peter
-\end{minted}
-    \end{mdframed}
+\end{lstlisting}
     The source code for our program has been divided into 9 files (4 headers and 5 C files). Our source code mostly follows this format however at certain parts of the code the format has not been followed for the sake of convinience.
     \begin{figure}[H]
         \centering
@@ -112,8 +110,7 @@ int main(){
         \caption{SDL program loop}
     \end{figure}
     \subsection{Sample SDL Program}
-    \begin{mdframed}[backgroundcolor=bg]
-    \begin{minted}[xleftmargin=20pt,linenos,breaklines]{c}
+    \begin{lstlisting}
 // This programs opens a SDL window which shows a blank screen until the user quits
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -169,6 +166,5 @@ int main(int argc, char ** argv) {
     SDL_Quit();
     return 0;
 }
-\end{minted}
-    \end{mdframed}
+\end{lstlisting}
 \end{document}

@@ -22,4 +22,78 @@
     \subsection{main.c}
     As mentioned earlier, this file is kept as clean as possible by defining the main loop in program.c. Inside this file, the current working directory is changed to the folder containing the executable and font files, so that the font files are always found regardless of where the program is run from. This is done using the <direct.h> library.
     The main function calls functions for initialization, the main program loop, and finally closing the program.
+    
+    \section{Rendering}
+    There are generally two ways to display graphic elements in an SDL window - displaying images using SDL surfaces or hardware rendering with textures and renderer. This program uses the later as the elements are too versatile to store them as bitmaps.
+    \subsection{Render Color}
+    Each element on the screen may have a different color. So the renderer stores the color information when drawing anything on the screen. This information is stored if 4 channels commonly known as rgba format. The first three channels indicate intensity of red, green, and blue color respectively. The last channel is used to store the opaqueness of the element. The higher the value the higher the intensity. Before drawing an element on the screen, we must make sure that the renderer is set to the correct color value. This can be done using as shown below.
+\begin{lstlisting}
+//SDL_SetRenderDrawColor (renderer, red, green, blue, alpha);
+SDL_SetRenderDrawColor (renderer, 255, 255, 255, 255);          //opaque white color
+\end{lstlisting}
+		
+    	
+    \subsection{Drawing Lines}
+    SDL provides direct functionality to draw a straight line between two points. The data doesn't need to be stored anywhere instead we can simply pass the co-ordinates of the points as parameters to the SDL\_RenderDrawLine function and it will draw a line between those points for us. The co-ordinates are relative to the top left point of the window. This function has been used to draw the grid lines and border around the rectangular elements to indicate hovering.
+\begin{lstlisting}	
+//SDL_RenderDrawLine (renderer, startX, startY, endX, endY);
+SDL_SetRenderDrawColor (renderer, 0, 0, 50, 50);            //diagonal line form top left corner
+\end{lstlisting}
+		
+    	
+    \subsection{Drawing Rectangles}
+    In exchange for the low level access SDL provides, a lot of abstraction has been taken away. A rectangle is arguably the most complicated shape that can be drawn directly from the renderer in SDL. It can either be a rectangular outline or a solid rectangle filled with the current color configurations. In order to do so, the data for a rectangle must be stored using SDL\_Rect structure.
+	\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphics/button_structure.png}
+    \caption{Button Structure}
+	\end{figure}
+The structure for Button contains a buttonRect element which stores the position and size information for that button. Later, it is used to draw the rectangle as follows:
+\begin{lstlisting}
+//SDL_RenderFillRect (renderer, &rectangle);
+SDL_SetRenderDrawColor (renderer, &Run.buttonRect);            //the rectangle for the Run button
+\end{lstlisting}
+		
+    	
+    \subsection{Rendering Text}
+    As mentioned earlier, the text rendering is handled by an extension of the SDL library - SDL\_ttf. It provides the functionality to load ttf or rtf fonts and create textures from them. An array of texture pointers is used to store the necessary ASCII characters. A texture is a structure that stores pixel data that can only be accessed through the GPU. Later, this array is used to display any message we want.
+\begin{lstlisting}
+//display the text stored in message
+SDL_Rect dst = {.x = 0, .y = 0, .h = 24};   // h represents the font size
+for(int i = 0 ; i < strlen(message); i++){
+	//width of each character is different
+	dst.w = characterWidth[(int)message[i]]; 
+	//display the texture 
+	SDL_RenderCopy(renderer, characters[(int)message[i]], NULL, &dst); 
+	dst.x += dst.w;           //shift the starting position 
+}
+\end{lstlisting}
+This program uses similar method to display text but with additional functionality to prevent text overflow since the text must stay within the button or component rectangle.
+
+	\subsection{Drawing Wires}
+	 Drawing straight lines as wires would clog up the canvas and the circuits would look untidy, so a cubic Bezier curve is used to draw wires. A Bezier curve uses a set of fixed anchor points to draw a curve of certain order. The algorithm to trace such a curve comprises of nested linear interpolation. The level of nesting is determined by the degree of the curve. Here, is an example of a Bezier curve.
+	 \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphics/bezier_curve.png}
+    \caption{Bezier Curve}
+	\end{figure}
+This can be implemented as follows:
+\begin{lstlisting}
+// p[4] are the four anchor points
+static SDL_Point BezierPoint(float t, SDL_Point p[4])
+{
+    float tt = t * t;
+    float ttt = tt * t;
+    float u = 1 - t;
+    float uu = u * u;
+    float uuu = uu * u;
+
+	//returns a point on the curve for a certain value of t
+    return (SDL_Point){
+       uuu * p[0].x + 3 * uu * t * p[1].x + 3 * u * tt * p[2].x + ttt * p[3].x,
+       uuu * p[0].y + 3 * uu * t * p[1].y + 3 * u * tt * p[2].y + ttt * p[3].y};
+}
+/* Changing the value of t from 0 to 1 in 100 steps will give 100 points on the curve. We can draw lines between consecutive points to get the desired curve.*/
+\end{lstlisting}
+    
 \end{document}

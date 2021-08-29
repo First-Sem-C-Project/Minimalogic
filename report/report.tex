@@ -17,9 +17,26 @@
 % for including subfiles
 \usepackage{subfiles}
 \usepackage{caption}
-\usepackage{minted}
-\usepackage{mdframed}
-\definecolor{bg}{rgb}{0.8,0.8,0.8}
+\usepackage{listings}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{slightgray}{rgb}{0.9,0.9,0.9}
+\lstset{
+    frame=tb,
+    columns=flexible,
+    language=C,
+    basicstyle=\small\ttfamily,
+    showstringspaces=false,
+    columns=flexible,
+    breaklines=true,
+    numbers=left,
+    backgroundcolor=\color{slightgray},
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{dkgreen},
+    stringstyle=\color{mauve}
+}
 % change the depth of sections so that subsections can also be numbered
 \setcounter{secnumdepth}{3}
 \usepackage{tocloft}
@@ -28,7 +45,6 @@
     colorlinks=true,
     linkcolor=black,
     urlcolor=blue,
-    pdfpagemode=FullScreen,
 }
 
 \begin{document}
