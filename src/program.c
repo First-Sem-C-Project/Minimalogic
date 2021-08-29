@@ -293,21 +293,23 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                     }
                     if (cursorInGrid)
                     {
-                        if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0 && !simulating)
+                        if (!WireIsValid(grid, gridPos, x, y, pad_x, pad_y) && cell(gridPos.y, gridPos.x) >= 0)
                         {
-                            selected = gridPos;
-                            if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock && !simulating))
+                            if (ComponentList[cell(gridPos.y, gridPos.x)].type == state || (ComponentList[cell(gridPos.y, gridPos.x)].type == clock))
                                 ComponentList[cell(gridPos.y, gridPos.x)].outputs[0] = !ComponentList[cell(gridPos.y, gridPos.x)].outputs[0];
-                            if (!drawingWire && !movingCompo)
-                            {
-                                Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
-                                initialPos = compo.start;
-                                offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
-                                compoMoved = cell(gridPos.y, gridPos.x);
-                                movingCompo = true;
-                                for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
-                                    for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
-                                        cell(i, j) = -1;
+                            if (!simulating){
+                                selected = gridPos;
+                                if (!drawingWire && !movingCompo)
+                                {
+                                    Component compo = ComponentList[cell(gridPos.y, gridPos.x)];
+                                    initialPos = compo.start;
+                                    offset = (Pair){gridPos.x - initialPos.x, gridPos.y - initialPos.y};
+                                    compoMoved = cell(gridPos.y, gridPos.x);
+                                    movingCompo = true;
+                                    for (int i = initialPos.y; i < initialPos.y + compo.size; i++)
+                                        for (int j = initialPos.x; j < initialPos.x + compo.width; j++)
+                                            cell(i, j) = -1;
+                                }
                             }
                         }
                         else
