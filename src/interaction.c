@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include "interaction.h"
 #include <windows.h>
-#define SDL_MAIN_HANDLED
 #include "SDL2/SDL_syswm.h"
 
 extern Button SideMenu[sm_total];
