@@ -2,11 +2,11 @@
 ## Behold! INFINITE POWER!!
 <p align="center">
   <img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/infinite_power.gif"><br>
-  Does any other digital logic simulator allow you to do THIS? We think not.
+  Does any other digital logic simulator allow you to do THIS? Maybe not! Definitely not!!
 </p>
 
 ## What is Minimalogic?
-Minimalogic is a simple digital logic simulator made in C using SDL2 as a project for completion of the course Computer Programming [CT 401]<br>
+Minimalogic is a simple digital logic simulator made in C using SDL2 as a project for completion of the course Computer Programming [CT 401]. It was coded with a specific objective of getting the simulation job done easily, the curiousity emanated from our regular Digital Logics lab.<br>
 Year: I<br>
 Part: I<br>
 ### Minimalogic was made by:
@@ -37,7 +37,7 @@ cd .\Minimalogic
 
 _Note: Compiling with gcc might fail_
 
-## Some ScreenShots
+## Some ScreenShots from 'MinimaLogic Simulator'
 <p><img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/report/graphics/initial_screen.png"></p>
 <p><img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/report/graphics/jkff_normal.png"></p>
 <p><img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/report/graphics/jkff_simulating.png"></p>
