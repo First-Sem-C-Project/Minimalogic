@@ -19,12 +19,12 @@ TTF_Font *displayFont = NULL;      //Font used in decoders
 SDL_Texture *characters[127 - 32]; //Character map for UI
 int characterWidth[127 - 32];
 SDL_Texture *displayChars[16]; //Character Map for decoders
-//To display no. of inputs for multi-input gates
+//Displays no. of inputs for multi-input gates
 SDL_Rect InputsCount;
 SDL_Rect InputsCountText;
 //Array to keep track of changes for undo/redo
 extern Actions UndoBuffer[MAX_UNDOS];
-//To check is user is working in a new file or existing file
+//Checks if user is working in a new file or existing file
 bool fileExists = false;
 //List of components on the grid
 extern Component ComponentList[256];
