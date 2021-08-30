@@ -139,7 +139,6 @@ exit program
     its input(s). To get the desired output for any component from its
     inputs, the source file defines different component specific
     functions. The working of these functions is pretty straight-forward
-
     as they follow the standard logic operations available in C. As for
     the clock, its output is generated based on the value of time
     variable, which changes as the program progresses, defined in
@@ -162,7 +161,7 @@ exit program
     characters is predefined when the program starts. The font used is
     robotoo.ttf. The character map is later used to display any text
     (ASCII based) on the screen.
-    interaction.h and interaction.c:
+\subsection{interaction.h and interaction.c}
     User interaction is an integral part of any program, even more so
     for programs that use both mouse and keyboard to take input.
     These two files are responsible for handling such interactions. The
@@ -173,7 +172,6 @@ exit program
     placed on the grid. Since these functions handle interaction with
     the user, they are usually only called when an event occurs. An
     SDL event encompasses mouse clicks, keyboard presses, etc.
-
     Different functions are called for different events. This
     coordination is handled in the file program.c.
 \subsection{program.h and program.c}
