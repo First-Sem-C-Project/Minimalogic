@@ -1,12 +1,11 @@
 /bin
 /fonts
 /libs
-/report/_minted-report
 *.exe
 *.json
 *.aux
 *.log
-/report/*.pdf
+/report/src/*.pdf
 *.out
 *.toc
 *.zip
