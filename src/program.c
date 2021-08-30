@@ -477,8 +477,6 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                                 NewProject(grid, &updated);
                                 confirmationScreenFlag = none;
                             }
-                            ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
-                            updated = false;
                             break;
                         case fm_open:
                             SDL_strlcpy(fname, currentFile, 256);
@@ -540,6 +538,11 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                         case o_saveChanges:
                             SaveToFile(grid, currentFile);
                             ChooseFile(grid, false);
+                            if (SDL_strcmp(fname, currentFile))
+                            {
+                                ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                                updated = false;
+                            }
                             break;
                         case o_saveNewFile:
                             ChooseFile(grid, true);
@@ -553,16 +556,19 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                         case n_saveChanges:
                             SaveToFile(grid, currentFile);
                             NewProject(grid, &updated);
+                            ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                            updated = false;
                             break;
                         case n_saveNewFile:
                             ChooseFile(grid, true);
                             NewProject(grid, &updated);
+                            ClearUndoBuffer(&currentUndoLevel, &totalUndoLevel);
+                            updated = false;
                             break;
                         default:
                             break;
                         }
                         confirmationScreenFlag = none;
-                        updated = false;
                     }
                     else if (clickedButton.x == con && !clickedButton.y)
                     {

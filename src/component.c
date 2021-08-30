@@ -36,8 +36,7 @@ static void SetInputs(Component *component)
 
 void update(Component *component)
 {
-    if (component->type != clock)
-        SetInputs(component);
+    SetInputs(component);
     operate[component->type](component);
 }
 
