@@ -1,3 +1,6 @@
 @echo off
+pushd src
 lualatex report.tex 
-"report.pdf"
+xcopy /Y report.pdf ..\
+popd
+

@@ -4,7 +4,7 @@
     \section{Flowchart}
     \begin{figure}[H]
         \centering
-        \includegraphics[width=\textwidth]{graphics/Flowchart.png}
+        \includegraphics[width=\textwidth]{../graphics/Flowchart.png}
         \caption{Flowchart of the program}
     \end{figure}
     \newpage
@@ -27,6 +27,9 @@ were the window and renderer created successfully?
     exit program
 initialize the grid
   fill grid with -1
+had user clicked on a file to open?
+  read from file and update grid
+  update window title
 initialize menu
   set dimensions and positions for all buttons
 initialize SDL_ttf
@@ -123,4 +126,75 @@ destroy renderer
 quit SDL
 exit program
         \end{verbatim}
+    \section{Brief Descriptions of the source files}
+        \subsection{component.c and component.h}
+    As the name suggests, these files contain all the necessary
+    information about the components used in the program. The header
+    file defines a structure named Component that encompasses the
+    details about a component including its size, position, input source,
+    number of inputs, input state(s), output state(s) and other
+    information which is later used.
+    The output of any component (except clock and state) depends on
+    its input(s). To get the desired output for any component from its
+    inputs, the source file defines different component specific
+    functions. The working of these functions is pretty straight-forward
+
+    as they follow the standard logic operations available in C. As for
+    the clock, its output is generated based on the value of time
+    variable, which changes as the program progresses, defined in
+    program.c. The clock inverts its current state when time reaches a
+    certain value. The output of state is inverted when the user clicks
+    on it.
+\subsection{draw.h and draw.c}
+    These two files contain the variables and functions that are
+    responsible for drawing all the elements that are visible on the
+    screen such as Buttons, Components, and Wires. It also handles
+    rendering text in the SDL window where necessary. The header
+    file defines an enumeration of confirmation flags that are later used
+    to ask the user for confirmation on certain operations.
+    The standard rendering functions available in the SDL library are
+    used in order to draw Buttons and Components. However, SDL
+    does not offer the functionality to draw curves. So, a simple
+    algorithm that approximates a cubic Bezier Curve is used to draw
+    wires.
+    As for displaying text, a character map consisting of all the ASCII
+    characters is predefined when the program starts. The font used is
+    robotoo.ttf. The character map is later used to display any text
+    (ASCII based) on the screen.
+    interaction.h and interaction.c:
+    User interaction is an integral part of any program, even more so
+    for programs that use both mouse and keyboard to take input.
+    These two files are responsible for handling such interactions. The
+    header file defines various structures that are necessary for the
+    Undo/Redo functionalities.
+    The source file defines different functions that determine what will
+    happen when a certain button is pressed or when a component is
+    placed on the grid. Since these functions handle interaction with
+    the user, they are usually only called when an event occurs. An
+    SDL event encompasses mouse clicks, keyboard presses, etc.
+
+    Different functions are called for different events. This
+    coordination is handled in the file program.c.
+\subsection{program.h and program.c}
+    To keep the main.c file clean, the main program loop is defined in
+    this file. For this reason, it acts as the centerpiece of the program
+    that coordinates the functions of all other files. To begin with, the
+    header file defines macros for configuring the main window and
+    different elements inside it. Also, the colors that are frequently
+    used in the program are defined here.
+    The source file can be vaguely divided into two parts:
+    Initialization and Main Program Loop. The initialization part is
+    responsible for setting up all the necessary elements needed for the
+    program to function properly. This is a one-time process that
+    occurs when the program is launched.
+    The Main Program Loop, as the name suggests, is a loop that runs
+    over and over until the user exits the program. Everything that the
+    user does inside the program is handled in this section. During
+    each loop, the program checks for events, performs necessary
+    operations based on them, updates the elements on the screen if
+    required, and redraws all of those elements.
+\subsection{main.c}
+    As mentioned earlier, this file is kept as clean as possible by
+    defining the main loop in program.c. The main function calls functions for initialization, the main
+    program loop, and finally closing the program.
 \end{document}
