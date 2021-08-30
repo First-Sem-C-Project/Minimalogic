@@ -37,7 +37,7 @@ cd .\Minimalogic
 
 _Note: Compiling with gcc might fail_
 
-## Some ScreenShots
+## Some ScreenShots from 'MinimaLogic Simulator'
 <p><img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/report/graphics/initial_screen.png"></p>
 <p><img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/report/graphics/jkff_normal.png"></p>
 <p><img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/report/graphics/jkff_simulating.png"></p>
