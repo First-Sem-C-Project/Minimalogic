@@ -46,6 +46,7 @@ void ToggleDropDown(bool *, char *);
 
 void DeleteComponent(int *, Pair);
 void InsertComponent(int *, Selection, int, int);
+void UpdateWindowTitle(char *);
 
 char WireIsValid(int *, Pair, int, int, int, int);
 void ChangeNumofInputs(bool, Selection *);

@@ -34,6 +34,7 @@ extern unsigned char componentCount;
 bool AlreadyUpdated[256];
 //To update clocks
 int time = 0;
+extern char currentFile[256];
 
 static void InitFont()
 {
@@ -159,6 +160,9 @@ void InitEverything(int grid[GRID_ROW * GRID_COL], int argc, char **argv)
     InitGrid(grid);
     if (argc > 1){
         ReadFromFile(grid, argv[1]);
+        fileExists = true;
+        SDL_strlcpy(currentFile, argv[1], 256);
+        UpdateWindowTitle(argv[1]);
     }
 
     int w, h;
@@ -274,7 +278,6 @@ void CollisionCheck(int * grid, Component * compo){
     }
 }
 
-extern char currentFile[256];
 void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
 {
     Selection compoChoice = {.type = 0, .size = 0};
