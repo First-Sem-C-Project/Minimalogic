@@ -372,7 +372,7 @@ By using an array of pointers to keep track of inputs,  we have applied a dort o
 \begin{lstlisting}
 typedef enum{ state, probe, clock, g_not, d_oct, d_4x16, g_and, g_or, g_nand, g_nor, g_xor, g_xnor, g_total} Type;
 \end{lstlisting}
-\textbf{Updating A Component}\\
+\subsection{Updating A Component}
 Updating a component is implemented in the following way: 
 \begin{lstlisting}
 // declaring function for each component
@@ -441,7 +441,7 @@ static void andGate(Component *component)
 // other components work similarly
 \end{lstlisting}
 Here, the working of And gate has been described. Other gates are also updated similarly which can be seen in the full source code.
-\textbf{Updating All Component}\\
+\subsection{Updating All Component}
 As seen above, components placed on the grid only update if the simulation is running. Updating all the components happens through the \texttt{UpdateComponents()} function.
 This function loop through the list of components and updates all of them once using the \texttt{update()} function shown above.
 \begin{lstlisting}
