@@ -6,7 +6,7 @@
 </p>
 
 ## What is Minimalogic?
-Minimalogic is a simple digital logic simulator made in C using SDL2 as a project for completion of the course Computer Programming, it was coded with a specific objective of getting the simulation job done easily, the curiousity emanated from our regular Digital Logics lab. [CT 401]<br>
+Minimalogic is a simple digital logic simulator made in C using SDL2 as a project for completion of the course Computer Programming [CT 401]. It was coded with a specific objective of getting the simulation job done easily, the curiousity emanated from our regular Digital Logics lab.<br>
 Year: I<br>
 Part: I<br>
 ### Minimalogic was made by:
