@@ -84,7 +84,7 @@ typedef struct Button
 } Button;
 
 bool PositionIsValid(int *, int, int, Pair);
-void InitEverything(int *);
+void InitEverything(int *, int, char **);
 void InitMenu(int, int, bool);
 void CloseEverything();
 void MainProgramLoop(int *);

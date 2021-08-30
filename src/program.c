@@ -1,6 +1,7 @@
 #include "program.h"
 #include "interaction.h"
 #include "draw.h"
+#include <direct.h>
 
 // SDL window and renderer
 SDL_Window *window = NULL;
@@ -141,7 +142,7 @@ void InitGrid(int grid[GRID_ROW * GRID_COL])
         grid[i] = -1;
 }
 
-void InitEverything(int grid[GRID_ROW * GRID_COL])
+void InitEverything(int grid[GRID_ROW * GRID_COL], int argc, char **argv)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         exit(-1);
@@ -156,9 +157,18 @@ void InitEverything(int grid[GRID_ROW * GRID_COL])
     SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
 
     InitGrid(grid);
+    if (argc > 1){
+        ReadFromFile(grid, argv[1]);
+    }
+
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
     InitMenu(w, h, false);
+    //Change directory to location of the executable so that the program can find fonts
+    char *path = argv[0], i;
+    for (i = SDL_strlen(path) - 1; path[i] != '\\'; i--);
+    path[i] = '\0';
+    _chdir(path);
     InitFont();
     CharacterMap();
     TTF_CloseFont(font);
@@ -213,6 +223,52 @@ static void AddDeletedToUndo(int *currentUndoLevel, int *totalUndoLevel, int ind
                 UndoBuffer[0].Action.deleted.connections[UndoBuffer[0].Action.deleted.conNo].receiveIndex = j;
                 UndoBuffer[0].Action.deleted.connections[UndoBuffer[0].Action.deleted.conNo].receiver = i;
                 UndoBuffer[0].Action.deleted.conNo++;
+            }
+        }
+    }
+}
+
+void CollisionCheck(int * grid, Component * compo){
+    bool goUp = true, goLeft = true, goDown = true, goRight = true;
+    if (!PositionIsValid(grid, compo->width, compo->size, compo->start))
+    {
+        for (int i = 1; goUp || goLeft || goRight || goDown; i++)
+        {
+            if (goLeft)
+            {
+                compo->start.x -= i;
+                if (compo->start.x < 0)
+                    goLeft = false;
+                if (PositionIsValid(grid, compo->width, compo->size, compo->start))
+                    break;
+                compo->start.x += i;
+            }
+            if (goUp)
+            {
+                compo->start.y -= i;
+                if (compo->start.y < 0)
+                    goUp = false;
+                if (PositionIsValid(grid, compo->width, compo->size, compo->start))
+                    break;
+                compo->start.y += i;
+            }
+            if (goRight)
+            {
+                compo->start.x += i;
+                if (compo->start.x >= GRID_ROW)
+                    goRight = false;
+                if (PositionIsValid(grid, compo->width, compo->size, compo->start))
+                    break;
+                compo->start.x -= i;
+            }
+            if (goDown)
+            {
+                compo->start.y += i;
+                if (compo->start.y >= GRID_COL)
+                    goDown = false;
+                if (PositionIsValid(grid, compo->width, compo->size, compo->start))
+                    break;
+                compo->start.y -= i;
             }
         }
     }
@@ -630,50 +686,7 @@ void MainProgramLoop(int grid[GRID_ROW * GRID_COL])
                     newPos.y = newPos.y < 0 ? 0 : newPos.y;
 
                     compo.start = newPos;
-                    bool goUp = true, goLeft = true, goDown = true, goRight = true;
-
-                    if (!PositionIsValid(grid, compo.width, compo.size, compo.start))
-                    {
-                        for (int i = 1; goUp || goLeft || goRight || goDown; i++)
-                        {
-                            if (goLeft)
-                            {
-                                compo.start.x -= i;
-                                if (compo.start.x < 0)
-                                    goLeft = false;
-                                if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                    break;
-                                compo.start.x += i;
-                            }
-                            if (goUp)
-                            {
-                                compo.start.y -= i;
-                                if (compo.start.y < 0)
-                                    goUp = false;
-                                if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                    break;
-                                compo.start.y += i;
-                            }
-                            if (goRight)
-                            {
-                                compo.start.x += i;
-                                if (compo.start.x >= GRID_ROW)
-                                    goRight = false;
-                                if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                    break;
-                                compo.start.x -= i;
-                            }
-                            if (goDown)
-                            {
-                                compo.start.y += i;
-                                if (compo.start.y >= GRID_COL)
-                                    goDown = false;
-                                if (PositionIsValid(grid, compo.width, compo.size, compo.start))
-                                    break;
-                                compo.start.y -= i;
-                            }
-                        }
-                    }
+                    CollisionCheck(grid, &compo);
                     ComponentList[compoMoved].start = compo.start;
                     SetIOPos(&ComponentList[compoMoved]);
                 }

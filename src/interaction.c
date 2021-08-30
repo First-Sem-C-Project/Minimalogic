@@ -137,7 +137,7 @@ void NewProject(int *grid, bool *updated)
     fileExists = false;
 }
 
-static void ReadFromFile(int *grid, char *fileName)
+void ReadFromFile(int *grid, char *fileName)
 {
     FILE *data = fopen(fileName, "rb");
 

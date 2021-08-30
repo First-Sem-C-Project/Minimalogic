@@ -52,6 +52,7 @@ void ChangeNumofInputs(bool, Selection *);
 
 void ChooseFile(int *, bool saving);
 void SaveToFile(int *, char *);
+void ReadFromFile(int *, char *);
 void NewProject(int *grid, bool *updated);
 void Undo(int *grid, int *currentUndoLevel, int totalUndoLevel);
 void Redo(int *grid, int *currentUndoLevel, int totalUndoLevel);
