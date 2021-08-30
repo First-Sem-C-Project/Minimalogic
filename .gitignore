@@ -6,7 +6,7 @@
 *.json
 *.aux
 *.log
-*.pdf
+/report/*.pdf
 *.out
 *.toc
 *.zip
