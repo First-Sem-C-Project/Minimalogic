@@ -1,3 +1,3 @@
 @echo off
-lualatex -shell-escape report.tex 
+lualatex report.tex 
 "report.pdf"
