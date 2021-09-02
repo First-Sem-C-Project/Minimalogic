@@ -1,5 +1,5 @@
 # Minimalogic
-## Behold! INFINITE POWER!!
+## Behold! UNLIMITED POWER!!
 <p align="center">
   <img src="https://github.com/First-Sem-C-Project/Minimalogic/blob/master/infinite_power.gif"><br>
   Does any other digital logic simulator allow you to do THIS? Maybe not! Definitely not!!
